@@ -1,0 +1,27 @@
+{
+  "name": "uberAnalytics",
+  "version": "0.0.0",
+  "authors": [
+    "Jon Sadka <jonsadka@gmail.com>"
+  ],
+  "description": "visualizing Uber data over time",
+  "keywords": [
+    "d3",
+    "data",
+    "uber",
+    "price",
+    "history",
+    "time"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.4.11"
+  }
+}
