@@ -1,4 +1,4 @@
-(function(){
+
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE VARIABLES/////////////////////////////////////////////
 var width = window.innerWidth,
@@ -6,40 +6,91 @@ var width = window.innerWidth,
 
 var user = {
   startLoc: 'pwll',
-  endLoc: 'sfo'
+  endLoc: 'sfo',
+  carType: 'uberX'
 };
 
+var maxHeight = {
+  surgeHeight: 20
+}
+
 var scales = {
-  // scaleLatitude: d3.scale.linear().domain([-79.7576, -71.8566]).range([0, window.innerHeight]),
-  // scaleLongitude: d3.scale.linear().domain([40.496, 44.9934]).range([0,  window.innerWidth])
+  surgeBarScale: d3.scale.linear().domain([0, maxHeight.surgeHeight]).range([0, height])
 };
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
-var filteredData = [];
 d3.json("data/data.json", function(error, data){
+  if (error) return console.warn(error);
+
+  var filteredData = [];
   for (var i = 0, size = data.length;  i < size; i++){
     var start = data[i].start;
     var end = data[i].end;
     if ( start === user.startLoc && end === user.endLoc){
-      console.log("yes!");
       filteredData.push(data[i]);
     }
   }
+
+  visualize(filteredData);
+
 });
 
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
-var svg = d3.select("body").append("svg")
-                           .attr("width", width)
-                           .attr("height", height)
-                           .attr("fill", "blue");
+function visualize(someData) {
+  var currentCar = chooseCar(user.carType);
 
-svg.selectAll("rect").data(filteredData).enter()
+  var svg = d3.select(".content").append("svg")
+                                 .attr("width", width)
+                                 .attr("height", height);
+
+  /////////////////////////////////////////////////////////////////
+  //SURGE BARS/////////////////////////////////////////////////////
+  var surgeBars = svg.selectAll("rect").data(someData).enter()
                      .append("rect")
-                     .attr("x", 0)
+                     .attr("x", function(d,i){
+                        return i * 5;
+                     })
                      .attr("y", 0)
                      .attr("width", 20)
-                     .attr("height", 100);
-console.log(width, height);
-})();
+                     .attr("height", function(d,i){
+                        var surge = d.prices[currentCar].surge_multiplier;
+                        if ( surge !== 1 ) {
+                          return surge * scales.surgeBarScale(surge);
+                        } else {
+                          return 0;
+                        };
+                     })
+                     .attr("fill", "blue");
+
+  var surgeBarText = svg.selectAll("text").data(someData).enter()
+                         .append("text")
+                         .text(function(d,i){
+                            var surge = d.prices[currentCar].surge_multiplier;
+                            if ( surge !== 1 ) {
+                              console.log(surge)
+                              return surge + '';
+                            };
+                         })
+                         .attr("x", function(d,i){
+                            return i * 5;
+                         })
+                         .attr("y", function(d,i){
+                            var surge = d.prices[currentCar].surge_multiplier;
+                            if ( surge !== 1 ) {
+                              return surge * scales.surgeBarScale(surge);
+                            } else {
+                              return 0;
+                            };
+                         })
+                         .attr("font-size", "11px");
+
+  // console.log(width, height, someData[0].prices, user.carType);
+}
+
+
+var chooseCar = function(carName){
+  if (carName === 'uberX') return 0;
+}
+
