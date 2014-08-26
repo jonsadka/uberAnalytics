@@ -37,7 +37,39 @@ svg {
   stroke: #aaa;
   stroke-linejoin: round;
   stroke-linecap: round;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
+}
+
+.fareline.uberX.min {
+  stroke: red;
+}
+
+.fareline.uberX.max {
+  stroke: red;
+}
+
+.fareline.uberXL.min {
+  stroke: blue;
+}
+
+.fareline.uberXL.max {
+  stroke: blue;
+}
+
+.fareline.uberBLACK.min {
+  stroke: purple;
+}
+
+.fareline.uberBLACK.max {
+  stroke: purple;
+}
+
+.fareline.uberSUV.min {
+  stroke: green;
+}
+
+.fareline.uberSUV.max {
+  stroke: green;
 }
 
 .traceline {

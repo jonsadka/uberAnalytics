@@ -11,11 +11,14 @@ var height = window.innerHeight;
 var graphPct = {
   fareHeight: 0.80,
   surgeHeight: 0.20,
-  surgeWidth: 0.50
+  surgeWidth: 0.60
 };
 
 var fareGraphHeight = height * graphPct.fareHeight - headHeight - bottomPad;
 var barGraphHeight = height * graphPct.surgeHeight - headHeight - bottomPad;
+
+//CREATE CANVAS//////////////////////////////////////////////////
+var svg = d3.select(".content").append("svg").attr("width", width).attr("height", height).attr("id", "graphs");
 
 // GET USER DATA///////////////////////////////////////////////////
 var e = document.getElementById("dayofweek");
@@ -28,7 +31,6 @@ var userEnd = e.options[e.selectedIndex].value;
 var user = {
   startLoc: userStart,
   endLoc: userEnd,
-  carType: 'uberX',
   day: userDay
 };
 
@@ -38,40 +40,37 @@ var updateData = function(userInputs){
   d3.json("data/data.json", function(error, data){
     if (error) return console.warn(error);
 
-    var currentCar = chooseCar(userInputs.carType);
-    var filteredData = [];
     var dataval = {
       totalPoints: 0,
       surgeMax: 0,
-      priceMin: +data[1].prices[currentCar].low_estimate,
+      priceMin: +data[1].prices[0].low_estimate,
       priceMax: 0
     };
 
-    for (var i = 0, size = data.length;  i < size; i++){
-      var start = data[i].start;
-      var end = data[i].end;
-      var fullDate = isoTimeConvert(data[i]);
-      if ( start === userInputs.startLoc && end === userInputs.endLoc && userInputs.day === fullDate.toString().substring(0,3) ){
-        var prices = data[i].prices[currentCar];
-        if ( dataval.surgeMax < prices.surge_multiplier ) dataval.surgeMax = +prices.surge_multiplier;
-        if ( dataval.priceMin > prices.low_estimate ) dataval.priceMin = +prices.low_estimate;
-        if ( dataval.priceMax < prices.high_estimate ) dataval.priceMax = +prices.high_estimate;
-        dataval.totalPoints++;
-        filteredData.push(data[i]);
-      }
-    }
+    var uberXData = formatData(0, data, userInputs, dataval);
+    dataval = uberXData[1];
+    var uberXLData = formatData(1, data, userInputs, dataval);
+    dataval = uberXLData[1]
+    var uberBLACKData = formatData(2, data, userInputs, dataval);
+    dataval = uberBLACKData[1];
+    var uberSUVData = formatData(3, data, userInputs, dataval);
 
-    filteredData = sortDates(filteredData);
+    // console.log(uberXData[0], uberXData[1])
+    // console.log(uberXLData[1])
+    // console.log(uberBLACKData[1])
+    // console.log(uberSUVData[1])
 
-    console.log(dataval);
-    visualize(filteredData, dataval, currentCar);
+    visualize(uberXData[0], uberXData[1], 0);
+    visualize(uberXLData[0], uberXLData[1], 1);
+    visualize(uberBLACKData[0], uberBLACKData[1], 2);
+    visualize(uberSUVData[0], uberSUVData[1], 3);
+
   }); 
 };
 
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
 function visualize(thisdata, v, car) {
-
   //DEFINE DATA BOUNDARY///////////////////////////////////////////
   var startTime = isoTimeConvert(thisdata[0]);
   var endTime = isoTimeConvert(thisdata[v.totalPoints-1]);
@@ -83,8 +82,6 @@ function visualize(thisdata, v, car) {
   };
 
 
-  //CREATE CANVAS//////////////////////////////////////////////////
-  var svg = d3.select(".content").append("svg").attr("width", width).attr("height", height);
 
   //CREATE AXIS/////////////////////////////////////////////////////
   var fareYAxis = d3.svg.axis().scale(scales.fareY).orient("left").ticks(height / 24);
@@ -97,21 +94,21 @@ function visualize(thisdata, v, car) {
   svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")").call(xAxis);
 
   //CREATE FARE LINES//////////////////////////////////////////////
-  var minValueline = d3.svg.line().interpolate("monotone") 
+  var minValueline = d3.svg.line().interpolate("basis") 
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
                         .y(function(d) { 
                           var minValue = d.prices[car].low_estimate;
                           return scales.fareY(minValue); 
                         });
-  var minLine = svg.append("svg:path").attr("d", minValueline(thisdata)).attr("class", "fareline min");
+  var minLine = svg.append("svg:path").attr("d", minValueline(thisdata)).attr("class", "fareline min " + chooseCar(car) );
 
-  var maxValueline = d3.svg.line().interpolate("monotone") 
+  var maxValueline = d3.svg.line().interpolate("basis") 
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
                         .y(function(d) { 
                           var maxValue = d.prices[car].high_estimate;
                           return scales.fareY(maxValue); 
                         });
-  var maxLine = svg.append("svg:path").attr("d", maxValueline(thisdata)).attr("class", "fareline max");
+  var maxLine = svg.append("svg:path").attr("d", maxValueline(thisdata)).attr("class", "fareline max " + chooseCar(car) );
 
   //CREATE FARE CHART//////////////////////////////////////////////
   var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
@@ -160,14 +157,6 @@ function visualize(thisdata, v, car) {
 
 ///////////////////////////////////////////////////////////////////
 //HELPER FUNCTIONS/////////////////////////////////////////////////
-var chooseCar = function(carName){
-  if (carName === 'uberX') return 0;
-  if (carName === 'uberXL') return 1;
-  if (carName === 'uberBLACK') return 2;
-  if (carName === 'uberSUV') return 3;
-  // if (carName === 'UberT' || 'uberTaxi' ) return 4;
-}
-
 var sortDates = function (list) {
 
     var endIndex = 0,
@@ -193,6 +182,34 @@ var sortDates = function (list) {
 var isoTimeConvert = function(time){
   var timeFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
   return timeFormat.parse( time.date.substring(0,22) + time.date.substring(23,25) );
+};
+
+var formatData = function(carType, allData, userInputs, dataval){
+  var filteredData = [];
+  dataval.totalPoints = 0;
+  for (var i = 0, size = allData.length;  i < size; i++){
+    var start = allData[i].start;
+    var end = allData[i].end;
+    var fullDate = isoTimeConvert(allData[i]);
+    if ( start === userInputs.startLoc && end === userInputs.endLoc && userInputs.day === fullDate.toString().substring(0,3) ){
+      var prices = allData[i].prices[carType];
+      if ( dataval.surgeMax < prices.surge_multiplier ) dataval.surgeMax = +prices.surge_multiplier;
+      if ( dataval.priceMin > prices.low_estimate ) dataval.priceMin = +prices.low_estimate;
+      if ( dataval.priceMax < prices.high_estimate ) dataval.priceMax = +prices.high_estimate;
+      dataval.totalPoints++;
+      filteredData.push(allData[i]);
+    }
+  }
+  var sortedData = sortDates(filteredData);
+  return [sortedData, dataval];
+};
+
+var chooseCar = function(carNumber){
+  if (carNumber === 0) return 'uberX';
+  if (carNumber === 1) return 'uberXL';
+  if (carNumber === 2) return 'uberBLACK';
+  if (carNumber === 3) return 'uberSUV';
+  // if (carNumber === 'UberT' || 'uberTaxi' ) return 4;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -211,10 +228,13 @@ d3.select(document.getElementById("options")).on('change',
     var user = {
       startLoc: userStart,
       endLoc: userEnd,
-      carType: 'uberX',
       day: userDay
     };
-    d3.select("svg").remove();
+
+    var myNode = document.getElementById("graphs");
+      while (myNode.firstChild) {
+      myNode.removeChild(myNode.firstChild);
+    }
     updateData(user);
   }
 )
