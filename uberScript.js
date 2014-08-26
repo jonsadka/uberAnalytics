@@ -7,11 +7,11 @@ var user = {
   startLoc: 'pwll',
   endLoc: 'sfo',
   carType: 'uberX',
-  // day = 'saturday'
+  day: 'Sun'
 };
 
 var graphSize = {
-  fareHeight: .80,
+  fareHeight: .70,
   surgeHeight: .20,
   graphWidth: 1.0
 };
@@ -31,20 +31,34 @@ d3.json("data/data.json", function(error, data){
     priceMax: 0
   };
 
+  var fullFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
+
   for (var i = 0, size = data.length;  i < size; i++){
     var start = data[i].start;
     var end = data[i].end;
-    if ( start === user.startLoc && end === user.endLoc && dataValues.totalPoints < 96){
-      // Remove this bound when you figure out how to filter data by day ...........^^...
+    var fullDate = fullFormat.parse(data[i].date.substring(0,22) + data[i].date.substring(23,25));
+    if ( start === user.startLoc && end === user.endLoc && user.day === fullDate.toString().substring(0,3) ){
+      // var fullTime = fullDate.toString().substring(15,25) ;
+
       var prices = data[i].prices[currentCar];
       if ( dataValues.surgeMax < prices.surge_multiplier ) dataValues.surgeMax = +prices.surge_multiplier;
       if ( dataValues.priceMin > prices.low_estimate ) dataValues.priceMin = +prices.low_estimate;
       if ( dataValues.priceMax < prices.high_estimate ) dataValues.priceMax = +prices.high_estimate;
       dataValues.totalPoints++;
+
       filteredData.push(data[i]);
     }
   }
 
+  filteredData = sortDates(filteredData);
+
+  // JUST USED FOR TIMESTAMP VISUALS
+  // for (var i = 0, size = filteredData.length;  i < size; i++){
+  //   var fullDate = fullFormat.parse(filteredData[i].date.substring(0,22) + filteredData[i].date.substring(23,25));
+  //   console.log(fullDate);
+  // }
+
+  console.log(dataValues);
   visualize(filteredData, dataValues, currentCar);
 });
 
@@ -58,7 +72,10 @@ function visualize(someData, extremeValues, car) {
   var rightPadding = 25;
   var topPadding = 25;
   var bottomPadding = 25;
-  
+  var timeFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
+  var startTime = timeFormat.parse( someData[0].date.substring(0,22) + someData[0].date.substring(23,25) );
+  var endTime = timeFormat.parse( someData[extremeValues.totalPoints-1].date.substring(0,22) + someData[extremeValues.totalPoints-1].date.substring(23,25) );
+
   var surgeBarWidth = (width * graphSize.graphWidth - rightPadding - leftPadding) / extremeValues.totalPoints;
 
   var scales = {
@@ -71,7 +88,8 @@ function visualize(someData, extremeValues, car) {
     fareY: d3.scale.linear().domain([extremeValues.priceMin, extremeValues.priceMax])
                             .range([height * graphSize.fareHeight - topPadding, 0]),
     
-    graphWidth: d3.scale.linear().range([0, width * graphSize.graphWidth - rightPadding - leftPadding])
+    graphWidth: d3.time.scale().domain([startTime, endTime])
+                               .range([0, width * graphSize.graphWidth - rightPadding - leftPadding])
   };
 
   //CREATE CANVAS//////////////////////////////////////////////////
@@ -82,7 +100,8 @@ function visualize(someData, extremeValues, car) {
   //CREATE AXIS/////////////////////////////////////////////////////
   var fareAxis = d3.svg.axis().scale(scales.fareY).orient("left").ticks(4);
   var surgeAxis = d3.svg.axis().scale(scales.surgeBarHeight).orient("left").ticks(4);
-  var xAxis = d3.svg.axis().scale(scales.graphWidth).orient("top").ticks(20);
+  var xTicks = (extremeValues.totalPoints/4 < 24) ? extremeValues.totalPoints/4 : 24;
+  var xAxis = d3.svg.axis().scale(scales.graphWidth).orient("top").ticks( xTicks );
 
   svg.append("g").attr("class", "axis")
                  .attr("transform", "translate(" + 25 + "," + 0 + ")").call(fareAxis);
@@ -109,7 +128,10 @@ function visualize(someData, extremeValues, car) {
   });
 
   var minValueline = d3.svg.line().interpolate("basis") 
-                        .x(function(d,i) { return scales.fareX(i) + leftPadding; })
+                        .x(function(d,i) { 
+                          var thisTime = timeFormat.parse( d.date.substring(0,22) + d.date.substring(23,25) );
+                          return scales.graphWidth(thisTime) + leftPadding;
+                        })
                         .y(function(d) { 
                           var minValue = d.prices[car].low_estimate;
                           return scales.fareY(minValue); 
@@ -118,7 +140,10 @@ function visualize(someData, extremeValues, car) {
                                   .attr("class", "fareline");
 
   var maxValueline = d3.svg.line().interpolate("basis") 
-                        .x(function(d,i) { return scales.fareX(i) + leftPadding; })
+                        .x(function(d,i) { 
+                          var thisTime = timeFormat.parse( d.date.substring(0,22) + d.date.substring(23,25) );
+                          return scales.graphWidth(thisTime) + leftPadding;
+                        })
                         .y(function(d) { 
                           var maxValue = d.prices[car].high_estimate;
                           return scales.fareY(maxValue); 
@@ -131,7 +156,8 @@ function visualize(someData, extremeValues, car) {
                      .append("rect")
                      .attr("class", "surgeBars")
                      .attr("x", function(d,i){
-                        return surgeBarWidth * i;
+                        var thisTime = timeFormat.parse( d.date.substring(0,22) + d.date.substring(23,25) );
+                        return scales.graphWidth(thisTime) + leftPadding;
                      })
                      .attr("y", height * graphSize.fareHeight - topPadding)
                      .attr("width", surgeBarWidth)
@@ -150,7 +176,6 @@ function visualize(someData, extremeValues, car) {
   // console.log(width, height, someData[0].prices, user.carType);
 }
 
-
 var chooseCar = function(carName){
   if (carName === 'uberX') return 0;
   if (carName === 'uberXL') return 1;
@@ -158,3 +183,34 @@ var chooseCar = function(carName){
   if (carName === 'uberSUV') return 3;
   // if (carName === 'UberT' || 'uberTaxi' ) return 4;
 }
+
+var sortDates = function (list) {
+
+    var comparisons = 0,
+        swaps = 0,
+        endIndex = 0,
+        len = list.length - 1,
+        hasSwap = true;
+ 
+    for (var i = 0; i < len; i++) {
+        hasSwap = false;
+        for (var j = 0, swapping, endIndex = len - i; j < endIndex; j++) {
+            comparisons++;
+            if (list[j].date > list[j + 1].date) {
+                swapping = list[j].date;
+                list[j].date = list[j + 1].date;
+                list[j + 1].date = swapping;
+                swaps++;
+                hasSwap = true;
+            };
+        };
+ 
+        if (!hasSwap) { break; }
+    }
+ 
+    console.log("--Bubble Sort--")
+    console.log("Comparisons: " + comparisons);
+    console.log("Swaps: " + swaps);
+                 
+    return list;
+};
