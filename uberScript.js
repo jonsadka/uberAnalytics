@@ -3,11 +3,19 @@
 var width = window.innerWidth,
     height = window.innerHeight;
 
+
+var e = document.getElementById("dayofweek");
+var userDay = e.options[e.selectedIndex].value;
+var e = document.getElementById("startLoc");
+var startLocation = e.options[e.selectedIndex].value;
+var e = document.getElementById("endLoc");
+var endLocation = e.options[e.selectedIndex].value;
+
 var user = {
-  startLoc: 'pwll',
-  endLoc: 'sfo',
+  startLoc: startLocation,
+  endLoc: endLocation,
   carType: 'uberX',
-  day: 'Sun'
+  day: userDay
 };
 
 var graphSize = {
@@ -16,52 +24,43 @@ var graphSize = {
   graphWidth: 1.0
 };
 
-
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
-d3.json("data/data.json", function(error, data){
-  if (error) return console.warn(error);
+var updateData = function(userInputs){ 
+  d3.json("data/data.json", function(error, data){
+    if (error) return console.warn(error);
 
-  var currentCar = chooseCar(user.carType);
-  var filteredData = [];
-  var dataValues = {
-    totalPoints: 0,
-    surgeMax: 0,
-    priceMin: 0,
-    priceMax: 0
-  };
+    var currentCar = chooseCar(userInputs.carType);
+    var filteredData = [];
+    var dataValues = {
+      totalPoints: 0,
+      surgeMax: 0,
+      priceMin: +data[1].prices[currentCar].low_estimate,
+      priceMax: 0
+    };
 
-  var fullFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
+    var fullFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
 
-  for (var i = 0, size = data.length;  i < size; i++){
-    var start = data[i].start;
-    var end = data[i].end;
-    var fullDate = fullFormat.parse(data[i].date.substring(0,22) + data[i].date.substring(23,25));
-    if ( start === user.startLoc && end === user.endLoc && user.day === fullDate.toString().substring(0,3) ){
-      // var fullTime = fullDate.toString().substring(15,25) ;
-
-      var prices = data[i].prices[currentCar];
-      if ( dataValues.surgeMax < prices.surge_multiplier ) dataValues.surgeMax = +prices.surge_multiplier;
-      if ( dataValues.priceMin > prices.low_estimate ) dataValues.priceMin = +prices.low_estimate;
-      if ( dataValues.priceMax < prices.high_estimate ) dataValues.priceMax = +prices.high_estimate;
-      dataValues.totalPoints++;
-
-      filteredData.push(data[i]);
+    for (var i = 0, size = data.length;  i < size; i++){
+      var start = data[i].start;
+      var end = data[i].end;
+      var fullDate = fullFormat.parse(data[i].date.substring(0,22) + data[i].date.substring(23,25));
+      if ( start === userInputs.startLoc && end === userInputs.endLoc && userInputs.day === fullDate.toString().substring(0,3) ){
+        var prices = data[i].prices[currentCar];
+        if ( dataValues.surgeMax < prices.surge_multiplier ) dataValues.surgeMax = +prices.surge_multiplier;
+        if ( dataValues.priceMin > prices.low_estimate ) dataValues.priceMin = +prices.low_estimate;
+        if ( dataValues.priceMax < prices.high_estimate ) dataValues.priceMax = +prices.high_estimate;
+        dataValues.totalPoints++;
+        filteredData.push(data[i]);
+      }
     }
-  }
 
-  filteredData = sortDates(filteredData);
+    filteredData = sortDates(filteredData);
 
-  // JUST USED FOR TIMESTAMP VISUALS
-  // for (var i = 0, size = filteredData.length;  i < size; i++){
-  //   var fullDate = fullFormat.parse(filteredData[i].date.substring(0,22) + filteredData[i].date.substring(23,25));
-  //   console.log(fullDate);
-  // }
-
-  console.log(dataValues);
-  visualize(filteredData, dataValues, currentCar);
-});
-
+    console.log(dataValues);
+    visualize(filteredData, dataValues, currentCar);
+  }); 
+};
 
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
@@ -85,7 +84,7 @@ function visualize(someData, extremeValues, car) {
     fareX: d3.scale.linear().domain([0, extremeValues.totalPoints])
                             .range([0, width * graphSize.graphWidth - rightPadding - leftPadding]),                                  
     
-    fareY: d3.scale.linear().domain([extremeValues.priceMin, extremeValues.priceMax])
+    fareY: d3.scale.linear().domain([extremeValues.priceMin - 10, extremeValues.priceMax + 5])
                             .range([height * graphSize.fareHeight - topPadding, 0]),
     
     graphWidth: d3.time.scale().domain([startTime, endTime])
@@ -98,7 +97,7 @@ function visualize(someData, extremeValues, car) {
                                  .attr("height", height);
 
   //CREATE AXIS/////////////////////////////////////////////////////
-  var fareAxis = d3.svg.axis().scale(scales.fareY).orient("left").ticks(4);
+  var fareAxis = d3.svg.axis().scale(scales.fareY).orient("left").ticks(10);
   var surgeAxis = d3.svg.axis().scale(scales.surgeBarHeight).orient("left").ticks(4);
   var xTicks = (extremeValues.totalPoints/4 < 24) ? extremeValues.totalPoints/4 : 24;
   var xAxis = d3.svg.axis().scale(scales.graphWidth).orient("top").ticks( xTicks );
@@ -114,7 +113,7 @@ function visualize(someData, extremeValues, car) {
   
   var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
                                      .y( function(d,i) { return d.Line; });
-  var traceLine = svg.append("svg:path").attr("class", "fareline");
+  var traceLine = svg.append("svg:path").attr("class", "traceline");
 
   svg.on('mousemove', function(){
     var loc = d3.mouse(this);
@@ -122,7 +121,7 @@ function visualize(someData, extremeValues, car) {
     if ( mouse.x > leftPadding && mouse.x < width - rightPadding){
       traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0}, 
                                            {mouseX: mouse.x, Line:height * graphSize.fareHeight - topPadding},
-                                           {mouseX: mouse.x, Line:height * graphSize.fareHeight - topPadding}, 
+                                           // {mouseX: mouse.x, Line:height * graphSize.fareHeight - topPadding}, 
                                            {mouseX: mouse.x, Line:height * (graphSize.fareHeight + graphSize.surgeHeight) - topPadding - bottomPadding }]));
     }
   });
@@ -136,8 +135,7 @@ function visualize(someData, extremeValues, car) {
                           var minValue = d.prices[car].low_estimate;
                           return scales.fareY(minValue); 
                         });
-  var minLine = svg.append("svg:path").attr("d", minValueline(someData))
-                                  .attr("class", "fareline");
+  var minLine = svg.append("svg:path").attr("d", minValueline(someData)).attr("class", "fareline");
 
   var maxValueline = d3.svg.line().interpolate("basis") 
                         .x(function(d,i) { 
@@ -148,8 +146,18 @@ function visualize(someData, extremeValues, car) {
                           var maxValue = d.prices[car].high_estimate;
                           return scales.fareY(maxValue); 
                         });
-  var maxLine = svg.append("svg:path").attr("d", maxValueline(someData))
-                                  .attr("class", "fareline");
+  var maxLine = svg.append("svg:path").attr("d", maxValueline(someData)).attr("class", "fareline");
+
+  //CREATE DATADOTS////////////////////////////////////////////////
+  var dataDots = svg.selectAll("circle").data(someData).enter()
+                .append("circle")
+                .attr("cx", function(d,i){
+                  var thisTime = timeFormat.parse( d.date.substring(0,22) + d.date.substring(23,25) );
+                  return scales.graphWidth(thisTime) + leftPadding;
+                })
+                .attr("cy", topPadding)
+                .attr("r", 1)
+
 
   //CREATE SURGE BARS//////////////////////////////////////////////
   var surgeBars = svg.selectAll("rect").data(someData).enter()
@@ -172,10 +180,10 @@ function visualize(someData, extremeValues, car) {
                      .attr("fill", "RGBA(26, 26, 26, 1)")
                      .append("title")
                      .text(function(d) { return "Surge is " + d.prices[car].surge_multiplier;});
-
-  // console.log(width, height, someData[0].prices, user.carType);
 }
 
+///////////////////////////////////////////////////////////////////
+//HELPER FUNCTIONS/////////////////////////////////////////////////
 var chooseCar = function(carName){
   if (carName === 'uberX') return 0;
   if (carName === 'uberXL') return 1;
@@ -186,31 +194,46 @@ var chooseCar = function(carName){
 
 var sortDates = function (list) {
 
-    var comparisons = 0,
-        swaps = 0,
-        endIndex = 0,
+    var endIndex = 0,
         len = list.length - 1,
         hasSwap = true;
  
     for (var i = 0; i < len; i++) {
         hasSwap = false;
         for (var j = 0, swapping, endIndex = len - i; j < endIndex; j++) {
-            comparisons++;
             if (list[j].date > list[j + 1].date) {
                 swapping = list[j].date;
                 list[j].date = list[j + 1].date;
                 list[j + 1].date = swapping;
-                swaps++;
                 hasSwap = true;
             };
         };
  
         if (!hasSwap) { break; }
     }
- 
-    console.log("--Bubble Sort--")
-    console.log("Comparisons: " + comparisons);
-    console.log("Swaps: " + swaps);
-                 
     return list;
 };
+
+///////////////////////////////////////////////////////////////////
+//REFRESH ON CHANGE////////////////////////////////////////////////
+updateData(user);
+
+d3.select(document.getElementById("options")).on('change', 
+  function(){
+    var e = document.getElementById("dayofweek");
+    var userDay = e.options[e.selectedIndex].value;
+    var e = document.getElementById("startLoc");
+    var startLocation = e.options[e.selectedIndex].value;
+    var e = document.getElementById("endLoc");
+    var endLocation = e.options[e.selectedIndex].value;
+
+    var user = {
+      startLoc: startLocation,
+      endLoc: endLocation,
+      carType: 'uberX',
+      day: userDay
+    };
+    d3.select("svg").remove();
+    updateData(user);
+  }
+)

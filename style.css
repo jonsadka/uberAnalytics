@@ -1,9 +1,18 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
 body{
 	overflow: hidden
 }
 
 svg {
   font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.header {
+	float: left;
 }
 
 .axis path,
@@ -26,6 +35,13 @@ svg {
 .fareline {
   fill: none;
   stroke: #aaa;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 1.5px;
+}
+
+.traceline {
+	stroke: RGBA(31, 186, 214, 1);
   stroke-linejoin: round;
   stroke-linecap: round;
   stroke-width: 1.5px;

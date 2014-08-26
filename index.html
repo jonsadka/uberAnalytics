@@ -7,8 +7,31 @@
     <link href="style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <div class="header"></div>
-    <h1>Uber Analytics</h1>
+    <div class="header">
+      <h1>Uber Analytics</h1>
+      <div id="options">
+        <select id="dayofweek">
+          <option value="Sat">Saturday</option>
+          <option value="Sun" selected="selected">Sunday</option>
+          <option value="Mon">Monday</option>
+        </select>
+
+        <select id="startLoc">
+          <option value="sfo">SFO (San Francisco International Airport)</option>
+          <option value="acs">Golden Gate Park (California Academy of Sciences)</option>
+          <option value="pwll" selected="selected">Downtown SF (Powell & Market)</option>
+          <option value="warf">Fishermans Warf (Pier 39)</option>
+        </select>
+
+        <select id="endLoc">
+          <option value="sfo" selected="selected">SFO (San Francisco International Airport)</option>
+          <option value="acs">Golden Gate Park (California Academy of Sciences)</option>
+          <option value="pwll">Downtown SF (Powell & Market)</option>
+          <option value="warf">Fishermans Warf (Pier 39)</option>
+        </select>
+      </div>
+
+    </div>
     <div class="content"></div>
     <div class="footer"></div>
     <script type="text/javascript" src="uberScript.js" charset="utf-8"></script>
