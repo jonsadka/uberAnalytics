@@ -42,7 +42,5 @@ svg {
 
 .traceline {
 	stroke: RGBA(31, 186, 214, 1);
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
 }
