@@ -92,14 +92,29 @@ function visualize(someData, extremeValues, car) {
                  .attr("transform", "translate(" + 25 + "," + (height * graphSize.fareHeight - topPadding) + ")").call(xAxis);
 
   //CREATE FARE CHART//////////////////////////////////////////////
+  
+  var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
+                                     .y( function(d,i) { return d.Line; });
+  var traceLine = svg.append("svg:path").attr("class", "fareline");
+
+  svg.on('mousemove', function(){
+    var loc = d3.mouse(this);
+    mouse = { x: loc[0], y: loc[1] };
+    if ( mouse.x > leftPadding && mouse.x < width - rightPadding){
+      traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0}, 
+                                           {mouseX: mouse.x, Line:height * graphSize.fareHeight - topPadding},
+                                           {mouseX: mouse.x, Line:height * graphSize.fareHeight - topPadding}, 
+                                           {mouseX: mouse.x, Line:height * (graphSize.fareHeight + graphSize.surgeHeight) - topPadding - bottomPadding }]));
+    }
+  });
+
   var minValueline = d3.svg.line().interpolate("basis") 
                         .x(function(d,i) { return scales.fareX(i) + leftPadding; })
                         .y(function(d) { 
                           var minValue = d.prices[car].low_estimate;
                           return scales.fareY(minValue); 
                         });
-
-  var minLine = svg.append("path").attr("d", minValueline(someData))
+  var minLine = svg.append("svg:path").attr("d", minValueline(someData))
                                   .attr("class", "fareline");
 
   var maxValueline = d3.svg.line().interpolate("basis") 
@@ -108,8 +123,7 @@ function visualize(someData, extremeValues, car) {
                           var maxValue = d.prices[car].high_estimate;
                           return scales.fareY(maxValue); 
                         });
-
-  var maxLine = svg.append("path").attr("d", maxValueline(someData))
+  var maxLine = svg.append("svg:path").attr("d", maxValueline(someData))
                                   .attr("class", "fareline");
 
   //CREATE SURGE BARS//////////////////////////////////////////////
@@ -132,19 +146,6 @@ function visualize(someData, extremeValues, car) {
                      .attr("fill", "RGBA(26, 26, 26, 1)")
                      .append("title")
                      .text(function(d) { return "Surge is " + d.prices[car].surge_multiplier;});
-  
-  // figure out why this is not appending
-  // var surgeBarText = svg.selectAll("text").data(someData).enter()
-  //                       .append("text")
-  //                       .text(function(d){
-  //                         var surge = d.prices[car].surge_multiplier;
-  //                         if ( surge !== 1 ) {
-  //                           return surge;
-  //                         }
-  //                       })
-  //                       .attr("x", 100)
-  //                       .attr("y", 100);
-
 
   // console.log(width, height, someData[0].prices, user.carType);
 }
