@@ -1,3 +1,32 @@
-.main {
-	background: blue;
+body{
+	overflow: hidden
+}
+
+svg {
+  font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis--y path {
+  display: none;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+    fill: blue;
+}
+
+.fareline {
+  fill: none;
+  stroke: #aaa;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 1.5px;
 }
