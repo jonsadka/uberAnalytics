@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE VARIABLES AND USER INPUTS/////////////////////////////
-var headHeight = 20;
-var leftPad = 25;
+var headHeight = 40;
+var leftPad = 50;
 var rightPad = 25;
 var bottomPad = 15;
 
@@ -11,15 +11,18 @@ var height = window.innerHeight;
 var graphPct = {
   fareHeight: 0.80,
   surgeHeight: 0.20,
-  surgeWidth: 0.60
+  surgeWidth: 0.5
 };
 
 var fareGraphHeight = height * graphPct.fareHeight - headHeight - bottomPad;
 var barGraphHeight = height * graphPct.surgeHeight - headHeight - bottomPad;
 
 //CREATE CANVAS//////////////////////////////////////////////////
+var chartfill = d3.select(".content").append("svg").attr("width", width)
+                                     .attr("height", height)
+                                     .attr("class", "chartbg")
+                                     .attr("transform", "translate(100,100)");
 var svg = d3.select(".content").append("svg").attr("width", width).attr("height", height).attr("id", "graphs");
-
 // GET USER DATA///////////////////////////////////////////////////
 var e = document.getElementById("dayofweek");
 var userDay = e.options[e.selectedIndex].value;
@@ -89,10 +92,14 @@ function visualize(thisdata, v, car) {
   var xTicks = (v.totalPoints/4 < 24) ? v.totalPoints/4 : 24;
   var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
 
-  svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")").call(fareYAxis);
-  svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")").call(surgeYAxis);
-  svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")").call(xAxis);
-
+  if (car === 0){
+    svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
+                   .transition().duration(1500).ease('cubic-in-out').call(fareYAxis);
+    svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
+                   .transition().duration(1500).ease('cubic-in-out').call(surgeYAxis);
+    svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
+                   .transition().duration(1500).ease('cubic-in-out').call(xAxis);
+  }
   //CREATE FARE LINES//////////////////////////////////////////////
   var minValueline = d3.svg.line().interpolate("basis") 
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
@@ -120,9 +127,9 @@ function visualize(thisdata, v, car) {
     mouse = { x: loc[0], y: loc[1] };
     if ( mouse.x > leftPad && mouse.x < width - rightPad){
       traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0}, 
-                                           {mouseX: mouse.x, Line:fareGraphHeight},
+                                           {mouseX: mouse.x, Line:fareGraphHeight}]))
                                            // {mouseX: mouse.x, Line:fareGraphHeight}, 
-                                           {mouseX: mouse.x, Line:height * (graphPct.fareHeight + graphPct.surgeHeight) - headHeight - bottomPad }]));
+                                           // {mouseX: mouse.x, Line:height * (graphPct.fareHeight + graphPct.surgeHeight) - headHeight - bottomPad }]));
     }
   });
 
@@ -135,24 +142,30 @@ function visualize(thisdata, v, car) {
 
 
   //CREATE SURGE BARS//////////////////////////////////////////////
-  var surgeBarWidth = width * graphPct.surgeWidth / v.totalPoints;
-  var surgeBars = svg.selectAll("rect").data(thisdata).enter()
-                     .append("rect")
-                     .attr("class", "surgeBars")
-                     .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; })
-                     .attr("y", fareGraphHeight)
-                     .attr("width", surgeBarWidth)
-                     .attr("height", function(d,i){
+  if (car === 0){
+    var surgeBarWidth = width * graphPct.surgeWidth / v.totalPoints;
+    var surgeBars = svg.selectAll("rect").data(thisdata).enter()
+                       .append("rect")
+                       .attr("class", "surgeBars")
+                       .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; })
+                       .attr("y", fareGraphHeight)
+                       .attr("width", surgeBarWidth)
+                       .attr("height", function(d,i){
+                          var surge = d.prices[car].surge_multiplier;
+                          if ( surge !== 1 ) {
+                            return scales.surgeBarHeight(surge);
+                          } else {
+                            return 0;
+                          };
+                       })
+                       .attr("fill", function(d,i){
                         var surge = d.prices[car].surge_multiplier;
-                        if ( surge !== 1 ) {
-                          return scales.surgeBarHeight(surge);
-                        } else {
-                          return 0;
-                        };
-                     })
-                     .attr("fill", "RGBA(26, 26, 26, 1)")
-                     .append("title")
-                     .text(function(d) { return "Surge is " + d.prices[car].surge_multiplier;});
+                        var opacity = (+surge/v.surgeMax * 1)
+                          return "RGBA(241, 82, 130, " + opacity + ")";
+                        })
+                       .append("title")
+                       .text(function(d) { return "Surge is " + d.prices[car].surge_multiplier;});
+  }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -215,6 +228,7 @@ var chooseCar = function(carNumber){
 ///////////////////////////////////////////////////////////////////
 //REFRESH ON CHANGE////////////////////////////////////////////////
 updateData(user);
+
 
 d3.select(document.getElementById("options")).on('change', 
   function(){
