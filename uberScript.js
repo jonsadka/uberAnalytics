@@ -11,7 +11,7 @@ var height = window.innerHeight;
 var graphPct = {
   fareHeight: 0.80,
   surgeHeight: 0.20,
-  surgeWidth: 0.5
+  surgeWidth: 0.4
 };
 
 var fareGraphHeight = height * graphPct.fareHeight - headHeight - bottomPad;
@@ -92,14 +92,6 @@ function visualize(thisdata, v, car) {
   var xTicks = (v.totalPoints/4 < 24) ? v.totalPoints/4 : 24;
   var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
 
-  if (car === 0){
-    svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
-                   .transition().duration(1500).ease('cubic-in-out').call(fareYAxis);
-    svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
-                   .transition().duration(1500).ease('cubic-in-out').call(surgeYAxis);
-    svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
-                   .transition().duration(1500).ease('cubic-in-out').call(xAxis);
-  }
   //CREATE FARE LINES//////////////////////////////////////////////
   var minValueline = d3.svg.line().interpolate("basis") 
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
@@ -127,9 +119,7 @@ function visualize(thisdata, v, car) {
     mouse = { x: loc[0], y: loc[1] };
     if ( mouse.x > leftPad && mouse.x < width - rightPad){
       traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0}, 
-                                           {mouseX: mouse.x, Line:fareGraphHeight}]))
-                                           // {mouseX: mouse.x, Line:fareGraphHeight}, 
-                                           // {mouseX: mouse.x, Line:height * (graphPct.fareHeight + graphPct.surgeHeight) - headHeight - bottomPad }]));
+                                           {mouseX: mouse.x, Line:fareGraphHeight}]));
     }
   });
 
@@ -138,7 +128,8 @@ function visualize(thisdata, v, car) {
                 .append("circle")
                 .attr("cx", function(d,i){ return scales.graphX( isoTimeConvert(d) ); })
                 .attr("cy", headHeight)
-                .attr("r", 1)
+                .attr("r", 1.5)
+                .attr("fill", "RGBA(241, 82, 130, 1)");
 
 
   //CREATE SURGE BARS//////////////////////////////////////////////
@@ -150,21 +141,26 @@ function visualize(thisdata, v, car) {
                        .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; })
                        .attr("y", fareGraphHeight)
                        .attr("width", surgeBarWidth)
+                       .transition().delay(function (d,i){ return i * 25;}).duration(25)
                        .attr("height", function(d,i){
                           var surge = d.prices[car].surge_multiplier;
-                          if ( surge !== 1 ) {
-                            return scales.surgeBarHeight(surge);
-                          } else {
-                            return 0;
-                          };
+                          return scales.surgeBarHeight(surge);
                        })
                        .attr("fill", function(d,i){
-                        var surge = d.prices[car].surge_multiplier;
-                        var opacity = (+surge/v.surgeMax * 1)
-                          return "RGBA(241, 82, 130, " + opacity + ")";
-                        })
-                       .append("title")
-                       .text(function(d) { return "Surge is " + d.prices[car].surge_multiplier;});
+                          var surge = d.prices[car].surge_multiplier;
+                          if (surge !== 1){
+                            var opacity = (+surge/v.surgeMax * 1)
+                            return "RGBA(241, 82, 130, " + opacity + ")";
+                          }
+                          return "RGBA(241, 82, 130, 0.05)";
+                       });
+
+    svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
+                   .transition().duration(300).call(fareYAxis);
+    svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
+                   .transition().duration(300).call(surgeYAxis);
+    svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
+                   .transition().duration(v.totalPoints * 25).ease('cubic-in-out').call(xAxis);
   }
 }
 

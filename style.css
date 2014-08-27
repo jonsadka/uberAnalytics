@@ -38,14 +38,14 @@ svg {
 .axis path,
 .axis line {
   fill: none;
-  stroke: RGBA(241, 241, 241, 1);
+  stroke: #888;
   shape-rendering: crispEdges;
 }
 
 .axis text {
     font-family: sans-serif;
     font-size: 10px;
-    fill: #fff;
+    fill: #888;
 }
 
 .fareline {
