@@ -65,7 +65,7 @@ svg {
 }
 
 .fareline.uberX {
-  stroke: #fff;
+  stroke: RGBA(225, 225, 225, .9);
 }
 
 .fareline.uberXL {
@@ -87,7 +87,7 @@ svg {
 
 
 .custom-dropdown__select{
-    font-size: 14px; /* inherit size from .custom-dropdown */
+    font-size: 12px; /* inherit size from .custom-dropdown */
     padding: .5em; /* add some space*/
     margin: 0; /* remove default margins */
 }
