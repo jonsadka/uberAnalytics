@@ -13,9 +13,9 @@ body{
 }
 
 h1 {
-	padding-top: 15px;
-	padding-bottom: 5px;
-	font-size: 42px;
+  padding-top: 15px;
+  padding-bottom: 5px;
+  font-size: 42px;
 }
 
 svg {
@@ -24,15 +24,29 @@ svg {
 }
 
 .chartbg {
-	background: #202024 url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid-dark@1x.gif) repeat left top;
+  background: #202024 url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid-dark@1x.gif) repeat left top;
   background-size: 18px 18px;
 }
 
 .header {
-	color: #000;
-	padding-left: 25px;
-	padding-bottom: 15px;
-	box-shadow: 10px 10px 5px yellow;
+  color: #000;
+  padding-left: 25px;
+  padding-bottom: 15px;
+  box-shadow: 10px 10px 5px yellow;
+}
+
+a:-webkit-any-link {
+   text-decoration: none;
+   color: RGBA(33, 188, 215, 1); 
+}
+
+.name {
+  color: RGBA(33, 188, 215, 1);
+  position: absolute;
+  right: 50px;
+  top: 25px;
+  text-align: right;
+  text-decoration: none;
 }
 
 .axis path,
@@ -56,12 +70,12 @@ svg {
 }
 
 .fareline.min {
-	stroke-dasharray: 2,10;
-	stroke-width: 1px;
+  stroke-dasharray: 2,10;
+  stroke-width: 1px;
 }
 
 .fareline.max {
-	stroke-width: 1px;
+  stroke-width: 1px;
 }
 
 .fareline.uberX {
@@ -81,10 +95,9 @@ svg {
 }
 
 .traceline {
-	stroke: #fff;
+  stroke: #fff;
   stroke-width: 1px;
 }
-
 
 .custom-dropdown__select{
     font-size: 12px; /* inherit size from .custom-dropdown */

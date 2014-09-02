@@ -9,8 +9,8 @@ var width = window.innerWidth;
 var height = window.innerHeight;
 
 var graphPct = {
-  fareHeight: 0.80,
-  surgeHeight: 0.20,
+  fareHeight: 0.77,
+  surgeHeight: 0.23,
   surgeWidth: 0.4
 };
 
@@ -84,11 +84,13 @@ function visualize(thisdata, v, car) {
     graphX: d3.time.scale().range([leftPad, width - leftPad]).domain([startTime, endTime])
   };
 
-
-
   //CREATE AXIS/////////////////////////////////////////////////////
-  var fareYAxis = d3.svg.axis().scale(scales.fareY).orient("left").ticks(height / 24);
-  var surgeYAxis = d3.svg.axis().scale(scales.surgeBarHeight).orient("left").ticks(4);
+  var commasFormatter = d3.format(",.0f");
+  var fareYAxis = d3.svg.axis().scale(scales.fareY).orient("left")
+                               .tickFormat(function(d) { return "$" + commasFormatter(d); })
+                               .ticks(height / 36);
+  var surgeYAxis = d3.svg.axis().scale(scales.surgeBarHeight).orient("left")
+                                .ticks(v.surgeMax);
   var xTicks = (v.totalPoints/4 < 24) ? v.totalPoints/4 : 24;
   var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
 
@@ -114,12 +116,17 @@ function visualize(thisdata, v, car) {
                                      .y( function(d,i) { return d.Line; });
   var traceLine = svg.append("svg:path").attr("class", "traceline");
 
+  //CREATE FARE TOOLTIP/////////////////////////////////////////////
   svg.on('mousemove', function(){
     var loc = d3.mouse(this);
     mouse = { x: loc[0], y: loc[1] };
-    if ( mouse.x > leftPad && mouse.x < width - rightPad){
+    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y < fareGraphHeight){
       traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0}, 
                                            {mouseX: mouse.x, Line:fareGraphHeight}]));
+    }
+    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y > fareGraphHeight){
+      traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:fareGraphHeight}, 
+                                           {mouseX: mouse.x, Line:fareGraphHeight + barGraphHeight - headHeight }]));
     }
   });
 
@@ -130,7 +137,6 @@ function visualize(thisdata, v, car) {
                 .attr("cy", headHeight)
                 .attr("r", 1.5)
                 .attr("fill", "RGBA(241, 82, 130, 1)");
-
 
   //CREATE SURGE BARS//////////////////////////////////////////////
   if (car === 0){
@@ -152,7 +158,7 @@ function visualize(thisdata, v, car) {
                             var opacity = (+surge/v.surgeMax * 1)
                             return "RGBA(241, 82, 130, " + opacity + ")";
                           }
-                          return "RGBA(241, 82, 130, 0.05)";
+                          return "RGBA(241, 82, 130, 0.1)";
                        });
 
     svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
@@ -224,7 +230,6 @@ var chooseCar = function(carNumber){
 ///////////////////////////////////////////////////////////////////
 //REFRESH ON CHANGE////////////////////////////////////////////////
 updateData(user);
-
 
 d3.select(document.getElementById("options")).on('change', 
   function(){
