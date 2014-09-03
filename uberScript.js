@@ -166,11 +166,13 @@ function visualize(thisdata, v, car) {
                        });
 
     svg.selectAll("rect").on("mouseover", function(d,i){
-                          d3.select(this).attr("width", function(){ return surgeBarWidth * 1.5; });
-                       })
-                       .on("mouseout", function(d,i){
-                          d3.select(this).attr("width", function(){ return surgeBarWidth; });
-                       })
+                            d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
+                                           .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth*1.75/2; });
+                          })
+                          .on("mouseout", function(d,i){
+                            d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
+                                           .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; });
+                          });
 
     svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
                    .transition().duration(300).call(fareYAxis);
