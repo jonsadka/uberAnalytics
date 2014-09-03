@@ -32,7 +32,6 @@ svg {
   color: #000;
   padding-left: 25px;
   padding-bottom: 15px;
-  box-shadow: 10px 10px 5px yellow;
 }
 
 a:-webkit-any-link {
@@ -62,6 +61,17 @@ a:-webkit-any-link {
     fill: #888;
 }
 
+.surgeBars {
+  -moz-transition: all 0.25s;
+  -o-transition: all 0.25s;
+  -webkit-transition: all 0.25s;
+  transition: all 0.25s;
+}
+
+.surgeBars:hover {
+  fill: #fff;
+}
+
 .fareline {
   fill: none;
   stroke-linejoin: round;
@@ -69,14 +79,15 @@ a:-webkit-any-link {
   stroke-width: 1px;
 }
 
-.fareline.min {
-  stroke-dasharray: 2,10;
-  stroke-width: 1px;
+.fareline.min:hover,
+.fareline.max:hover{
+  stroke-width: 5px;
 }
 
-.fareline.max {
-  stroke-width: 1px;
+.fareline.min {
+  stroke-dasharray: 2,10;
 }
+
 
 .fareline.uberX {
   stroke: RGBA(225, 225, 225, .9);

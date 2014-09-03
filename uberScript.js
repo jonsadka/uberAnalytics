@@ -40,7 +40,7 @@ var user = {
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
 var updateData = function(userInputs){ 
-  d3.json("data/data.json", function(error, data){
+  d3.json("data.json", function(error, data){
     if (error) return console.warn(error);
 
     var dataval = {
@@ -101,7 +101,8 @@ function visualize(thisdata, v, car) {
                           var minValue = d.prices[car].low_estimate;
                           return scales.fareY(minValue); 
                         });
-  var minLine = svg.append("svg:path").attr("d", minValueline(thisdata)).attr("class", "fareline min " + chooseCar(car) );
+  var minLine = svg.append("svg:path").attr("class", "fareline min " + chooseCar(car) )
+                                      .attr("d", minValueline(thisdata));
 
   var maxValueline = d3.svg.line().interpolate("basis") 
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
@@ -109,7 +110,8 @@ function visualize(thisdata, v, car) {
                           var maxValue = d.prices[car].high_estimate;
                           return scales.fareY(maxValue); 
                         });
-  var maxLine = svg.append("svg:path").attr("d", maxValueline(thisdata)).attr("class", "fareline max " + chooseCar(car) );
+  var maxLine = svg.append("svg:path").attr("class", "fareline max " + chooseCar(car) )
+                                      .attr("d", maxValueline(thisdata));
 
   //CREATE FARE CHART//////////////////////////////////////////////
   var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
@@ -143,15 +145,17 @@ function visualize(thisdata, v, car) {
     var surgeBarWidth = width * graphPct.surgeWidth / v.totalPoints;
     var surgeBars = svg.selectAll("rect").data(thisdata).enter()
                        .append("rect")
+                       .attr("fill", "RGBA(241, 82, 130, 1)")
+                       .attr("width", surgeBarWidth * 0.75)
                        .attr("class", "surgeBars")
                        .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; })
                        .attr("y", fareGraphHeight)
-                       .attr("width", surgeBarWidth)
-                       .transition().delay(function (d,i){ return i * 25;}).duration(25)
                        .attr("height", function(d,i){
                           var surge = d.prices[car].surge_multiplier;
                           return scales.surgeBarHeight(surge);
                        })
+                       .transition().delay(function (d,i){ return i * 30;}).duration(30)
+                       .attr("width", surgeBarWidth)
                        .attr("fill", function(d,i){
                           var surge = d.prices[car].surge_multiplier;
                           if (surge !== 1){
@@ -161,12 +165,19 @@ function visualize(thisdata, v, car) {
                           return "RGBA(241, 82, 130, 0.1)";
                        });
 
+    svg.selectAll("rect").on("mouseover", function(d,i){
+                          d3.select(this).attr("width", function(){ return surgeBarWidth * 1.5; });
+                       })
+                       .on("mouseout", function(d,i){
+                          d3.select(this).attr("width", function(){ return surgeBarWidth; });
+                       })
+
     svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
                    .transition().duration(300).call(fareYAxis);
     svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
                    .transition().duration(300).call(surgeYAxis);
     svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
-                   .transition().duration(v.totalPoints * 25).ease('cubic-in-out').call(xAxis);
+                   .transition().duration(v.totalPoints * 30).ease('cubic-in-out').call(xAxis);
   }
 }
 
