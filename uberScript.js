@@ -84,12 +84,12 @@ function visualize(thisdata, v, car) {
 
     //CREATE AXIS/////////////////////////////////////////////////////
     var currencyFormatter = d3.format(",.0f");
-    var xTicks = (v.totalPoints/4 < 24) ? 12 : 24;
     var yAxisFare = d3.svg.axis().scale(scales.fareY).orient("left")
                                  .tickFormat(function(d) { return "$" + currencyFormatter(d); })
                                  .ticks(height / 36);
     var yAxisSurge = d3.svg.axis().scale(scales.surgeBarHeight).orient("left")
                                   .ticks(v.surgeMax);
+    var xTicks = (v.totalPoints/4 < 24) ? 12 : 24;
     var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
 
     //CREATE FARE LINES//////////////////////////////////////////////
@@ -182,11 +182,11 @@ function visualize(thisdata, v, car) {
 
       svg.append("text").transition().duration(v.totalPoints * 30)
                         .attr("class", "y label").attr("text-anchor", "end")
-                        .attr("y", leftPad / 4)
                         .attr("x", -headHeight)
+                        .attr("y", leftPad / 4)
                         .attr("dy", ".75em")
                         .attr("transform", "rotate(-90)")
-                        .attr("fill","RGBA(225,225,225,0.75)")
+                        .attr("fill","RGBA(225,225,225,0.7)")
                         .attr("font-size", "12px")
                         .text("fare pricing");
 
@@ -196,9 +196,28 @@ function visualize(thisdata, v, car) {
                         .attr("y", leftPad / 4)
                         .attr("dy", ".75em")
                         .attr("transform", "rotate(-90)")
-                        .attr("fill","RGBA(225,225,225,0.75)")
+                        .attr("fill","RGBA(225,225,225,0.7)")
                         .attr("font-size", "12px")
                         .text("surge multiplier");
+
+      //SHOW TEXT//////////////////////////////////////////////////////
+      svg.append("text").attr("class", "x-title").attr("text-anchor", "center")
+                        .attr("x", width / 2 - leftPad - rightPad)
+                        .attr("y", fareGraphHeight / 2 + headHeight)
+                        .attr("fill","RGBA(225,225,225,0.7)")
+                        .attr("font-size", "72px")
+                        .text("fare pricing");
+
+      svg.append("text").attr("class", "x-title").attr("text-anchor", "center")
+                        .attr("x", width / 2 - leftPad - rightPad)
+                        .attr("y", fareGraphHeight + barGraphHeight / 2)
+                        .attr("fill","RGBA(225,225,225,0.7)")
+                        .attr("font-size", "48px")
+                        .text("surge pricing");
+
+      svg.selectAll('.x-title').transition().duration(v.totalPoints * 30)
+                               .attr("fill","RGBA(225,225,225,0)");
+
     }
   }, timeout);
 };
