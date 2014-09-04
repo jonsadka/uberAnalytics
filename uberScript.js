@@ -99,7 +99,38 @@ function visualize(thisdata, v, car) {
                                      .domain([0,1])
                                      .range(d3.range(1, thisdata.length + 1));
       return function(t) {
-        var interpolatedLine = thisdata.slice(0, interpolateScale(t));
+        var flooredX = Math.floor(interpolateScale(t));
+        var interpolatedLine = thisdata.slice(0, flooredX);
+
+        if(flooredX > 0 && flooredX < thisdata.length) {
+          var weight = interpolateScale(t) - flooredX;
+          var weightedLineAverage = (+thisdata[flooredX].prices[car].low_estimate * weight) + (+thisdata[flooredX-1].prices[car].low_estimate * (1-weight));
+          var newObj = {date:thisdata[flooredX].date, prices:[]};
+          // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
+          newObj.prices[car] = {'low_estimate':v.priceMax + 5};
+          interpolatedLine.push( newObj );
+        }
+        return context(interpolatedLine);
+      }
+    }
+
+    var getMaxInterpolation = function(){
+      var context = this;
+      var interpolateScale = d3.scale.quantile()
+                                     .domain([0,1])
+                                     .range(d3.range(1, thisdata.length + 1));
+      return function(t) {
+        var flooredX = Math.floor(interpolateScale(t));
+        var interpolatedLine = thisdata.slice(0, flooredX);
+
+        if(flooredX > 0 && flooredX < thisdata.length) {
+          var weight = interpolateScale(t) - flooredX;
+          var weightedLineAverage = (+thisdata[flooredX].prices[car].high_estimate * weight) + (+thisdata[flooredX-1].prices[car].high_estimate * (1-weight));
+          var newObj = {date:thisdata[flooredX].date, prices:[]};
+          // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
+          newObj.prices[car] = {'high_estimate':0};
+          interpolatedLine.push( newObj );
+        }
         return context(interpolatedLine);
       }
     }
@@ -122,7 +153,7 @@ function visualize(thisdata, v, car) {
                           });
     var maxLine = svg.append("svg:path").attr("class", "fareline max " + chooseCar(car) )
                                         .transition().duration(v.totalPoints * 40).ease('cubic-in-out')
-                                        .attrTween("d", getMinInterpolation.bind(maxValueline) );
+                                        .attrTween("d", getMaxInterpolation.bind(maxValueline) );
 
     //CREATE FARE TOOLTIP/////////////////////////////////////////////
     var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
