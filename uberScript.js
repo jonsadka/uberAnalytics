@@ -69,182 +69,179 @@ var renderGraphs = function(userInputs){
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
 function visualize(thisdata, v, car) {
-  var timeout = 0;
-  // var timeout = 500 * car + 1000;
-  setTimeout(function(){
-    //DEFINE DATA BOUNDARY///////////////////////////////////////////
-    var startTime = isoTimeConvert(thisdata[0]);
-    var endTime = isoTimeConvert(thisdata[v.totalPoints-1]);
+  //DEFINE DATA BOUNDARY///////////////////////////////////////////
+  var startTime = isoTimeConvert(thisdata[0]);
+  var endTime = isoTimeConvert(thisdata[v.totalPoints-1]);
 
-    var scales = {
-      surgeBarHeight: d3.scale.linear().range([0, barGraphHeight - headHeight]).domain([0, v.surgeMax]),
-      fareY: d3.scale.linear().range([fareGraphHeight, headHeight]).domain([v.priceMin - 5, v.priceMax + 5]),
-      graphX: d3.time.scale().range([leftPad, width - leftPad]).domain([startTime, endTime])
-    };
+  var scales = {
+    surgeBarHeight: d3.scale.linear().range([0, barGraphHeight - headHeight]).domain([0, v.surgeMax]),
+    fareY: d3.scale.linear().range([fareGraphHeight, headHeight]).domain([v.priceMin - 5, v.priceMax + 5]),
+    graphX: d3.time.scale().range([leftPad, width - leftPad]).domain([startTime, endTime])
+  };
 
-    //CREATE AXIS/////////////////////////////////////////////////////
-    var currencyFormatter = d3.format(",.0f");
-    var yAxisFare = d3.svg.axis().scale(scales.fareY).orient("left")
-                                 .tickFormat(function(d) { return "$" + currencyFormatter(d); })
-                                 .ticks(height / 36);
-    var yAxisSurge = d3.svg.axis().scale(scales.surgeBarHeight).orient("left")
-                                  .ticks(v.surgeMax);
-    var xTicks = (v.totalPoints/4 < 24) ? 12 : 24;
-    var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
+  //CREATE AXIS/////////////////////////////////////////////////////
+  var currencyFormatter = d3.format(",.0f");
+  var yAxisFare = d3.svg.axis().scale(scales.fareY).orient("left")
+                               .tickFormat(function(d) { return "$" + currencyFormatter(d); })
+                               .ticks(height / 36);
+  var yAxisSurge = d3.svg.axis().scale(scales.surgeBarHeight).orient("left")
+                                .ticks(v.surgeMax);
+  var xTicks = (v.totalPoints/4 < 24) ? 12 : 24;
+  var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
 
-    //CREATE FARE LINES//////////////////////////////////////////////
-    var getMinInterpolation = function(){
-      var context = this;
-      var interpolateScale = d3.scale.quantile()
-                                     .domain([0,1])
-                                     .range(d3.range(1, thisdata.length + 1));
-      return function(t) {
-        var flooredX = Math.floor(interpolateScale(t));
-        var interpolatedLine = thisdata.slice(0, flooredX);
+  //CREATE FARE LINES//////////////////////////////////////////////
+  var getMinInterpolation = function(){
+    var context = this;
+    var interpolateScale = d3.scale.quantile()
+                                   .domain([0,1])
+                                   .range(d3.range(1, thisdata.length + 1));
+    return function(t) {
+      var flooredX = Math.floor(interpolateScale(t));
+      var interpolatedLine = thisdata.slice(0, flooredX);
 
-        if(flooredX > 0 && flooredX < thisdata.length) {
-          var weight = interpolateScale(t) - flooredX;
-          var weightedLineAverage = (+thisdata[flooredX].prices[car].low_estimate * weight) + (+thisdata[flooredX-1].prices[car].low_estimate * (1-weight));
-          var newObj = {date:thisdata[flooredX].date, prices:[]};
-          // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
-          newObj.prices[car] = {'low_estimate':v.priceMax + 5};
-          interpolatedLine.push( newObj );
-        }
-        return context(interpolatedLine);
+      if(flooredX > 0 && flooredX < thisdata.length) {
+        var weight = interpolateScale(t) - flooredX;
+        var weightedLineAverage = (+thisdata[flooredX].prices[car].low_estimate * weight) + (+thisdata[flooredX-1].prices[car].low_estimate * (1-weight));
+        var newObj = {date:thisdata[flooredX].date, prices:[]};
+        // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
+        newObj.prices[car] = {'low_estimate':weightedLineAverage};
+        interpolatedLine.push( newObj );
       }
+      return context(interpolatedLine);
     }
+  }
 
-    var getMaxInterpolation = function(){
-      var context = this;
-      var interpolateScale = d3.scale.quantile()
-                                     .domain([0,1])
-                                     .range(d3.range(1, thisdata.length + 1));
-      return function(t) {
-        var flooredX = Math.floor(interpolateScale(t));
-        var interpolatedLine = thisdata.slice(0, flooredX);
+  var getMaxInterpolation = function(){
+    var context = this;
+    var interpolateScale = d3.scale.quantile()
+                                   .domain([0,1])
+                                   .range(d3.range(1, thisdata.length + 1));
+    return function(t) {
+      var flooredX = Math.floor(interpolateScale(t));
+      var interpolatedLine = thisdata.slice(0, flooredX);
 
-        if(flooredX > 0 && flooredX < thisdata.length) {
-          var weight = interpolateScale(t) - flooredX;
-          var weightedLineAverage = (+thisdata[flooredX].prices[car].high_estimate * weight) + (+thisdata[flooredX-1].prices[car].high_estimate * (1-weight));
-          var newObj = {date:thisdata[flooredX].date, prices:[]};
-          // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
-          newObj.prices[car] = {'high_estimate':0};
-          interpolatedLine.push( newObj );
-        }
-        return context(interpolatedLine);
+      if(flooredX > 0 && flooredX < thisdata.length) {
+        var weight = interpolateScale(t) - flooredX;
+        var weightedLineAverage = (+thisdata[flooredX].prices[car].high_estimate * weight) + (+thisdata[flooredX-1].prices[car].high_estimate * (1-weight));
+        var newObj = {date:thisdata[flooredX].date, prices:[]};
+        // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
+        newObj.prices[car] = {'high_estimate':weightedLineAverage};
+        interpolatedLine.push( newObj );
       }
+      return context(interpolatedLine);
     }
+  }
 
-    var minValueline = d3.svg.line().interpolate("basis")
-                          .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
-                          .y(function(d) {
-                            var minValue = d.prices[car].low_estimate;
-                            return scales.fareY(minValue);
+  var minValueline = d3.svg.line().interpolate("basis")
+                        .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
+                        .y(function(d) {
+                          var minValue = d.prices[car].low_estimate;
+                          return scales.fareY(minValue);
+                        });
+  var minLine = svg.append("svg:path").attr("class", "fareline min " + chooseCar(car) )
+                                      .transition().duration(v.totalPoints * 40).delay( car * v.totalPoints * 40 + (v.totalPoints * 40/2) )
+                                      .attrTween("d", getMinInterpolation.bind(minValueline) );
+
+  var maxValueline = d3.svg.line().interpolate("basis")
+                        .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
+                        .y(function(d) {
+                          var maxValue = d.prices[car].high_estimate;
+                          return scales.fareY(maxValue);
+                        });
+  var maxLine = svg.append("svg:path").attr("class", "fareline max " + chooseCar(car) )
+                                      .transition().duration(v.totalPoints * 40).delay( car * v.totalPoints * 40 )
+                                      .attrTween("d", getMaxInterpolation.bind(maxValueline) );
+
+  //CREATE FARE TOOLTIP/////////////////////////////////////////////
+  var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
+                                     .y( function(d,i) { return d.Line; });
+  var traceLine = svg.append("svg:path").attr("class", "traceline");
+
+  svg.on('mousemove', function(){
+    var loc = d3.mouse(this);
+    mouse = { x: loc[0], y: loc[1] };
+    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y < fareGraphHeight){
+      traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
+                                           {mouseX: mouse.x, Line:fareGraphHeight}]));
+    }
+    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y > fareGraphHeight){
+      traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:fareGraphHeight},
+                                           {mouseX: mouse.x, Line:fareGraphHeight + barGraphHeight - headHeight }]));
+    }
+  });
+
+  //CREATE DATADOTS////////////////////////////////////////////////
+  var dataDots = svg.selectAll("circle").data(thisdata).enter()
+                .append("circle")
+                .attr("cx", function(d,i){ return scales.graphX( isoTimeConvert(d) ); })
+                .attr("cy", headHeight)
+                .attr("r", 1.5)
+                .attr("fill", "RGBA(241, 82, 130, 1)");
+
+  //CREATE SURGE BARS//////////////////////////////////////////////
+  if (car === 0){
+    var surgeBarWidth = width * graphPct.surgeWidth / v.totalPoints;
+    var surgeBars = svg.selectAll("rect").data(thisdata).enter()
+                       .append("rect")
+                       .attr("fill", "RGBA(241, 82, 130, 1)")
+                       .attr("width", surgeBarWidth * 0.75)
+                       .attr("class", "surgeBars")
+                       .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; })
+                       .attr("y", fareGraphHeight)
+                       .attr("height", function(d,i){
+                          var surge = d.prices[car].surge_multiplier;
+                          return scales.surgeBarHeight(surge);
+                       })
+                       .transition().delay(function (d,i){ return i * 30;}).duration(30)
+                       .attr("width", surgeBarWidth)
+                       .attr("fill", function(d,i){
+                          var surge = d.prices[car].surge_multiplier;
+                          if (surge !== 1){
+                            var opacity = (+surge/v.surgeMax * 1)
+                            return "RGBA(241, 82, 130, " + opacity + ")";
+                          }
+                          return "RGBA(241, 82, 130, 0.1)";
+                       });
+
+    svg.selectAll("rect").on("mouseover", function(d,i){
+                            d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
+                                           .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth*1.75/2; });
+                          })
+                          .on("mouseout", function(d,i){
+                            d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
+                                           .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; });
                           });
-    var minLine = svg.append("svg:path").attr("class", "fareline min " + chooseCar(car) )
-                                        .transition().duration(v.totalPoints * 40).ease('cubic-in-out')
-                                        .attrTween("d", getMinInterpolation.bind(minValueline) );
 
-    var maxValueline = d3.svg.line().interpolate("basis")
-                          .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
-                          .y(function(d) {
-                            var maxValue = d.prices[car].high_estimate;
-                            return scales.fareY(maxValue);
-                          });
-    var maxLine = svg.append("svg:path").attr("class", "fareline max " + chooseCar(car) )
-                                        .transition().duration(v.totalPoints * 40).ease('cubic-in-out')
-                                        .attrTween("d", getMaxInterpolation.bind(maxValueline) );
+    //APPEND AXIS AND LABELS//////////////////////////////////////////
+    svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
+                   .transition().duration(300).call(yAxisFare);
+    svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
+                   .transition().duration(300).call(yAxisSurge);
+    svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
+                   .transition().duration(v.totalPoints * 30).ease('cubic-in-out').call(xAxis);
 
-    //CREATE FARE TOOLTIP/////////////////////////////////////////////
-    var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
-                                       .y( function(d,i) { return d.Line; });
-    var traceLine = svg.append("svg:path").attr("class", "traceline");
+    svg.append("text").transition().duration(v.totalPoints * 30)
+                      .attr("class", "y label").attr("text-anchor", "end")
+                      .attr("x", -headHeight)
+                      .attr("y", leftPad / 4)
+                      .attr("dy", ".75em")
+                      .attr("transform", "rotate(-90)")
+                      .attr("fill","RGBA(225,225,225,0.7)")
+                      .attr("font-size", "12px")
+                      .text("fare pricing");
 
-    svg.on('mousemove', function(){
-      var loc = d3.mouse(this);
-      mouse = { x: loc[0], y: loc[1] };
-      if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y < fareGraphHeight){
-        traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
-                                             {mouseX: mouse.x, Line:fareGraphHeight}]));
-      }
-      if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y > fareGraphHeight){
-        traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:fareGraphHeight},
-                                             {mouseX: mouse.x, Line:fareGraphHeight + barGraphHeight - headHeight }]));
-      }
-    });
+    svg.append("text").transition().duration(v.totalPoints * 30)
+                      .attr("class", "y label").attr("text-anchor", "end")
+                      .attr("x", -fareGraphHeight)
+                      .attr("y", leftPad / 4)
+                      .attr("dy", ".75em")
+                      .attr("transform", "rotate(-90)")
+                      .attr("fill","RGBA(225,225,225,0.7)")
+                      .attr("font-size", "12px")
+                      .text("surge multiplier");
 
-    //CREATE DATADOTS////////////////////////////////////////////////
-    var dataDots = svg.selectAll("circle").data(thisdata).enter()
-                  .append("circle")
-                  .attr("cx", function(d,i){ return scales.graphX( isoTimeConvert(d) ); })
-                  .attr("cy", headHeight)
-                  .attr("r", 1.5)
-                  .attr("fill", "RGBA(241, 82, 130, 1)");
+  }
 
-    //CREATE SURGE BARS//////////////////////////////////////////////
-    if (car === 0){
-      var surgeBarWidth = width * graphPct.surgeWidth / v.totalPoints;
-      var surgeBars = svg.selectAll("rect").data(thisdata).enter()
-                         .append("rect")
-                         .attr("fill", "RGBA(241, 82, 130, 1)")
-                         .attr("width", surgeBarWidth * 0.75)
-                         .attr("class", "surgeBars")
-                         .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; })
-                         .attr("y", fareGraphHeight)
-                         .attr("height", function(d,i){
-                            var surge = d.prices[car].surge_multiplier;
-                            return scales.surgeBarHeight(surge);
-                         })
-                         .transition().delay(function (d,i){ return i * 30;}).duration(30)
-                         .attr("width", surgeBarWidth)
-                         .attr("fill", function(d,i){
-                            var surge = d.prices[car].surge_multiplier;
-                            if (surge !== 1){
-                              var opacity = (+surge/v.surgeMax * 1)
-                              return "RGBA(241, 82, 130, " + opacity + ")";
-                            }
-                            return "RGBA(241, 82, 130, 0.1)";
-                         });
-
-      svg.selectAll("rect").on("mouseover", function(d,i){
-                              d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
-                                             .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth*1.75/2; });
-                            })
-                            .on("mouseout", function(d,i){
-                              d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
-                                             .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; });
-                            });
-
-      //APPEND AXIS AND LABELS//////////////////////////////////////////
-      svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
-                     .transition().duration(300).call(yAxisFare);
-      svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
-                     .transition().duration(300).call(yAxisSurge);
-      svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
-                     .transition().duration(v.totalPoints * 30).ease('cubic-in-out').call(xAxis);
-
-      svg.append("text").transition().duration(v.totalPoints * 30)
-                        .attr("class", "y label").attr("text-anchor", "end")
-                        .attr("x", -headHeight)
-                        .attr("y", leftPad / 4)
-                        .attr("dy", ".75em")
-                        .attr("transform", "rotate(-90)")
-                        .attr("fill","RGBA(225,225,225,0.7)")
-                        .attr("font-size", "12px")
-                        .text("fare pricing");
-
-      svg.append("text").transition().duration(v.totalPoints * 30)
-                        .attr("class", "y label").attr("text-anchor", "end")
-                        .attr("x", -fareGraphHeight)
-                        .attr("y", leftPad / 4)
-                        .attr("dy", ".75em")
-                        .attr("transform", "rotate(-90)")
-                        .attr("fill","RGBA(225,225,225,0.7)")
-                        .attr("font-size", "12px")
-                        .text("surge multiplier");
-
-    }
-  }, timeout);
 };
 
 ///////////////////////////////////////////////////////////////////
