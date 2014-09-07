@@ -98,7 +98,7 @@ function visualize(thisdata, v, car) {
                           return scales.fareY(minValue);
                         });
   var minLine = svg.append("svg:path").attr("class", "fareline min " + chooseCar(car) )
-                                      .transition().delay( car / 4 * v.totalPoints * 20 + (v.totalPoints * 20/8) )
+                                      .transition().delay( car / 3 * v.totalPoints * 20 + (v.totalPoints * 20/6) )
                                       .attr("d", minValueline(thisdata) );
 
   var maxValueline = d3.svg.line().interpolate("basis")
@@ -108,7 +108,7 @@ function visualize(thisdata, v, car) {
                           return scales.fareY(maxValue);
                         });
   var maxLine = svg.append("svg:path").attr("class", "fareline max " + chooseCar(car) )
-                                      .transition().delay( car / 4 * v.totalPoints * 20 )
+                                      .transition().delay( car / 3 * v.totalPoints * 20 )
                                       .attr("d", maxValueline(thisdata) );
 
   //CREATE FARE TOOLTIP/////////////////////////////////////////////
@@ -165,10 +165,22 @@ function visualize(thisdata, v, car) {
     svg.selectAll("rect").on("mouseover", function(d,i){
                             d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
                                            .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth*1.75/2; });
+                            svg.append("text").transition().duration(200).attr("id", "tooltip")
+                                              .attr("x", function(){ return scales.graphX( isoTimeConvert(d) ); })
+                                              .attr("y", function(){
+                                                var surge = d.prices[car].surge_multiplier;
+                                                return scales.surgeBarHeight(surge) + fareGraphHeight + 12;
+                                               })
+                                              .attr("text-anchor", "middle")
+                                              .attr("font-size", "12px")
+                                              .attr("fill", "white")
+                                              .attr("font-weight", "bold")
+                                              .text(d.prices[0].surge_multiplier);
                           })
                           .on("mouseout", function(d,i){
                             d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
                                            .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; });
+                            d3.select("#tooltip").remove();             
                           });
 
     //APPEND AXIS AND LABELS//////////////////////////////////////////
