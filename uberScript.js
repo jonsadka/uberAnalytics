@@ -25,7 +25,7 @@ var chartfill = d3.select(".content").append("svg").attr("width", width)
 var svg = d3.select(".content").append("svg").attr("width", width).attr("height", height).attr("id", "graphs");
 // GET USER DATA///////////////////////////////////////////////////
 var e = document.getElementById("dayofweek");
-var userDay = e.options[e.selectedIndex].value;
+var userDayofInterest = e.options[e.selectedIndex].value;
 var e = document.getElementById("startLoc");
 var userStart = e.options[e.selectedIndex].value;
 var e = document.getElementById("endLoc");
@@ -34,7 +34,7 @@ var userEnd = e.options[e.selectedIndex].value;
 var user = {
   startLoc: userStart,
   endLoc: userEnd,
-  day: userDay
+  date: userDayofInterest
 };
 var url = 'http://uberanalytics.appsdeck.eu/prices/' + user.startLoc + '/' + user.endLoc;
 
@@ -91,48 +91,6 @@ function visualize(thisdata, v, car) {
   var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
 
   //CREATE FARE LINES//////////////////////////////////////////////
-  var getMinInterpolation = function(){
-    var context = this;
-    var interpolateScale = d3.scale.quantile()
-                                   .domain([0,1])
-                                   .range(d3.range(1, thisdata.length + 1));
-    return function(t) {
-      var flooredX = Math.floor(interpolateScale(t));
-      var interpolatedLine = thisdata.slice(0, flooredX);
-
-      if(flooredX > 0 && flooredX < thisdata.length) {
-        var weight = interpolateScale(t) - flooredX;
-        var weightedLineAverage = (+thisdata[flooredX].prices[car].low_estimate * weight) + (+thisdata[flooredX-1].prices[car].low_estimate * (1-weight));
-        var newObj = {date:thisdata[flooredX].date, prices:[]};
-        // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
-        newObj.prices[car] = {'low_estimate':weightedLineAverage};
-        interpolatedLine.push( newObj );
-      }
-      return context(interpolatedLine);
-    };
-  };
-
-  var getMaxInterpolation = function(){
-    var context = this;
-    var interpolateScale = d3.scale.quantile()
-                                   .domain([0,1])
-                                   .range(d3.range(1, thisdata.length + 1));
-    return function(t) {
-      var flooredX = Math.floor(interpolateScale(t));
-      var interpolatedLine = thisdata.slice(0, flooredX);
-
-      if(flooredX > 0 && flooredX < thisdata.length) {
-        var weight = interpolateScale(t) - flooredX;
-        var weightedLineAverage = (+thisdata[flooredX].prices[car].high_estimate * weight) + (+thisdata[flooredX-1].prices[car].high_estimate * (1-weight));
-        var newObj = {date:thisdata[flooredX].date, prices:[]};
-        // this right here should be set to some differnet value so that it goes smoother...should be weightedLineAverage
-        newObj.prices[car] = {'high_estimate':weightedLineAverage};
-        interpolatedLine.push( newObj );
-      }
-      return context(interpolatedLine);
-    };
-  };
-
   var minValueline = d3.svg.line().interpolate("basis")
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
                         .y(function(d) {
@@ -140,8 +98,8 @@ function visualize(thisdata, v, car) {
                           return scales.fareY(minValue);
                         });
   var minLine = svg.append("svg:path").attr("class", "fareline min " + chooseCar(car) )
-                                      .transition().duration(v.totalPoints * 40).delay( car * v.totalPoints * 40 + (v.totalPoints * 40/2) )
-                                      .attrTween("d", getMinInterpolation.bind(minValueline) );
+                                      .transition().delay( car / 4 * v.totalPoints * 20 + (v.totalPoints * 20/8) )
+                                      .attr("d", minValueline(thisdata) );
 
   var maxValueline = d3.svg.line().interpolate("basis")
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
@@ -150,8 +108,8 @@ function visualize(thisdata, v, car) {
                           return scales.fareY(maxValue);
                         });
   var maxLine = svg.append("svg:path").attr("class", "fareline max " + chooseCar(car) )
-                                      .transition().duration(v.totalPoints * 40).delay( car * v.totalPoints * 40 )
-                                      .attrTween("d", getMaxInterpolation.bind(maxValueline) );
+                                      .transition().delay( car / 4 * v.totalPoints * 20 )
+                                      .attr("d", maxValueline(thisdata) );
 
   //CREATE FARE TOOLTIP/////////////////////////////////////////////
   var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
@@ -161,7 +119,7 @@ function visualize(thisdata, v, car) {
   svg.on('mousemove', function(){
     var loc = d3.mouse(this);
     mouse = { x: loc[0], y: loc[1] };
-    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y < fareGraphHeight){
+    if ( mouse.x > leftPad && mouse.x < width - leftPad && mouse.y < fareGraphHeight){
       traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
                                            {mouseX: mouse.x, Line:fareGraphHeight}]));
     }
@@ -281,7 +239,7 @@ var formatData = function(carType, allData, userInputs, dataval){
     var start = allData[i].start;
     var end = allData[i].end;
     var fullDate = isoTimeConvert(allData[i]);
-    if ( start === userInputs.startLoc && end === userInputs.endLoc && userInputs.day === fullDate.toString().substring(0,3) ){
+    if ( start === userInputs.startLoc && end === userInputs.endLoc && userInputs.date === fullDate.toString().substring(0,10) ){
       var prices = allData[i].prices[carType];
       if ( dataval.surgeMax < prices.surge_multiplier ) dataval.surgeMax = +prices.surge_multiplier;
       if ( dataval.priceMin > prices.low_estimate ) dataval.priceMin = +prices.low_estimate;
@@ -310,7 +268,7 @@ renderGraphs(user);
 d3.select(document.getElementById("options")).on('change',
   function(){
     var e = document.getElementById("dayofweek");
-    var userDay = e.options[e.selectedIndex].value;
+    var userDayofInterest = e.options[e.selectedIndex].value;
     var e = document.getElementById("startLoc");
     var userStart = e.options[e.selectedIndex].value;
     var e = document.getElementById("endLoc");
@@ -319,7 +277,7 @@ d3.select(document.getElementById("options")).on('change',
     var user = {
       startLoc: userStart,
       endLoc: userEnd,
-      day: userDay
+      date: userDayofInterest
     };
     var myNode = document.getElementById("graphs");
       while (myNode.firstChild) {
