@@ -36,11 +36,12 @@ var user = {
   endLoc: userEnd,
   day: userDay
 };
+var url = 'http://uberanalytics.appsdeck.eu/prices/' + user.startLoc + '/' + user.endLoc;
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
 var renderGraphs = function(userInputs){
-  d3.json("data.json", function(error, data){
+  d3.json(url, function(error, data){
     if (error) return console.warn(error);
 
     var dataval = {
@@ -108,8 +109,8 @@ function visualize(thisdata, v, car) {
         interpolatedLine.push( newObj );
       }
       return context(interpolatedLine);
-    }
-  }
+    };
+  };
 
   var getMaxInterpolation = function(){
     var context = this;
@@ -129,8 +130,8 @@ function visualize(thisdata, v, car) {
         interpolatedLine.push( newObj );
       }
       return context(interpolatedLine);
-    }
-  }
+    };
+  };
 
   var minValueline = d3.svg.line().interpolate("basis")
                         .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
@@ -197,7 +198,7 @@ function visualize(thisdata, v, car) {
                        .attr("fill", function(d,i){
                           var surge = d.prices[car].surge_multiplier;
                           if (surge !== 1){
-                            var opacity = (+surge/v.surgeMax * 1)
+                            var opacity = (+surge/v.surgeMax * 1);
                             return "RGBA(241, 82, 130, " + opacity + ")";
                           }
                           return "RGBA(241, 82, 130, 0.1)";
@@ -260,8 +261,8 @@ var sortDates = function (list) {
                 list[j].date = list[j + 1].date;
                 list[j + 1].date = swapping;
                 hasSwap = true;
-            };
-        };
+            }
+        }
 
         if (!hasSwap) { break; }
     }
@@ -320,11 +321,11 @@ d3.select(document.getElementById("options")).on('change',
       endLoc: userEnd,
       day: userDay
     };
-
     var myNode = document.getElementById("graphs");
       while (myNode.firstChild) {
       myNode.removeChild(myNode.firstChild);
     }
+    url = 'http://uberanalytics.appsdeck.eu/prices/' + user.startLoc + '/' + user.endLoc;
     renderGraphs(user);
   }
-)
+);
