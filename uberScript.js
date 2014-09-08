@@ -18,7 +18,7 @@ var fareGraphHeight = height * graphPct.fareHeight - headHeight - bottomPad;
 var barGraphHeight = height * graphPct.surgeHeight - headHeight - bottomPad;
 
 //CREATE CANVAS//////////////////////////////////////////////////
-var chartfill = d3.select(".content").append("svg").attr("width", width)
+var chartbg = d3.select(".content").append("svg").attr("width", width)
                                      .attr("height", height)
                                      .attr("class", "chartbg")
                                      .attr("transform", "translate(100,100)");
@@ -31,85 +31,64 @@ var userStart = e.options[e.selectedIndex].value;
 var e = document.getElementById("endLoc");
 var userEnd = e.options[e.selectedIndex].value;
 
-var user = {
+var userInputs = {
   startLoc: userStart,
   endLoc: userEnd,
   date: userDayofInterest
 };
-var url = 'http://uberanalytics.appsdeck.eu/prices/' + user.startLoc + '/' + user.endLoc;
+var url = 'http://uberanalytics.appsdeck.eu/prices/' + userInputs.startLoc + '/' + userInputs.endLoc;
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
-var renderGraphs = function(userInputs){
-  d3.json(url, function(error, data){
-    if (error) return console.warn(error);
+var renderGraphs = function(url, userParamaters){
+  d3.json(url, function(err, serverJSON){
+    if (err) return console.warn(err);
+    
+    var reformattedJSON = reformatJSON(serverJSON);
+    var extremeValues = reformattedJSON.shift();
 
-    var dataval = {
-      totalPoints: 0,
-      surgeMax: 0,
-      priceMin: +data[1].prices[0].low_estimate,
-      priceMax: 0
-    };
-
-    var uberXData = formatData(0, data, userInputs, dataval);
-    dataval = uberXData[1];
-    var uberXLData = formatData(1, data, userInputs, dataval);
-    dataval = uberXLData[1];
-    var uberBLACKData = formatData(2, data, userInputs, dataval);
-    dataval = uberBLACKData[1];
-    var uberSUVData = formatData(3, data, userInputs, dataval);
-
-    visualize(uberXData[0], uberXData[1], 0);
-    visualize(uberXLData[0], uberXLData[1], 1);
-    visualize(uberBLACKData[0], uberBLACKData[1], 2);
-    visualize(uberSUVData[0], uberSUVData[1], 3);
-
+    visualize(reformattedJSON, extremeValues, userParamaters);
   });
 };
 
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
-function visualize(thisdata, v, car) {
+function visualize(data, v, userParamaters) {
   //DEFINE DATA BOUNDARY///////////////////////////////////////////
-  var startTime = isoTimeConvert(thisdata[0]);
-  var endTime = isoTimeConvert(thisdata[v.totalPoints-1]);
+  data = filterAndOrderDates(data, userParamaters);
 
-  var scales = {
-    surgeBarHeight: d3.scale.linear().range([0, barGraphHeight - headHeight]).domain([0, v.surgeMax]),
-    fareY: d3.scale.linear().range([fareGraphHeight, headHeight]).domain([v.priceMin - 5, v.priceMax + 5]),
-    graphX: d3.time.scale().range([leftPad, width - leftPad]).domain([startTime, endTime])
-  };
+  var startTime = data[0].date;
+  var endTime = data[data.length-1].date;
+
+  var xScale = d3.time.scale().range([leftPad, width - leftPad]).domain([startTime, endTime]);
+  var yScale = d3.scale.linear().range([fareGraphHeight, headHeight]).domain([v.uberX_priceMin - 5, v.uberX_priceMax + 5]);
+  var yScaleSurge = d3.scale.linear().range([0, barGraphHeight - headHeight]).domain([0, v.uberX_surgeMax]);
 
   //CREATE AXIS/////////////////////////////////////////////////////
-  var currencyFormatter = d3.format(",.0f");
-  var yAxisFare = d3.svg.axis().scale(scales.fareY).orient("left")
-                               .tickFormat(function(d) { return "$" + currencyFormatter(d); })
-                               .ticks(height / 36);
-  var yAxisSurge = d3.svg.axis().scale(scales.surgeBarHeight).orient("left")
-                                .ticks(v.surgeMax);
-  var xTicks = (v.totalPoints/4 < 24) ? 12 : 24;
-  var xAxis = d3.svg.axis().scale(scales.graphX).orient("top").ticks( xTicks );
+  var xTicks = (v.dataPoints/4 < 24) ? 12 : 24;
+  var xAxis = d3.svg.axis().scale(xScale).orient("top").ticks( xTicks );
+  var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(height / 36)
+                           .tickFormat(function(d) { return "$" + currencyFormatter(d); });
+  var yAxisSurge = d3.svg.axis().scale(yScaleSurge).orient("left").ticks(v.uberX_surgeMax);
 
   //CREATE FARE LINES//////////////////////////////////////////////
   var minValueline = d3.svg.line().interpolate("basis")
-                        .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
+                        .x(function(d,i) { return xScale( d.date ); })
                         .y(function(d) {
-                          var minValue = d.prices[car].low_estimate;
-                          return scales.fareY(minValue);
+                          var minValue = d.uberX.low;
+                          return yScale(minValue);
                         });
-  var minLine = svg.append("svg:path").attr("class", "fareline min " + chooseCar(car) )
-                                      .transition().delay( car / 3 * v.totalPoints * 20 + (v.totalPoints * 20/6) )
-                                      .attr("d", minValueline(thisdata) );
+  var minLine = svg.append("svg:path").attr("class", "fareline min " + 'uberX' )
+                                      .attr("d", minValueline(data) );
 
   var maxValueline = d3.svg.line().interpolate("basis")
-                        .x(function(d,i) { return scales.graphX( isoTimeConvert(d) ); })
+                        .x(function(d,i) { return xScale( d.date ); })
                         .y(function(d) {
-                          var maxValue = d.prices[car].high_estimate;
-                          return scales.fareY(maxValue);
+                          var maxValue = d.uberX.high;
+                          return yScale(maxValue);
                         });
-  var maxLine = svg.append("svg:path").attr("class", "fareline max " + chooseCar(car) )
-                                      .transition().delay( car / 3 * v.totalPoints * 20 )
-                                      .attr("d", maxValueline(thisdata) );
+  var maxLine = svg.append("svg:path").attr("class", "fareline max " + 'uberX' )
+                                      .attr("d", maxValueline(data) );
 
   //CREATE FARE TOOLTIP/////////////////////////////////////////////
   var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
@@ -130,95 +109,154 @@ function visualize(thisdata, v, car) {
   });
 
   //CREATE DATADOTS////////////////////////////////////////////////
-  var dataDots = svg.selectAll("circle").data(thisdata).enter()
+  var dataDots = svg.selectAll("circle").data(data).enter()
                 .append("circle")
-                .attr("cx", function(d,i){ return scales.graphX( isoTimeConvert(d) ); })
+                .attr("cx", function(d,i){ return xScale( d.date ); })
                 .attr("cy", headHeight)
                 .attr("r", 1.5)
                 .attr("fill", "RGBA(241, 82, 130, 1)");
 
   //CREATE SURGE BARS//////////////////////////////////////////////
-  if (car === 0){
-    var surgeBarWidth = width * graphPct.surgeWidth / v.totalPoints;
-    var surgeBars = svg.selectAll("rect").data(thisdata).enter()
-                       .append("rect")
-                       .attr("fill", "RGBA(241, 82, 130, 1)")
-                       .attr("width", surgeBarWidth * 0.75)
-                       .attr("class", "surgeBars")
-                       .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; })
-                       .attr("y", fareGraphHeight)
-                       .attr("height", function(d,i){
-                          var surge = d.prices[car].surge_multiplier;
-                          return scales.surgeBarHeight(surge);
+  var surgeBarWidth = width * graphPct.surgeWidth / v.dataPoints;
+  var surgeBars = svg.selectAll("rect").data(data).enter()
+                     .append("rect")
+                     .attr("fill", "RGBA(241, 82, 130, 1)")
+                     .attr("width", surgeBarWidth * 0.75)
+                     .attr("class", "surgeBars")
+                     .attr("x", function(d,i){ return xScale( d.date ) - surgeBarWidth/2; })
+                     .attr("y", fareGraphHeight)
+                     .attr("height", function(d,i){
+                        var surge = d.uberX.surge;
+                        return yScaleSurge(surge);
+                     })
+                     .transition().delay(function (d,i){ return i * 30;}).duration(30)
+                     .attr("width", surgeBarWidth)
+                     .attr("fill", function(d,i){
+                        var surge = d.uberX.surge;
+                        if (surge !== 1){
+                          var opacity = (+surge/v.uberX_surgeMax * 1);
+                          return "RGBA(241, 82, 130, " + opacity + ")";
+                        }
+                        return "RGBA(241, 82, 130, 0.1)";
+                     });
+
+  svg.selectAll("rect").on("mouseover", function(d,i){
+                          d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
+                                         .attr("x", function(d,i){ return xScale( d.date ) - surgeBarWidth*1.75/2; });
+                          svg.append("text").transition().duration(200).attr("id", "tooltip")
+                                            .attr("x", function(){ return xScale( d.date ); })
+                                            .attr("y", function(){
+                                              var surge = d.uberX.surge;
+                                              return yScaleSurge(surge) + fareGraphHeight + 12;
+                                             })
+                                            .attr("text-anchor", "middle")
+                                            .attr("font-size", "12px")
+                                            .attr("fill", "white")
+                                            .attr("font-weight", "bold")
+                                            .text(d.uberX.surge);
                        })
-                       .transition().delay(function (d,i){ return i * 30;}).duration(30)
-                       .attr("width", surgeBarWidth)
-                       .attr("fill", function(d,i){
-                          var surge = d.prices[car].surge_multiplier;
-                          if (surge !== 1){
-                            var opacity = (+surge/v.surgeMax * 1);
-                            return "RGBA(241, 82, 130, " + opacity + ")";
-                          }
-                          return "RGBA(241, 82, 130, 0.1)";
+                       .on("mouseout", function(d,i){
+                          d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
+                                         .attr("x", function(d,i){ return xScale( d.date ) - surgeBarWidth/2; });
+                          d3.select("#tooltip").remove();         
                        });
 
-    svg.selectAll("rect").on("mouseover", function(d,i){
-                            d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
-                                           .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth*1.75/2; });
-                            svg.append("text").transition().duration(200).attr("id", "tooltip")
-                                              .attr("x", function(){ return scales.graphX( isoTimeConvert(d) ); })
-                                              .attr("y", function(){
-                                                var surge = d.prices[car].surge_multiplier;
-                                                return scales.surgeBarHeight(surge) + fareGraphHeight + 12;
-                                               })
-                                              .attr("text-anchor", "middle")
-                                              .attr("font-size", "12px")
-                                              .attr("fill", "white")
-                                              .attr("font-weight", "bold")
-                                              .text(d.prices[0].surge_multiplier);
-                          })
-                          .on("mouseout", function(d,i){
-                            d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
-                                           .attr("x", function(d,i){ return scales.graphX( isoTimeConvert(d) ) - surgeBarWidth/2; });
-                            d3.select("#tooltip").remove();             
-                          });
+  //APPEND AXIS AND LABELS//////////////////////////////////////////
+  svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
+                 .transition().duration(300).call(yAxis);
+  svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
+                 .transition().duration(300).call(yAxisSurge);
+  svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
+                 .transition().duration(v.dataPoints * 30).ease('cubic-in-out').call(xAxis);
 
-    //APPEND AXIS AND LABELS//////////////////////////////////////////
-    svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
-                   .transition().duration(300).call(yAxisFare);
-    svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
-                   .transition().duration(300).call(yAxisSurge);
-    svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
-                   .transition().duration(v.totalPoints * 30).ease('cubic-in-out').call(xAxis);
+  svg.append("text").transition().duration(v.dataPoints * 30)
+                    .attr("class", "y label").attr("text-anchor", "end")
+                    .attr("x", -headHeight)
+                    .attr("y", leftPad / 4)
+                    .attr("dy", ".75em")
+                    .attr("transform", "rotate(-90)")
+                    .attr("fill","RGBA(225,225,225,0.7)")
+                    .attr("font-size", "12px")
+                    .text("fare pricing");
 
-    svg.append("text").transition().duration(v.totalPoints * 30)
-                      .attr("class", "y label").attr("text-anchor", "end")
-                      .attr("x", -headHeight)
-                      .attr("y", leftPad / 4)
-                      .attr("dy", ".75em")
-                      .attr("transform", "rotate(-90)")
-                      .attr("fill","RGBA(225,225,225,0.7)")
-                      .attr("font-size", "12px")
-                      .text("fare pricing");
-
-    svg.append("text").transition().duration(v.totalPoints * 30)
-                      .attr("class", "y label").attr("text-anchor", "end")
-                      .attr("x", -fareGraphHeight)
-                      .attr("y", leftPad / 4)
-                      .attr("dy", ".75em")
-                      .attr("transform", "rotate(-90)")
-                      .attr("fill","RGBA(225,225,225,0.7)")
-                      .attr("font-size", "12px")
-                      .text("surge multiplier");
-
-  }
-
+  svg.append("text").transition().duration(v.dataPoints * 30)
+                    .attr("class", "y label").attr("text-anchor", "end")
+                    .attr("x", -fareGraphHeight)
+                    .attr("y", leftPad / 4)
+                    .attr("dy", ".75em")
+                    .attr("transform", "rotate(-90)")
+                    .attr("fill","RGBA(225,225,225,0.7)")
+                    .attr("font-size", "12px")
+                    .text("surge multiplier");
 };
 
 ///////////////////////////////////////////////////////////////////
 //HELPER FUNCTIONS/////////////////////////////////////////////////
-var sortDates = function (list) {
+var isoTimeConvert = function(time){
+  var timeFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
+  return timeFormat.parse( time.substring(0,22) + time.substring(23,25) );
+};
 
+var reformatJSON = function(json){
+  var result = [];
+
+  var maxes = { dataPoints: json.length };
+
+  result[0] = maxes;
+
+  // format the data
+  for ( var i = 0; i < json.length; i++){
+    var currentItem = json[i];
+    
+    var newData = {
+      start: currentItem.start,
+      end: currentItem.end,
+      date: isoTimeConvert( currentItem.date )
+
+    };
+
+    for(var j = 0; j < currentItem.prices.length; j++){
+      var pricing = currentItem.prices[j];
+      var product = pricing.display_name;
+      if ( product !== 'uberT' && product !== 'uberTaxi' && product !== 'uberTAXI' ){
+        // create sub objects for each product
+        newData[product] = {};
+        newData[product]['currency'] = pricing.currency_code;
+        newData[product]['surge'] = +pricing.surge_multiplier;
+        newData[product]['low'] = +pricing.low_estimate;
+        newData[product]['high'] = +pricing.high_estimate;
+
+        // create sub objects for each product
+        // newData[product + '_currency'] = pricing.currency_code;
+        // newData[product + '_surge'] = pricing.surge_multiplier;
+        // newData[product + '_low'] = +pricing.low_estimate;
+        // newData[product + '_high'] = +pricing.high_estimate;
+
+        if ( !maxes[product + '_surgeMax'] ){
+          maxes[product + '_surgeMax'] = +pricing.surge_multiplier;
+        } else if ( maxes[product + '_surgeMax'] < +pricing.surge_multiplier ) {
+          maxes[product + '_surgeMax'] = +pricing.surge_multiplier;
+        }
+
+        if ( !maxes[product + '_priceMin'] ){
+          maxes[product + '_priceMin'] = +pricing.low_estimate;
+        } else if ( maxes[product + '_priceMin'] > +pricing.low_estimate ) {
+          maxes[product + '_priceMin'] = +pricing.low_estimate;
+        }
+
+        if ( !maxes[product + '_priceMax'] ){
+          maxes[product + '_priceMax'] = +pricing.high_estimate;
+        } else if ( maxes[product + '_priceMax'] < +pricing.high_estimate ) {
+          maxes[product + '_priceMax'] = +pricing.high_estimate;
+        }
+      }
+    }
+    result.push( newData );
+  }
+  return result;
+};
+
+var orderDates = function (list) {
     var endIndex = 0,
         len = list.length - 1,
         hasSwap = true;
@@ -239,30 +277,18 @@ var sortDates = function (list) {
     return list;
 };
 
-var isoTimeConvert = function(time){
-  var timeFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
-  return timeFormat.parse( time.date.substring(0,22) + time.date.substring(23,25) );
-};
-
-var formatData = function(carType, allData, userInputs, dataval){
+var filterAndOrderDates = function(data, userParamaters){
   var filteredData = [];
-  dataval.totalPoints = 0;
-  for (var i = 0, size = allData.length;  i < size; i++){
-    var start = allData[i].start;
-    var end = allData[i].end;
-    var fullDate = isoTimeConvert(allData[i]);
-    if ( start === userInputs.startLoc && end === userInputs.endLoc && userInputs.date === fullDate.toString().substring(0,10) ){
-      var prices = allData[i].prices[carType];
-      if ( dataval.surgeMax < prices.surge_multiplier ) dataval.surgeMax = +prices.surge_multiplier;
-      if ( dataval.priceMin > prices.low_estimate ) dataval.priceMin = +prices.low_estimate;
-      if ( dataval.priceMax < prices.high_estimate ) dataval.priceMax = +prices.high_estimate;
-      dataval.totalPoints++;
-      filteredData.push(allData[i]);
+  for (var i = 0, size = data.length;  i < size; i++){
+    var start = data[i].start;
+    var end = data[i].end;
+    var fullDate = data[i].date;
+    if ( start === userParamaters.startLoc && end === userParamaters.endLoc && userParamaters.date === fullDate.toString().substring(0,10) ){
+      filteredData.push(data[i]);
     }
   }
-  var sortedData = sortDates(filteredData);
-  return [sortedData, dataval];
-};
+  return orderDates(filteredData);
+}
 
 var chooseCar = function(carNumber){
   if (carNumber === 0) return 'uberX';
@@ -271,9 +297,11 @@ var chooseCar = function(carNumber){
   if (carNumber === 3) return 'uberSUV';
 };
 
+var currencyFormatter = d3.format(",.0f");
+
 ///////////////////////////////////////////////////////////////////
 //RENDER GRAPHS////////////////////////////////////////////////////
-renderGraphs(user);
+renderGraphs(url, userInputs);
 
 ///////////////////////////////////////////////////////////////////
 //REFRESH ON CHANGE////////////////////////////////////////////////
@@ -286,16 +314,18 @@ d3.select(document.getElementById("options")).on('change',
     var e = document.getElementById("endLoc");
     var userEnd = e.options[e.selectedIndex].value;
 
-    var user = {
+    var userInputs = {
       startLoc: userStart,
       endLoc: userEnd,
       date: userDayofInterest
     };
+
     var myNode = document.getElementById("graphs");
       while (myNode.firstChild) {
       myNode.removeChild(myNode.firstChild);
     }
-    url = 'http://uberanalytics.appsdeck.eu/prices/' + user.startLoc + '/' + user.endLoc;
-    renderGraphs(user);
+
+    url = 'http://uberanalytics.appsdeck.eu/prices/' + userInputs.startLoc + '/' + userInputs.endLoc;
+    renderGraphs(url, userInputs);
   }
 );
