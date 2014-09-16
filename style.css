@@ -76,21 +76,20 @@ a:-webkit-any-link {
   fill: none;
   stroke-linejoin: round;
   stroke-linecap: round;
-  stroke-width: 1px;
+  stroke-width: 1.5px;
 }
-
+/*
 .fareline.min:hover,
 .fareline.max:hover{
-  stroke-width: 5px;
-}
+  stroke-width: 10px;
+}*/
 
 .fareline.min {
   stroke-dasharray: 2,10;
 }
 
-
-.fareline.uberX {
-  stroke: RGBA(225, 225, 225, .9);
+it .fareline.uberX {
+  stroke: RGBA(225, 225, 225, .7);
 }
 
 .fareline.uberXL {
@@ -106,6 +105,7 @@ a:-webkit-any-link {
 }
 
 .traceline {
+  stroke-dasharray: 1,5;
   stroke: #fff;
   stroke-width: 1px;
 }

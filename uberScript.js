@@ -11,7 +11,7 @@ var height = window.innerHeight;
 var graphPct = {
   fareHeight: 0.77,
   surgeHeight: 0.23,
-  surgeWidth: 0.4
+  surgeWidth: 0.7
 };
 
 var fareGraphHeight = height * graphPct.fareHeight - headHeight - bottomPad;
@@ -33,10 +33,10 @@ var userEnd = e.options[e.selectedIndex].value;
 
 var userInputs = {
   startLoc: userStart,
-  endLoc: userEnd,
-  date: userDayofInterest
+  date: userDayofInterest,
+  endLoc: userEnd
 };
-var url = 'http://uberanalytics.appsdeck.eu/prices/' + userInputs.startLoc + '/' + userInputs.endLoc;
+var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
@@ -44,10 +44,10 @@ var renderGraphs = function(url, userParamaters){
   d3.json(url, function(err, serverJSON){
     if (err) return console.warn(err);
     
-    var reformattedJSON = reformatJSON(serverJSON);
-    var extremeValues = reformattedJSON.shift();
+    var extremeValues = serverJSON.shift();
+    var filteredJSON = filterDates(serverJSON, userParamaters);
 
-    visualize(reformattedJSON, extremeValues, userParamaters);
+    visualize(filteredJSON, extremeValues, userParamaters);
   });
 };
 
@@ -55,10 +55,8 @@ var renderGraphs = function(url, userParamaters){
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
 function visualize(data, v, userParamaters) {
   //DEFINE DATA BOUNDARY///////////////////////////////////////////
-  data = filterAndOrderDates(data, userParamaters);
-
-  var startTime = data[0].date;
-  var endTime = data[data.length-1].date;
+  var startTime = isoTimeConvert( data[0].date );
+  var endTime = isoTimeConvert( data[data.length-1].date );
 
   var xScale = d3.time.scale().range([leftPad, width - leftPad]).domain([startTime, endTime]);
   var yScale = d3.scale.linear().range([fareGraphHeight, headHeight]).domain([v.uberX_priceMin - 5, v.uberX_priceMax + 5]);
@@ -67,51 +65,51 @@ function visualize(data, v, userParamaters) {
   //CREATE AXIS/////////////////////////////////////////////////////
   var xTicks = (v.dataPoints/4 < 24) ? 12 : 24;
   var xAxis = d3.svg.axis().scale(xScale).orient("top").ticks( xTicks );
-  var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(height / 36)
+  var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks( height / 48 )
                            .tickFormat(function(d) { return "$" + currencyFormatter(d); });
   var yAxisSurge = d3.svg.axis().scale(yScaleSurge).orient("left").ticks(v.uberX_surgeMax);
 
   //CREATE FARE LINES//////////////////////////////////////////////
-  var minValueline = d3.svg.line().interpolate("basis")
-                        .x(function(d,i) { return xScale( d.date ); })
-                        .y(function(d) {
-                          var minValue = d.uberX.low;
-                          return yScale(minValue);
-                        });
-  var minLine = svg.append("svg:path").attr("class", "fareline min " + 'uberX' )
-                                      .attr("d", minValueline(data) );
-
-  var maxValueline = d3.svg.line().interpolate("basis")
-                        .x(function(d,i) { return xScale( d.date ); })
+  var line = d3.svg.line().interpolate("step")
+                        .x(function(d,i) { return xScale( isoTimeConvert(d.date) ); })
                         .y(function(d) {
                           var maxValue = d.uberX.high;
                           return yScale(maxValue);
                         });
+
   var maxLine = svg.append("svg:path").attr("class", "fareline max " + 'uberX' )
-                                      .attr("d", maxValueline(data) );
+                                      .attr("d", line(data) );
+
 
   //CREATE FARE TOOLTIP/////////////////////////////////////////////
   var followTraceLine = d3.svg.line().x( function(d) { return d.mouseX; })
                                      .y( function(d,i) { return d.Line; });
-  var traceLine = svg.append("svg:path").attr("class", "traceline");
+  var traceLineX = svg.append("svg:path").attr("class", "traceline");
+  var traceLineY = svg.append("svg:path").attr("class", "traceline");
 
   svg.on('mousemove', function(){
     var loc = d3.mouse(this);
     mouse = { x: loc[0], y: loc[1] };
-    if ( mouse.x > leftPad && mouse.x < width - leftPad && mouse.y < fareGraphHeight){
-      traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
+    if ( mouse.x > leftPad && mouse.x < width - leftPad && mouse.y < fareGraphHeight && mouse.y > headHeight){
+      traceLineX.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
                                            {mouseX: mouse.x, Line:fareGraphHeight}]));
+
+      traceLineY.attr("d", followTraceLine([{mouseX: leftPad, Line: mouse.y},
+                                           {mouseX: width - leftPad, Line: mouse.y}]));
     }
-    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y > fareGraphHeight){
-      traceLine.attr("d", followTraceLine([{mouseX: mouse.x, Line:fareGraphHeight},
-                                           {mouseX: mouse.x, Line:fareGraphHeight + barGraphHeight - headHeight }]));
+    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y > fareGraphHeight && mouse.y < fareGraphHeight + barGraphHeight - headHeight){
+      traceLineX.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
+                                           {mouseX: mouse.x, Line:mouse.y}]));
+
+      traceLineY.attr("d", followTraceLine([{mouseX: leftPad, Line: mouse.y},
+                                           {mouseX: width - leftPad, Line: mouse.y}]));
     }
   });
 
   //CREATE DATADOTS////////////////////////////////////////////////
   var dataDots = svg.selectAll("circle").data(data).enter()
                 .append("circle")
-                .attr("cx", function(d,i){ return xScale( d.date ); })
+                .attr("cx", function(d,i){ return xScale( isoTimeConvert(d.date) ); })
                 .attr("cy", headHeight)
                 .attr("r", 1.5)
                 .attr("fill", "RGBA(241, 82, 130, 1)");
@@ -120,10 +118,10 @@ function visualize(data, v, userParamaters) {
   var surgeBarWidth = width * graphPct.surgeWidth / v.dataPoints;
   var surgeBars = svg.selectAll("rect").data(data).enter()
                      .append("rect")
+                     .attr("class", "surgeBars")
                      .attr("fill", "RGBA(241, 82, 130, 1)")
                      .attr("width", surgeBarWidth * 0.75)
-                     .attr("class", "surgeBars")
-                     .attr("x", function(d,i){ return xScale( d.date ) - surgeBarWidth/2; })
+                     .attr("x", function(d,i){ return xScale( isoTimeConvert(d.date) ) - surgeBarWidth/2; })
                      .attr("y", fareGraphHeight)
                      .attr("height", function(d,i){
                         var surge = d.uberX.surge;
@@ -140,26 +138,26 @@ function visualize(data, v, userParamaters) {
                         return "RGBA(241, 82, 130, 0.1)";
                      });
 
-  svg.selectAll("rect").on("mouseover", function(d,i){
-                          d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
-                                         .attr("x", function(d,i){ return xScale( d.date ) - surgeBarWidth*1.75/2; });
-                          svg.append("text").transition().duration(200).attr("id", "tooltip")
-                                            .attr("x", function(){ return xScale( d.date ); })
-                                            .attr("y", function(){
-                                              var surge = d.uberX.surge;
-                                              return yScaleSurge(surge) + fareGraphHeight + 12;
-                                             })
-                                            .attr("text-anchor", "middle")
-                                            .attr("font-size", "12px")
-                                            .attr("fill", "white")
-                                            .attr("font-weight", "bold")
-                                            .text(d.uberX.surge);
-                       })
-                       .on("mouseout", function(d,i){
-                          d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
-                                         .attr("x", function(d,i){ return xScale( d.date ) - surgeBarWidth/2; });
-                          d3.select("#tooltip").remove();         
-                       });
+  svg.selectAll(".surgeBars").on("mouseover", function(d,i){
+                                d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
+                                               .attr("x", function(d,i){ return xScale( isoTimeConvert(d.date) ) - surgeBarWidth*1.75/2; });
+                                svg.append("text").transition().duration(200).attr("id", "tooltip")
+                                                  .attr("x", function(){ return xScale( isoTimeConvert(d.date) ); })
+                                                  .attr("y", function(){
+                                                    var surge = d.uberX.surge;
+                                                    return yScaleSurge(surge) + fareGraphHeight + 12;
+                                                   })
+                                                  .attr("text-anchor", "middle")
+                                                  .attr("font-size", "12px")
+                                                  .attr("fill", "white")
+                                                  .attr("font-weight", "bold")
+                                                  .text(d.uberX.surge);
+                           })
+                           .on("mouseout", function(d,i){
+                              d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
+                                             .attr("x", function(d,i){ return xScale( isoTimeConvert(d.date) ) - surgeBarWidth/2; });
+                              d3.select("#tooltip").remove();
+                           });
 
   //APPEND AXIS AND LABELS//////////////////////////////////////////
   svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
@@ -197,98 +195,18 @@ var isoTimeConvert = function(time){
   return timeFormat.parse( time.substring(0,22) + time.substring(23,25) );
 };
 
-var reformatJSON = function(json){
-  var result = [];
-
-  var maxes = { dataPoints: json.length };
-
-  result[0] = maxes;
-
-  // format the data
-  for ( var i = 0; i < json.length; i++){
-    var currentItem = json[i];
-    
-    var newData = {
-      start: currentItem.start,
-      end: currentItem.end,
-      date: isoTimeConvert( currentItem.date )
-
-    };
-
-    for(var j = 0; j < currentItem.prices.length; j++){
-      var pricing = currentItem.prices[j];
-      var product = pricing.display_name;
-      if ( product !== 'uberT' && product !== 'uberTaxi' && product !== 'uberTAXI' ){
-        // create sub objects for each product
-        newData[product] = {};
-        newData[product]['currency'] = pricing.currency_code;
-        newData[product]['surge'] = +pricing.surge_multiplier;
-        newData[product]['low'] = +pricing.low_estimate;
-        newData[product]['high'] = +pricing.high_estimate;
-
-        // create sub objects for each product
-        // newData[product + '_currency'] = pricing.currency_code;
-        // newData[product + '_surge'] = pricing.surge_multiplier;
-        // newData[product + '_low'] = +pricing.low_estimate;
-        // newData[product + '_high'] = +pricing.high_estimate;
-
-        if ( !maxes[product + '_surgeMax'] ){
-          maxes[product + '_surgeMax'] = +pricing.surge_multiplier;
-        } else if ( maxes[product + '_surgeMax'] < +pricing.surge_multiplier ) {
-          maxes[product + '_surgeMax'] = +pricing.surge_multiplier;
-        }
-
-        if ( !maxes[product + '_priceMin'] ){
-          maxes[product + '_priceMin'] = +pricing.low_estimate;
-        } else if ( maxes[product + '_priceMin'] > +pricing.low_estimate ) {
-          maxes[product + '_priceMin'] = +pricing.low_estimate;
-        }
-
-        if ( !maxes[product + '_priceMax'] ){
-          maxes[product + '_priceMax'] = +pricing.high_estimate;
-        } else if ( maxes[product + '_priceMax'] < +pricing.high_estimate ) {
-          maxes[product + '_priceMax'] = +pricing.high_estimate;
-        }
-      }
-    }
-    result.push( newData );
-  }
-  return result;
-};
-
-var orderDates = function (list) {
-    var endIndex = 0,
-        len = list.length - 1,
-        hasSwap = true;
-
-    for (var i = 0; i < len; i++) {
-        hasSwap = false;
-        for (var j = 0, swapping, endIndex = len - i; j < endIndex; j++) {
-            if (list[j].date > list[j + 1].date) {
-                swapping = list[j].date;
-                list[j].date = list[j + 1].date;
-                list[j + 1].date = swapping;
-                hasSwap = true;
-            }
-        }
-
-        if (!hasSwap) { break; }
-    }
-    return list;
-};
-
-var filterAndOrderDates = function(data, userParamaters){
+var filterDates = function(data, userParamaters){
   var filteredData = [];
   for (var i = 0, size = data.length;  i < size; i++){
     var start = data[i].start;
     var end = data[i].end;
-    var fullDate = data[i].date;
+    var fullDate = isoTimeConvert(data[i].date);
     if ( start === userParamaters.startLoc && end === userParamaters.endLoc && userParamaters.date === fullDate.toString().substring(0,10) ){
       filteredData.push(data[i]);
     }
   }
-  return orderDates(filteredData);
-}
+  return filteredData;
+};
 
 var chooseCar = function(carNumber){
   if (carNumber === 0) return 'uberX';
@@ -325,7 +243,7 @@ d3.select(document.getElementById("options")).on('change',
       myNode.removeChild(myNode.firstChild);
     }
 
-    url = 'http://uberanalytics.appsdeck.eu/prices/' + userInputs.startLoc + '/' + userInputs.endLoc;
+    url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
     renderGraphs(url, userInputs);
   }
 );
