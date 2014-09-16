@@ -25,7 +25,7 @@ var getData = function(startLocation, endLocation){
   	for ( var i = 0; i < json.length; i++){
   		var currentItem = json[i];
       
-      if (currentItem.start == startLocation && currentItem.end == endLocation){
+      if (currentItem.start === startLocation && currentItem.end === endLocation){
     		
         var newData = {
     			start: currentItem.start,
@@ -67,14 +67,33 @@ var getData = function(startLocation, endLocation){
             } else if ( maxes[product + '_priceMax'] < +pricing.high_estimate ) {
               maxes[product + '_priceMax'] = +pricing.high_estimate;
             }
+
+            if ( !maxes[product + '_priceAvgMax'] ){
+              maxes[product + '_priceAvgMax'] = [+pricing.high_estimate];
+            } else {
+              maxes[product + '_priceAvgMax'].push(+pricing.high_estimate);
+            }
+
+            if ( !maxes[product + '_priceAvgMin'] ){
+              maxes[product + '_priceAvgMin'] = [+pricing.low_estimate];
+            } else {
+              maxes[product + '_priceAvgMin'].push(+pricing.low_estimate);
+            }
+
     			}
     		}
 
     		result.push( newData );
       }
   	}
-
   	result = sortDates(result);
+
+    for ( key in result[0] ){
+      if ( Array.isArray(result[0][key])){
+        result[0][key] = d3.mean(result[0][key]);
+      }
+    }
+
     reducedData = result;
     console.log('Done! Please type \'copy(reducedData)\'');
   });

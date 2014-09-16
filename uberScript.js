@@ -107,15 +107,17 @@ function visualize(data, v, userParamaters) {
   });
 
   //CREATE DATADOTS////////////////////////////////////////////////
-  var dataDots = svg.selectAll("circle").data(data).enter()
-                .append("circle")
-                .attr("cx", function(d,i){ return xScale( isoTimeConvert(d.date) ); })
-                .attr("cy", headHeight)
-                .attr("r", 1.5)
-                .attr("fill", "RGBA(241, 82, 130, 1)");
+  var dataDots = svg.append('svg:g');
+
+      dataDots.selectAll("circle").data(data).enter()
+                    .append("circle")
+                    .attr("cx", function(d,i){ return xScale( isoTimeConvert(d.date) ); })
+                    .attr("cy", headHeight)
+                    .attr("r", 1.5)
+                    .attr("fill", "RGBA(241, 82, 130, 1)");
 
   //CREATE SURGE BARS//////////////////////////////////////////////
-  var surgeBarWidth = width * graphPct.surgeWidth / v.dataPoints;
+  var surgeBarWidth = width * graphPct.surgeWidth / data.length;
   var surgeBars = svg.selectAll("rect").data(data).enter()
                      .append("rect")
                      .attr("class", "surgeBars")
