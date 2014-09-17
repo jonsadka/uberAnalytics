@@ -36,7 +36,10 @@ var userInputs = {
   date: userDayofInterest,
   endLoc: userEnd
 };
-var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+
+// first case used for github deployment, second case used for local testing
+var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+// var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
@@ -245,7 +248,9 @@ d3.select(document.getElementById("options")).on('change',
       myNode.removeChild(myNode.firstChild);
     }
 
-    url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    // first case used for github deployment, second case used for local testing
+    url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    // url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
     renderGraphs(url, userInputs);
   }
 );
