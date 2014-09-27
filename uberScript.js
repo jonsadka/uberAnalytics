@@ -1,21 +1,25 @@
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE VARIABLES AND USER INPUTS/////////////////////////////
-var headHeight = 40;
-var leftPad = 60;
-var rightPad = 25;
+var topPad = 40;
+var mainGraphRightPad = 10;
+var mainGraphLeftPad = 40;
+var snippetsLeftPad = 10;
+var snippetsRightPad = 10;
 var bottomPad = 15;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
 
 var graphPct = {
+  mainWidth: 0.8,
+  snippetWidth: 0.2,
   fareHeight: 0.77,
   surgeHeight: 0.23,
-  surgeWidth: 0.7
+  surgeWidth: 0.5
 };
 
-var fareGraphHeight = height * graphPct.fareHeight - headHeight - bottomPad;
-var barGraphHeight = height * graphPct.surgeHeight - headHeight - bottomPad;
+var fareGraphHeight = height * graphPct.fareHeight - topPad - bottomPad;
+var barGraphHeight = height * graphPct.surgeHeight - topPad - bottomPad;
 
 //CREATE CANVAS//////////////////////////////////////////////////
 var chartbg = d3.select(".content").append("svg").attr("width", width)
@@ -38,8 +42,8 @@ var userInputs = {
 };
 
 // first case used for github deployment, second case used for local testing
-// var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
-var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+// var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
@@ -61,9 +65,11 @@ function visualize(data, v, userParamaters) {
   var startTime = isoTimeConvert( data[0].date );
   var endTime = isoTimeConvert( data[data.length-1].date );
 
-  var xScale = d3.time.scale().range([leftPad, width - leftPad]).domain([startTime, endTime]);
-  var yScale = d3.scale.linear().range([fareGraphHeight, headHeight]).domain([v.uberX_priceMin - 5, v.uberX_priceMax + 5]);
-  var yScaleSurge = d3.scale.linear().range([0, barGraphHeight - headHeight]).domain([0, v.uberX_surgeMax]);
+  var xScale = d3.time.scale().range([mainGraphLeftPad, width*graphPct.mainWidth - mainGraphRightPad]).domain([startTime, endTime]);
+  // *****************CLEANUP THIS SCALE TO BE MODULARIZED
+  var xScaleSnippets = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, v.UberSUV_priceAvgMax / 2])
+  var yScale = d3.scale.linear().range([fareGraphHeight, topPad]).domain([v.uberX_priceMin - 5, v.uberX_priceMax + 5]);
+  var yScaleSurge = d3.scale.linear().range([0, barGraphHeight - topPad]).domain([0, v.uberX_surgeMax]);
 
   //CREATE AXIS/////////////////////////////////////////////////////
   var xTicks = (v.dataPoints/4 < 24) ? 12 : 24;
@@ -71,6 +77,28 @@ function visualize(data, v, userParamaters) {
   var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks( height / 48 )
                            .tickFormat(function(d) { return "$" + currencyFormatter(d); });
   var yAxisSurge = d3.svg.axis().scale(yScaleSurge).orient("left").ticks(v.uberX_surgeMax);
+
+  // DISPLAY AVERAGES
+  // **************TEMPORARY PLACEHOLDER... FOR PWLL to MARKET, 2 MILES
+  var distance = 2; //in miles
+  var averages = [{'price':['uberX',v.uberX_priceAvgMax / distance]}, 
+                  {'price':['uberBLACK',v.UberBLACK_priceAvgMax / distance ]}, 
+                  {'price':['uberSUV',v.UberSUV_priceAvgMax / distance ]}, 
+                  {'price':['uberXL',v.uberXL_priceAvgMax / distance ]}].sort(function(a,b){
+    return a.price[1]-b.price[1];
+  }) // $/miles
+  var avgMileCost = svg.append('svg:g').attr('class','avgmilecost');
+
+    avgMileCost.selectAll('.milebars').data(averages).enter()
+      .append('rect')
+      .attr('width',function(d,i){
+        return xScaleSnippets(d.price[1]);
+      })
+      .attr('height', 20)
+      .attr('y', function(d,i){
+        return i * 30 + topPad;
+      })
+      .attr('x', width*graphPct.mainWidth + snippetsLeftPad );
 
   //CREATE FARE LINES//////////////////////////////////////////////
   var line = d3.svg.line().interpolate("monotone")
@@ -93,19 +121,19 @@ function visualize(data, v, userParamaters) {
   svg.on('mousemove', function(){
     var loc = d3.mouse(this);
     mouse = { x: loc[0], y: loc[1] };
-    if ( mouse.x > leftPad && mouse.x < width - leftPad && mouse.y < fareGraphHeight && mouse.y > headHeight){
+    if ( mouse.x > mainGraphRightPad && mouse.x < width - mainGraphRightPad && mouse.y < fareGraphHeight && mouse.y > topPad){
       traceLineX.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
                                            {mouseX: mouse.x, Line:fareGraphHeight}]));
 
-      traceLineY.attr("d", followTraceLine([{mouseX: leftPad, Line: mouse.y},
-                                           {mouseX: width - leftPad, Line: mouse.y}]));
+      traceLineY.attr("d", followTraceLine([{mouseX: mainGraphRightPad, Line: mouse.y},
+                                           {mouseX: width - mainGraphRightPad, Line: mouse.y}]));
     }
-    if ( mouse.x > leftPad && mouse.x < width - rightPad && mouse.y > fareGraphHeight && mouse.y < fareGraphHeight + barGraphHeight - headHeight){
+    if ( mouse.x > mainGraphRightPad && mouse.x < width - mainGraphLeftPad && mouse.y > fareGraphHeight && mouse.y < fareGraphHeight + barGraphHeight - topPad){
       traceLineX.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
                                            {mouseX: mouse.x, Line:mouse.y}]));
 
-      traceLineY.attr("d", followTraceLine([{mouseX: leftPad, Line: mouse.y},
-                                           {mouseX: width - leftPad, Line: mouse.y}]));
+      traceLineY.attr("d", followTraceLine([{mouseX: mainGraphRightPad, Line: mouse.y},
+                                           {mouseX: width - mainGraphRightPad, Line: mouse.y}]));
     }
   });
 
@@ -115,7 +143,7 @@ function visualize(data, v, userParamaters) {
       dataDots.selectAll("circle").data(data).enter()
                     .append("circle")
                     .attr("cx", function(d,i){ return xScale( isoTimeConvert(d.date) ); })
-                    .attr("cy", headHeight)
+                    .attr("cy", topPad)
                     .attr("r", 1.5)
                     .attr("fill", "RGBA(241, 82, 130, 1)");
 
@@ -165,17 +193,17 @@ function visualize(data, v, userParamaters) {
                            });
 
   //APPEND AXIS AND LABELS//////////////////////////////////////////
-  svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + leftPad + "," + 0 + ")")
+  svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + mainGraphLeftPad + "," + 0 + ")")
                  .transition().duration(300).call(yAxis);
-  svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + leftPad + "," + fareGraphHeight + ")")
+  svg.append("g").attr("class", "axis surge axis--y").attr("transform", "translate(" + mainGraphLeftPad + "," + fareGraphHeight + ")")
                  .transition().duration(300).call(yAxisSurge);
   svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
                  .transition().duration(v.dataPoints * 30).ease('cubic-in-out').call(xAxis);
 
   svg.append("text").transition().duration(v.dataPoints * 30)
                     .attr("class", "y label").attr("text-anchor", "end")
-                    .attr("x", -headHeight)
-                    .attr("y", leftPad / 4)
+                    .attr("x", -topPad)
+                    .attr("y", mainGraphRightPad / 4)
                     .attr("dy", ".75em")
                     .attr("transform", "rotate(-90)")
                     .attr("fill","RGBA(225,225,225,0.7)")
@@ -185,7 +213,7 @@ function visualize(data, v, userParamaters) {
   svg.append("text").transition().duration(v.dataPoints * 30)
                     .attr("class", "y label").attr("text-anchor", "end")
                     .attr("x", -fareGraphHeight)
-                    .attr("y", leftPad / 4)
+                    .attr("y", mainGraphRightPad / 4)
                     .attr("dy", ".75em")
                     .attr("transform", "rotate(-90)")
                     .attr("fill","RGBA(225,225,225,0.7)")
@@ -249,8 +277,8 @@ d3.select(document.getElementById("options")).on('change',
     }
 
     // first case used for github deployment, second case used for local testing
-    // url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
-    url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    // url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
     renderGraphs(url, userInputs);
   }
 );
