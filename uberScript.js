@@ -38,8 +38,8 @@ var userInputs = {
 };
 
 // first case used for github deployment, second case used for local testing
-var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
-// var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+// var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ function visualize(data, v, userParamaters) {
   var yAxisSurge = d3.svg.axis().scale(yScaleSurge).orient("left").ticks(v.uberX_surgeMax);
 
   //CREATE FARE LINES//////////////////////////////////////////////
-  var line = d3.svg.line().interpolate("step")
+  var line = d3.svg.line().interpolate("monotone")
                         .x(function(d,i) { return xScale( isoTimeConvert(d.date) ); })
                         .y(function(d) {
                           var maxValue = d.uberX.high;
@@ -249,8 +249,8 @@ d3.select(document.getElementById("options")).on('change',
     }
 
     // first case used for github deployment, second case used for local testing
-    url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
-    // url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    // url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
     renderGraphs(url, userInputs);
   }
 );
