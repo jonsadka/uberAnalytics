@@ -12,12 +12,14 @@ return c>=ys?n?"M0,"+i+"A"+i+","+i+" 0 1,1 0,"+-i+"A"+i+","+i+" 0 1,1 0,"+i+"M0,
 
 
 var reducedData;
-
+console.log('To start getting data, run getData(\'loc1\',\'loc2\') in the console');
 var getData = function(startLocation, endLocation){
   $.getJSON('data.json', function(json){
+    console.log('Getting Data... please wait!');
   	var result = [];
 
-    var maxes = { dataPoints: json.length };
+    // save all important maxiumums
+    var maxes = { dataPoints: 0 };
 
     result[0] = maxes;
   	
@@ -26,17 +28,20 @@ var getData = function(startLocation, endLocation){
   		var currentItem = json[i];
       
       if (currentItem.start === startLocation && currentItem.end === endLocation){
-    		
-        var newData = {
-    			start: currentItem.start,
-    			end: currentItem.end,
-    			date: currentItem.date
-    		};
+        maxes.dataPoints++;
+        var currentDate = isoTimeConvert(currentItem.date).toString().substring(0,10);
 
-    		for(var j = 0; j < currentItem.prices.length; j++){
-    			var pricing = currentItem.prices[j];
-    			var product = pricing.display_name;
-    			if ( product !== 'uberT' && product !== 'uberTaxi' && product !== 'uberTAXI' ){
+        var newData = {
+          start: currentItem.start,
+          end: currentItem.end,
+          date: currentItem.date
+        };
+
+        for(var j = 0; j < currentItem.prices.length; j++){
+          var pricing = currentItem.prices[j];
+          var product = pricing.display_name;
+          if ( product !== 'uberT' && product !== 'uberTaxi' && product !== 'uberTAXI' &&
+               product !== 'UberBLACK' && product !== 'UberSUV' && product !== 'uberXL' ){
     				// create sub objects for each product
     				newData[product] = {};
     				// newData[product]['currency'] = pricing.currency_code;
@@ -118,9 +123,15 @@ var sortDates = function (list) {
   return list;
 };
 
+var isoTimeConvert = function(time){
+  var timeFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
+  return timeFormat.parse( time.substring(0,22) + time.substring(23,25) );
+};
+
 // add data.json to current directory
 // run local server using python -m SimpleHTTTPServer 8888 &
 // open chrome
 // navigate to localhost:8888
 // open chrome console
+// run getData(loc1,loc2) to filter data for the specific route<
 // run copy(reducedData) to copy the JSON data

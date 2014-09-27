@@ -42,8 +42,8 @@ var userInputs = {
 };
 
 // first case used for github deployment, second case used for local testing
-var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
-// var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+// var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
 
 ///////////////////////////////////////////////////////////////////
 //IMPORT DATA//////////////////////////////////////////////////////
@@ -64,10 +64,10 @@ function visualize(data, v, userParamaters) {
   //DEFINE DATA BOUNDARY///////////////////////////////////////////
   var startTime = isoTimeConvert( data[0].date );
   var endTime = isoTimeConvert( data[data.length-1].date );
-
+  var routeDistance = getRouteDistance(userParamaters.startLoc, userParamaters.endLoc); // in miles
+console.log(v,data)
   var xScale = d3.time.scale().range([mainGraphLeftPad, width*graphPct.mainWidth - mainGraphRightPad]).domain([startTime, endTime]);
-  // *****************CLEANUP THIS SCALE TO BE MODULARIZED
-  var xScaleSnippets = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, v.UberSUV_priceAvgMax / 2])
+  var xScaleSnippets = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, v.UberSUV_priceAvgMax / routeDistance])
   var yScale = d3.scale.linear().range([fareGraphHeight, topPad]).domain([v.uberX_priceMin - 5, v.uberX_priceMax + 5]);
   var yScaleSurge = d3.scale.linear().range([0, barGraphHeight - topPad]).domain([0, v.uberX_surgeMax]);
 
@@ -78,13 +78,11 @@ function visualize(data, v, userParamaters) {
                            .tickFormat(function(d) { return "$" + currencyFormatter(d); });
   var yAxisSurge = d3.svg.axis().scale(yScaleSurge).orient("left").ticks(v.uberX_surgeMax);
 
-  // DISPLAY AVERAGES
-  // **************TEMPORARY PLACEHOLDER... FOR PWLL to MARKET, 2 MILES
-  var distance = 2; //in miles
-  var averages = [{'price':['uberX',v.uberX_priceAvgMax / distance]}, 
-                  {'price':['uberBLACK',v.UberBLACK_priceAvgMax / distance ]}, 
-                  {'price':['uberSUV',v.UberSUV_priceAvgMax / distance ]}, 
-                  {'price':['uberXL',v.uberXL_priceAvgMax / distance ]}].sort(function(a,b){
+  // DISPLAY AVERAGE PRICE PER MILE
+  var averages = [{'price':['uberX',v.uberX_priceAvgMax / routeDistance]}, 
+                  {'price':['uberBLACK',v.UberBLACK_priceAvgMax / routeDistance ]}, 
+                  {'price':['uberSUV',v.UberSUV_priceAvgMax / routeDistance ]}, 
+                  {'price':['uberXL',v.uberXL_priceAvgMax / routeDistance ]}].sort(function(a,b){
     return a.price[1]-b.price[1];
   }) // $/miles
   var avgMileCost = svg.append('svg:g').attr('class','avgmilecost');
@@ -248,6 +246,32 @@ var chooseCar = function(carNumber){
   if (carNumber === 3) return 'uberSUV';
 };
 
+var getRouteDistance = function(loc1, loc2){
+  // SF ROUTES
+  if ( loc1 === 'pwll' && loc2 === 'warf' ) return 2;
+  if ( loc1 === 'warf' && loc2 === 'pwll' ) return 2;
+  if ( loc1 === 'gogp' && loc2 === 'pwll' ) return 4.1;
+  if ( loc1 === 'pwll' && loc2 === 'gogp' ) return 4.1;
+  if ( loc1 === 'gogp' && loc2 === 'warf' ) return 5.6;
+  if ( loc1 === 'warf' && loc2 === 'gogp' ) return 5.6;
+
+  // LA ROUTES
+  if ( loc1 === 'smon' && loc2 === 'dtla' ) return 15.7;
+  if ( loc1 === 'dtla' && loc2 === 'smon' ) return 15.7;
+  if ( loc1 === 'hlwd' && loc2 === 'smon' ) return 11.5;
+  if ( loc1 === 'smon' && loc2 === 'hlwd' ) return 11.5;
+  if ( loc1 === 'dtla' && loc2 === 'hlwd' ) return 7.5;
+  if ( loc1 === 'hlwd' && loc2 === 'dtla' ) return 7.5;
+
+  // NY ROUTES
+  if ( loc1 === 'grct' && loc2 === 'upma' ) return 7.2;
+  if ( loc1 === 'upma' && loc2 === 'grct' ) return 7.2;
+  if ( loc1 === 'brok' && loc2 === 'grct' ) return 6.2;
+  if ( loc1 === 'grct' && loc2 === 'brok' ) return 6.2;
+  if ( loc1 === 'brok' && loc2 === 'upma' ) return 14.5;
+  if ( loc1 === 'upma' && loc2 === 'brok' ) return 14.5;
+};
+
 var currencyFormatter = d3.format(",.0f");
 
 ///////////////////////////////////////////////////////////////////
@@ -277,8 +301,8 @@ d3.select(document.getElementById("options")).on('change',
     }
 
     // first case used for github deployment, second case used for local testing
-    url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
-    // url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    // url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
+    url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
     renderGraphs(url, userInputs);
   }
 );
