@@ -14,22 +14,22 @@ return c>=ys?n?"M0,"+i+"A"+i+","+i+" 0 1,1 0,"+-i+"A"+i+","+i+" 0 1,1 0,"+i+"M0,
 var reducedData;
 console.log('To start getting data, run getData(\'loc1\',\'loc2\') in the console');
 var getData = function(startLocation, endLocation){
-  $.getJSON('data.json', function(json){
-    console.log('Getting Data... please wait!');
+  $.getJSON('2014.09.18.14.20_pricedata.json', function(json){
   	var result = [];
-
+console.log(json.length)
     // save all important maxiumums
     var maxes = { dataPoints: 0 };
 
     result[0] = maxes;
-  	
+    
+    console.log('...formatting all data for the desired route...');  	
     // format the data
   	for ( var i = 0; i < json.length; i++){
   		var currentItem = json[i];
       
       if (currentItem.start === startLocation && currentItem.end === endLocation){
         maxes.dataPoints++;
-        var currentDate = isoTimeConvert(currentItem.date).toString().substring(0,10);
+        
 
         var newData = {
           start: currentItem.start,
@@ -42,18 +42,18 @@ var getData = function(startLocation, endLocation){
           var product = pricing.display_name;
           if ( product !== 'uberT' && product !== 'uberTaxi' && product !== 'uberTAXI' &&
                product !== 'UberBLACK' && product !== 'UberSUV' && product !== 'uberXL' ){
-    				// create sub objects for each product
-    				newData[product] = {};
-    				// newData[product]['currency'] = pricing.currency_code;
-    				newData[product]['surge'] = pricing.surge_multiplier;
-    				newData[product]['low'] = +pricing.low_estimate;
-    				newData[product]['high'] = +pricing.high_estimate;
+            // create sub objects for each product
+            newData[product] = {};
+            // newData[product]['currency'] = pricing.currency_code;
+            newData[product]['surge'] = pricing.surge_multiplier;
+            newData[product]['low'] = +pricing.low_estimate;
+            newData[product]['high'] = +pricing.high_estimate;
 
-    				// create sub objects for each product
-    				// newData[product + '_currency'] = pricing.currency_code;
-    				// newData[product + '_surge'] = pricing.surge_multiplier;
-    				// newData[product + '_low'] = +pricing.low_estimate;
-    				// newData[product + '_high'] = +pricing.high_estimate;
+            // create sub objects for each product
+            // newData[product + '_currency'] = pricing.currency_code;
+            // newData[product + '_surge'] = pricing.surge_multiplier;
+            // newData[product + '_low'] = +pricing.low_estimate;
+            // newData[product + '_high'] = +pricing.high_estimate;
 
             if ( !maxes[product + '_surgeMax'] ){
               maxes[product + '_surgeMax'] = +pricing.surge_multiplier;
@@ -85,21 +85,95 @@ var getData = function(startLocation, endLocation){
               maxes[product + '_priceAvgMin'].push(+pricing.low_estimate);
             }
 
-    			}
-    		}
-
-    		result.push( newData );
-      }
-  	}
-  	result = sortDates(result);
-
-    for ( key in result[0] ){
-      if ( Array.isArray(result[0][key])){
-        result[0][key] = d3.mean(result[0][key]);
+          }
+        }
+        result.push( newData );
       }
     }
 
-    reducedData = result;
+    console.log('...getting daily averages for each city...');
+    // GET AVERAGE COST PER MILE FOR EACH CITY
+    json.forEach(function(dataPoint){
+      var currentDate = isoTimeConvert(dataPoint.date).toString().substring(0,10);
+      var start = dataPoint.start;
+      var end = dataPoint.end;
+
+      // SF ROUTES
+      if ( (start === 'pwll' && end === 'warf') || (start === 'warf' && end === 'pwll') ){
+        var distance = 2;
+        var routeName = 'San Francisco';
+      }
+      if ( (start === 'gogp' && end === 'pwll') || (start === 'pwll' && end === 'gogp') ) {
+        var distance = 4.1;
+        var routeName = 'San Francisco';
+      }
+      if ( (start === 'gogp' && end === 'warf') || (start === 'warf' && end === 'gogp') ) {
+        var distance = 5.6;
+        var routeName = 'San Francisco';
+      }
+      // LA ROUTES
+      if ( (start === 'smon' && end === 'dtla') || (start === 'dtla' && end === 'smon')) {
+        var routeName = 'Los Angeles';
+        var distance = 15.7;
+      };
+      if ( (start === 'hlwd' && end === 'smon') || (start === 'smon' && end === 'hlwd') ) {
+        var routeName = 'Los Angeles';
+        var distance = 11.5;
+      };
+      if ( (start === 'dtla' && end === 'hlwd') || (start === 'hlwd' && end === 'dtla') ) {
+        var routeName = 'Los Angeles';
+        var distance = 7.5;
+      }
+      // NY ROUTES
+      if ( (start === 'grct' && end === 'upma') || (start === 'upma' && end === 'grct') ) {
+        var routeName = 'New York';
+        var distance = 7.2;
+      }
+      if ( (start === 'brok' && end === 'grct') || (start === 'grct' && end === 'brok') ) {
+        var routeName = 'New York';
+        var distance = 6.2;
+      }
+      if ( (start === 'brok' && end === 'upma') || (start === 'upma' && end === 'brok') ) {
+        var routeName = 'New York';
+        var distance = 14.5
+      };
+
+      if ( !maxes[currentDate] ) { 
+        maxes[currentDate] = {};
+        console.log(currentDate)
+      };
+      if ( !maxes[currentDate][routeName] ) { 
+        maxes[currentDate][routeName] = [];
+      };
+
+      dataPoint.prices.forEach(function(price){
+        var product = price.display_name;
+        if ( product !== 'uberT' && product !== 'uberTaxi' && product !== 'uberTAXI' &&
+             product !== 'UberBLACK' && product !== 'UberSUV' && product !== 'uberXL' ){
+            maxes[currentDate][routeName].push( +price.high_estimate / distance );
+        }
+
+      })
+    })
+
+    // COMPUTE AVERAGES
+    console.log('...computing averages...');
+    for ( key in result[0] ){
+      if ( Array.isArray(result[0][key]) ){
+        result[0][key] = d3.mean(result[0][key]);
+      } else {
+        if ( typeof result[0][key] === 'object' ){
+          for ( var city in result[0][key] ){
+            result[0][key][city] = d3.mean(result[0][key][city]);
+          }
+        }
+      }
+
+    }
+
+    // console.log(result[0])
+
+    reducedData = sortDates(result);
     console.log('Done! Please type \'copy(reducedData)\'');
   });
 };

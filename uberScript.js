@@ -84,7 +84,7 @@ console.log(v,data)
                   {'price':['uberSUV',v.UberSUV_priceAvgMax / routeDistance ]}, 
                   {'price':['uberXL',v.uberXL_priceAvgMax / routeDistance ]}].sort(function(a,b){
     return a.price[1]-b.price[1];
-  }) // $/miles
+  });
   var avgMileCost = svg.append('svg:g').attr('class','avgmilecost');
 
     avgMileCost.selectAll('.milebars').data(averages).enter()
