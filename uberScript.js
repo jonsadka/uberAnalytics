@@ -15,7 +15,8 @@ var graphPct = {
   snippetWidth: 0.2,
   fareHeight: 0.77,
   surgeHeight: 0.23,
-  surgeWidth: 0.5
+  surgeWidth: 0.5,
+  cityCompareHeight: 0.5
 };
 
 var fareGraphHeight = height * graphPct.fareHeight - topPad - bottomPad;
@@ -62,12 +63,14 @@ var renderGraphs = function(url, userParamaters){
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
 function visualize(data, v, userParamaters) {
   //DEFINE DATA BOUNDARY///////////////////////////////////////////
+// console.log(v,data)
   var startTime = isoTimeConvert( data[0].date );
   var endTime = isoTimeConvert( data[data.length-1].date );
-  var routeDistance = getRouteDistance(userParamaters.startLoc, userParamaters.endLoc); // in miles
-console.log(v,data)
+  var maxAvg = 0;
+  for (var key in v[userParamaters.date]) maxAvg = Math.max(maxAvg, v[userParamaters.date][key]);
+
   var xScale = d3.time.scale().range([mainGraphLeftPad, width*graphPct.mainWidth - mainGraphRightPad]).domain([startTime, endTime]);
-  var xScaleSnippets = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, v.UberSUV_priceAvgMax / routeDistance])
+  var xScaleSnippets = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, maxAvg]);
   var yScale = d3.scale.linear().range([fareGraphHeight, topPad]).domain([v.uberX_priceMin - 5, v.uberX_priceMax + 5]);
   var yScaleSurge = d3.scale.linear().range([0, barGraphHeight - topPad]).domain([0, v.uberX_surgeMax]);
 
@@ -79,24 +82,35 @@ console.log(v,data)
   var yAxisSurge = d3.svg.axis().scale(yScaleSurge).orient("left").ticks(v.uberX_surgeMax);
 
   // DISPLAY AVERAGE PRICE PER MILE
-  var averages = [{'price':['uberX',v.uberX_priceAvgMax / routeDistance]}, 
-                  {'price':['uberBLACK',v.UberBLACK_priceAvgMax / routeDistance ]}, 
-                  {'price':['uberSUV',v.UberSUV_priceAvgMax / routeDistance ]}, 
-                  {'price':['uberXL',v.uberXL_priceAvgMax / routeDistance ]}].sort(function(a,b){
-    return a.price[1]-b.price[1];
-  });
-  var avgMileCost = svg.append('svg:g').attr('class','avgmilecost');
+  var currentDayCompare = svg.append('svg:g').attr('class','currentdaycompare');
+  var cities = Object.keys(v[userParamaters.date]);
 
-    avgMileCost.selectAll('.milebars').data(averages).enter()
+    currentDayCompare.selectAll('.comparebars').data(cities).enter()
       .append('rect')
+      .attr('class', 'comparebars')
       .attr('width',function(d,i){
-        return xScaleSnippets(d.price[1]);
+        return xScaleSnippets(v[userParamaters.date][d]);
       })
-      .attr('height', 20)
+      .attr('height', 20 * graphPct.cityCompareHeight)
       .attr('y', function(d,i){
-        return i * 30 + topPad;
+        return i * 20 + topPad;
       })
-      .attr('x', width*graphPct.mainWidth + snippetsLeftPad );
+      .attr('x', width*graphPct.mainWidth + snippetsLeftPad )
+      .style('fill', 'white')
+
+      .on('mouseover', function(){
+        var currentY = d3.select(this).attr('y');
+        var currentX = d3.select(this).attr('x');
+        currentDayCompare.append('text')
+          .attr("id", "farecompare")
+          .text('Rate and City to go Here')
+          .attr('x', currentX)
+          .attr('y', currentY - 10);
+      })
+
+      .on('mouseout', function(){
+        currentDayCompare.select('#farecompare').remove();
+      });
 
   //CREATE FARE LINES//////////////////////////////////////////////
   var line = d3.svg.line().interpolate("monotone")
@@ -119,19 +133,19 @@ console.log(v,data)
   svg.on('mousemove', function(){
     var loc = d3.mouse(this);
     mouse = { x: loc[0], y: loc[1] };
-    if ( mouse.x > mainGraphRightPad && mouse.x < width - mainGraphRightPad && mouse.y < fareGraphHeight && mouse.y > topPad){
+    if ( mouse.x > mainGraphRightPad && mouse.x < width*graphPct.mainWidth - mainGraphRightPad && mouse.y < fareGraphHeight && mouse.y > topPad){
       traceLineX.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
                                            {mouseX: mouse.x, Line:fareGraphHeight}]));
 
       traceLineY.attr("d", followTraceLine([{mouseX: mainGraphRightPad, Line: mouse.y},
-                                           {mouseX: width - mainGraphRightPad, Line: mouse.y}]));
+                                           {mouseX: width*graphPct.mainWidth - mainGraphRightPad, Line: mouse.y}]));
     }
     if ( mouse.x > mainGraphRightPad && mouse.x < width - mainGraphLeftPad && mouse.y > fareGraphHeight && mouse.y < fareGraphHeight + barGraphHeight - topPad){
       traceLineX.attr("d", followTraceLine([{mouseX: mouse.x, Line:0},
                                            {mouseX: mouse.x, Line:mouse.y}]));
 
       traceLineY.attr("d", followTraceLine([{mouseX: mainGraphRightPad, Line: mouse.y},
-                                           {mouseX: width - mainGraphRightPad, Line: mouse.y}]));
+                                           {mouseX: width*graphPct.mainWidth - mainGraphRightPad, Line: mouse.y}]));
     }
   });
 
