@@ -16,7 +16,7 @@ var graphPct = {
   fareHeight: 0.77,
   surgeHeight: 0.23,
   surgeWidth: 0.5,
-  cityCompareHeight: 0.5
+  compareHeight: 0.5
 };
 
 var fareGraphHeight = height * graphPct.fareHeight - topPad - bottomPad;
@@ -70,47 +70,55 @@ function visualize(data, v, userParamaters) {
   for (var key in v[userParamaters.date]) maxAvg = Math.max(maxAvg, v[userParamaters.date][key]);
 
   var xScale = d3.time.scale().range([mainGraphLeftPad, width*graphPct.mainWidth - mainGraphRightPad]).domain([startTime, endTime]);
-  var xScaleSnippets = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, maxAvg]);
   var yScale = d3.scale.linear().range([fareGraphHeight, topPad]).domain([v.uberX_priceMin - 5, v.uberX_priceMax + 5]);
   var yScaleSurge = d3.scale.linear().range([0, barGraphHeight - topPad]).domain([0, v.uberX_surgeMax]);
-
+  var xScaleCompare = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, maxAvg]);
+  var cities = Object.keys(v[userParamaters.date]);
+  var yScaleCompare = d3.scale.ordinal().domain(cities.map(function(city){return city})).rangeRoundBands([topPad, height*graphPct.compareHeight], 0.05);;
   //CREATE AXIS/////////////////////////////////////////////////////
   var xTicks = (v.dataPoints/4 < 24) ? 12 : 24;
   var xAxis = d3.svg.axis().scale(xScale).orient("top").ticks( xTicks );
   var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks( height / 48 )
                            .tickFormat(function(d) { return "$" + currencyFormatter(d); });
   var yAxisSurge = d3.svg.axis().scale(yScaleSurge).orient("left").ticks(v.uberX_surgeMax);
-
+  var yAxisCompare = d3.svg.axis().scale(yScaleCompare).orient("left");
+  
   // DISPLAY AVERAGE PRICE PER MILE
   var currentDayCompare = svg.append('svg:g').attr('class','currentdaycompare');
-  var cities = Object.keys(v[userParamaters.date]);
 
     currentDayCompare.selectAll('.comparebars').data(cities).enter()
       .append('rect')
       .attr('class', 'comparebars')
       .attr('width',function(d,i){
-        return xScaleSnippets(v[userParamaters.date][d]);
+        return xScaleCompare(v[userParamaters.date][d]);
       })
-      .attr('height', 20 * graphPct.cityCompareHeight)
+      .attr('height', yScaleCompare.rangeBand() )
       .attr('y', function(d,i){
-        return i * 20 + topPad;
+        return yScaleCompare(d);
       })
       .attr('x', width*graphPct.mainWidth + snippetsLeftPad )
       .style('fill', 'white')
-
       .on('mouseover', function(){
         var currentY = d3.select(this).attr('y');
         var currentX = d3.select(this).attr('x');
         currentDayCompare.append('text')
           .attr("id", "farecompare")
-          .text('Rate and City to go Here')
+          .text('$ per mile')
           .attr('x', currentX)
           .attr('y', currentY - 10);
       })
-
       .on('mouseout', function(){
         currentDayCompare.select('#farecompare').remove();
       });
+
+  svg.append("g").attr("class", "axis compare axis--y")
+                 .attr("transform", "translate(" + width*graphPct.mainWidth + snippetsLeftPad + "," + 0 + ")")
+                 .transition().duration(300).call(yAxisCompare)
+                 .selectAll("text")
+                  .style("text-anchor", "end")
+                  .attr("dx", "38")
+                  .attr("dy", "-12")
+                  .attr("transform", function(d) { return "rotate(-90)" ; });
 
   //CREATE FARE LINES//////////////////////////////////////////////
   var line = d3.svg.line().interpolate("monotone")
@@ -183,26 +191,27 @@ function visualize(data, v, userParamaters) {
                         return "RGBA(241, 82, 130, 0.1)";
                      });
 
-  svg.selectAll(".surgeBars").on("mouseover", function(d,i){
-                                d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
-                                               .attr("x", function(d,i){ return xScale( isoTimeConvert(d.date) ) - surgeBarWidth*1.75/2; });
-                                svg.append("text").transition().duration(200).attr("id", "tooltip")
-                                                  .attr("x", function(){ return xScale( isoTimeConvert(d.date) ); })
-                                                  .attr("y", function(){
-                                                    var surge = d.uberX.surge;
-                                                    return yScaleSurge(surge) + fareGraphHeight + 12;
-                                                   })
-                                                  .attr("text-anchor", "middle")
-                                                  .attr("font-size", "12px")
-                                                  .attr("fill", "white")
-                                                  .attr("font-weight", "bold")
-                                                  .text(d.uberX.surge);
-                           })
-                           .on("mouseout", function(d,i){
-                              d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
-                                             .attr("x", function(d,i){ return xScale( isoTimeConvert(d.date) ) - surgeBarWidth/2; });
-                              d3.select("#tooltip").remove();
-                           });
+  svg.selectAll(".surgeBars")
+    .on("mouseover", function(d,i){
+          d3.select(this).transition().duration(100).attr("width", function(){ return surgeBarWidth * 1.75; })
+                         .attr("x", function(d,i){ return xScale( isoTimeConvert(d.date) ) - surgeBarWidth*1.75/2; });
+          svg.append("text").transition().duration(200).attr("id", "tooltip")
+                            .attr("x", function(){ return xScale( isoTimeConvert(d.date) ); })
+                            .attr("y", function(){
+                              var surge = d.uberX.surge;
+                              return yScaleSurge(surge) + fareGraphHeight + 12;
+                             })
+                            .attr("text-anchor", "middle")
+                            .attr("font-size", "12px")
+                            .attr("fill", "white")
+                            .attr("font-weight", "bold")
+                            .text(d.uberX.surge);
+     })
+    .on("mouseout", function(d,i){
+       d3.select(this).transition().duration(800).attr("width", function(){ return surgeBarWidth; })
+                      .attr("x", function(d,i){ return xScale( isoTimeConvert(d.date) ) - surgeBarWidth/2; });
+       d3.select("#tooltip").remove();
+    });
 
   //APPEND AXIS AND LABELS//////////////////////////////////////////
   svg.append("g").attr("class", "axis fare axis--y").attr("transform", "translate(" + mainGraphLeftPad + "," + 0 + ")")
@@ -212,7 +221,7 @@ function visualize(data, v, userParamaters) {
   svg.append("g").attr("class", "axis axis--x").attr("transform", "translate(" + 0 + "," + fareGraphHeight + ")")
                  .transition().duration(v.dataPoints * 30).ease('cubic-in-out').call(xAxis);
 
-  svg.append("text").transition().duration(v.dataPoints * 30)
+  svg.append("text").transition().duration(data.length * 10)
                     .attr("class", "y label").attr("text-anchor", "end")
                     .attr("x", -topPad)
                     .attr("y", mainGraphRightPad / 4)
@@ -222,7 +231,7 @@ function visualize(data, v, userParamaters) {
                     .attr("font-size", "12px")
                     .text("fare pricing");
 
-  svg.append("text").transition().duration(v.dataPoints * 30)
+  svg.append("text").transition().duration(data.length * 10)
                     .attr("class", "y label").attr("text-anchor", "end")
                     .attr("x", -fareGraphHeight)
                     .attr("y", mainGraphRightPad / 4)
@@ -230,7 +239,7 @@ function visualize(data, v, userParamaters) {
                     .attr("transform", "rotate(-90)")
                     .attr("fill","RGBA(225,225,225,0.7)")
                     .attr("font-size", "12px")
-                    .text("surge multiplier");
+                    .text("surge");
 };
 
 ///////////////////////////////////////////////////////////////////
