@@ -74,7 +74,7 @@ function visualize(data, v, userParamaters) {
   var yScaleSurge = d3.scale.linear().range([0, barGraphHeight - topPad]).domain([0, v.uberX_surgeMax]);
   var xScaleCompare = d3.scale.linear().range([0, width*graphPct.snippetWidth - snippetsLeftPad - snippetsRightPad]).domain([0, maxAvg]);
   var cities = Object.keys(v[userParamaters.date]);
-  var yScaleCompare = d3.scale.ordinal().domain(cities.map(function(city){return city})).rangeRoundBands([topPad, height*graphPct.compareHeight], 0.05);;
+  var yScaleCompare = d3.scale.ordinal().domain(cities.map(function(city){return city; })).rangeRoundBands([topPad, height*graphPct.compareHeight], 0.05);
   //CREATE AXIS/////////////////////////////////////////////////////
   var xTicks = (v.dataPoints/4 < 24) ? 12 : 24;
   var xAxis = d3.svg.axis().scale(xScale).orient("top").ticks( xTicks );
@@ -118,7 +118,7 @@ function visualize(data, v, userParamaters) {
                   .style("text-anchor", "end")
                   .attr("dx", "38")
                   .attr("dy", "-12")
-                  .attr("transform", function(d) { return "rotate(-90)" ; });
+                  .attr("transform", function(d) { return "rotate(-90)"; });
 
   //CREATE FARE LINES//////////////////////////////////////////////
   var line = d3.svg.line().interpolate("monotone")
