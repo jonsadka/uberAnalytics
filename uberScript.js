@@ -42,8 +42,6 @@ var userInputs = {
   endLoc: userEnd
 };
 
-// first case used for github deployment, second case used for local testing
-// var url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
 var url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
 
 ///////////////////////////////////////////////////////////////////
@@ -63,7 +61,6 @@ var renderGraphs = function(url, userParamaters){
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
 function visualize(data, v, userParamaters) {
   //DEFINE DATA BOUNDARY///////////////////////////////////////////
-// console.log(v,data)
   var startTime = isoTimeConvert( data[0].date );
   var endTime = isoTimeConvert( data[data.length-1].date );
   var maxAvg = 0;
@@ -269,6 +266,53 @@ var chooseCar = function(carNumber){
   if (carNumber === 3) return 'uberSUV';
 };
 
+function getDataUrl(){
+  var url = 'https://api.keen.io/';
+  var version = '3.0';
+  var projectid = '540a24ab36bca41fa980505c';
+  var analysisType = 'maximum';
+  var readKey = '7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325';
+  var collectionName = 'newPricesCollection';
+  var filters = '%5B%7B%22property_name';
+     filters += '%22%3A%22display_name';
+     filters += '%22%2C%22operator';
+     filters += '%22%3A%22eq';
+     filters += '%22%2C%22property_value';
+     filters += '%22%3A%22uberX';
+     filters += '%22%7D%2C%7B%22property_name';
+     filters += '%22%3A%22end';
+     filters += '%22%2C%22operator';
+     filters += '%22%3A%22eq';
+     filters += '%22%2C%22property_value';
+     filters += '%22%3A%22warf';
+     filters += '%22%7D%2C%7B%22property_name';
+     filters += '%22%3A%22start';
+     filters += '%22%2C%22operator';
+     filters += '%22%3A%22eq';
+     filters += '%22%2C%22property_value';
+     filters += '%22%3A%22pwll%22%7D%5D';
+  var timeframe = 'yesterday';
+  var timezone = '-28800';
+  var property = 'low_estimate';
+  var groupingType = 'keen.timestamp';
+
+  var fullURL = url + version + '/projects/' + projectid + '/queries/' + analysisType
+                    + '?api_key=' + readKey + '&event_collection=' + collectionName
+                    + '&filters=' + filters
+                    + '&timeframe=' + timeframe + '&timezone=' + timezone
+                    + '&target_property=' + property + '&group_by=' + groupingType;
+  return fullURL;
+}
+
+// TEST URL
+// var queryURL = getDataUrl();
+// (function(query){
+//   d3.json(query, function(err, serverJSON){
+//     if (err) return console.warn(err);
+//     console.log(serverJSON)
+//   });
+// })(queryURL);
+
 var getRouteDistance = function(loc1, loc2){
   // SF ROUTES
   if ( loc1 === 'pwll' && loc2 === 'warf' ) return 2;
@@ -323,8 +367,6 @@ d3.select(document.getElementById("options")).on('change',
       myNode.removeChild(myNode.firstChild);
     }
 
-    // first case used for github deployment, second case used for local testing
-    // url = '/uberAnalytics/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
     url = '/data/' + userInputs.startLoc + '_' + userInputs.endLoc + '.json';
     renderGraphs(url, userInputs);
   }
