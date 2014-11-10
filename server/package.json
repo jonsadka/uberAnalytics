@@ -1,0 +1,15 @@
+{
+  "name": "UberAnalytics",
+  "description": "UberAnalytics",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "4.6.1",
+    "express-partials":"~0.2.0",
+    "ejs":"1.0.0",
+    "request":"2.37.0",
+    "moment":"2.8.1",
+    "nedb":"0.11.0",
+    "async":"0.9.0",
+    "node-schedule":"0.1.13"
+  }
+}
