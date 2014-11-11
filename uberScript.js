@@ -9,7 +9,7 @@ var client = new Keen({
 
 // GET USER DATA///////////////////////////////////////////////////
 var userInputs = {
-  timeframe: document.getElementById("month").options[document.getElementById("month").selectedIndex].value,
+  timeframe: document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value,
   start: document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value,
   end: document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value,
   product: document.getElementById("product").options[document.getElementById("product").selectedIndex].value
@@ -50,20 +50,43 @@ var svg = d3.select(".content").append("svg")
 ///////////////////////////////////////////////////////////////////
 //GATHER DATA//////////////////////////////////////////////////////
 
-// LOAD MAX FARE HISTORY
 Keen.ready(function(){
-  var query = new Keen.Query("maximum", {
+  // SETUP QUERIES
+  var highEstimate = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
-    timeframe: "this_month",
+    timeframe: "last_14_days",
     targetProperty: "high_estimate",
-    groupBy: "date",
+    interval: "daily",
     filters: [{"property_name":"end","operator":"eq","property_value":"pwll"},
               {"property_name":"start","operator":"eq","property_value":"warf"},
               {"property_name":"display_name","operator":"eq","property_value":"uberX"}]
   });
 
-  client.run(query, function(response ){
-    console.log(response)
+  var lowEstimate = new Keen.Query("average", {
+    eventCollection: "newPricesCollection",
+    timeframe: "last_14_days",
+    targetProperty: "low_estimate",
+    interval: "daily",
+    filters: [{"property_name":"end","operator":"eq","property_value":"pwll"},
+              {"property_name":"start","operator":"eq","property_value":"warf"},
+              {"property_name":"display_name","operator":"eq","property_value":"uberX"}]
+  });
+
+  var surges = new Keen.Query("average", {
+    eventCollection: "newPricesCollection",
+    timeframe: "last_14_days",
+    targetProperty: "surge_multiplier",
+    interval: "daily",
+    filters: [{"property_name":"end","operator":"eq","property_value":"pwll"},
+              {"property_name":"start","operator":"eq","property_value":"warf"},
+              {"property_name":"display_name","operator":"eq","property_value":"uberX"}]
+  });
+
+  // RUN QUERIES
+  client.run([highEstimate, lowEstimate, surges], function(response){
+    response.forEach(function(item){
+      console.log(item.result)
+    })
   })
 
 });
