@@ -47,6 +47,15 @@ var chartbg = d3.select(".content").append("svg")
 var svg = d3.select(".content").append("svg")
   .attr("width", width).attr("height", height).attr("id", "graphs");
 
+svg.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
+  .selectAll(".hours").data(new Array(24))
+  .enter().append("text").attr("class","hours")
+  .text(function(d,i){ return i; })
+  .attr("x", width / 2)
+  .attr("y",function(d,i){ return i * 25 + 60; })
+  .style("font-weight","100");
+
+
 ///////////////////////////////////////////////////////////////////
 //GATHER DATA//////////////////////////////////////////////////////
 var getAndRenderData = function(userInputs){
@@ -106,9 +115,18 @@ var getAndRenderData = function(userInputs){
     var maxEstimate = response[1].result;
     var maxSurge = response[4].result;
     var dataCollection = formatData(response[0].result, response[2].result, response[3].result);
+console.log(dataCollection.MTWTF.surge)
+    
+
+    svg.append("g").attr("class", "surgeintensities")
+    .selectAll(".surgeintensity").data(dataCollection.MTWTF.surge)
+    .enter().append("rect").attr("class","surgeintensity")
+    .attr("width", 20)
+    .attr("x", width / 2)
+    .attr("y",function(d,i){ return i * 25 + 60; })
+
 
   });
-
 };
 
 Keen.ready(function(){ getAndRenderData(userInputs); });
@@ -134,13 +152,13 @@ d3.select(document.getElementById("options")).on('change',
 function formatData(highEstimate, lowEstimate, surgeEstimate){
   var result = { 'MTWTF':{}, 'SS':{} };
   Object.keys(result).forEach(function(daySegment){
-    result[daySegment]['surge'] = {};
-    result[daySegment]['minFare'] = {};
-    result[daySegment]['maxFare'] = {};
+    result[daySegment]['surge'] = [];
+    result[daySegment]['minFare'] = [];
+    result[daySegment]['maxFare'] = [];
     for (var i = 0; i < 24; i++){
-      result[daySegment]['surge'][i] = [];
-      result[daySegment]['minFare'][i] = [];
-      result[daySegment]['maxFare'][i] = [];
+      result[daySegment]['surge'].push([]);
+      result[daySegment]['minFare'].push([]);
+      result[daySegment]['maxFare'].push([]);
     }
   });
 
@@ -177,6 +195,13 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
     }
   });
 
-  console.log(result);
+  Object.keys(result).forEach(function(daySegment){
+    Object.keys(result[daySegment]).forEach(function(dataType){
+      result[daySegment][dataType] = result[daySegment][dataType].map(function(collection){
+        return d3.mean(collection);
+      });
+    });
+  });
+
   return result;
 }

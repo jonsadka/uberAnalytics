@@ -9,7 +9,7 @@ Interactive analytics dashboard of Uber pricing data
 The following data specification was used to compse this visual:
 ``
 { 'MTWTF': { 0: { maxFare: [fare, ..., fare],
-                  minDare: [fare, ..., fare],
+                  minFare: [fare, ..., fare],
                   surge: [surge, ..., surge]
                  }
              .
@@ -18,7 +18,7 @@ The following data specification was used to compse this visual:
              23:
            },
   'SS':    { 0: { maxFare: [fare, ..., fare],
-                  minDare: [fare, ..., fare],
+                  minFare: [fare, ..., fare],
                   surge: [surge, ..., surge]
                  }
              .
