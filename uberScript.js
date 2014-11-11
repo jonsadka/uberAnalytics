@@ -61,6 +61,15 @@ var getAndRenderData = function(userInputs){
               {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
   });
 
+  var maxEstimateQuery = new Keen.Query("maximum", {
+    eventCollection: "newPricesCollection",
+    timeframe: userInputs.timeframe,
+    targetProperty: "high_estimate",
+    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
+              {"property_name":"start","operator":"eq","property_value":userInputs.start},
+              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
+  });
+
   var lowEstimateQuery = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
     timeframe: userInputs.timeframe,
@@ -81,11 +90,23 @@ var getAndRenderData = function(userInputs){
               {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
   });
 
+  var maxSurgeQuery = new Keen.Query("maximum", {
+    eventCollection: "newPricesCollection",
+    timeframe: userInputs.timeframe,
+    targetProperty: "surge_multiplier",
+    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
+              {"property_name":"start","operator":"eq","property_value":userInputs.start},
+              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
+  });
+
   // RUN QUERIES
-  client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
-    var highEstimate = response[0].result;
-    var lowEstimate = response[0].result;
-    var surgeEstimate = response[0].result;
+  console.log('Retrieving data from server.');
+  client.run([highEstimateQuery, maxEstimateQuery, lowEstimateQuery, surgeEstimateQuery, maxSurgeQuery], function(response){
+    console.log('Retrieved data from server!');
+    var maxEstimate = response[1].result;
+    var maxSurge = response[4].result;
+    var dataCollection = formatData(response[0].result, response[2].result, response[3].result);
+
   });
 
 };
@@ -110,7 +131,52 @@ d3.select(document.getElementById("options")).on('change',
 
 ///////////////////////////////////////////////////////////////////
 //HELPER FUNCTIONS/////////////////////////////////////////////////
-var isoTimeConvert = function(time){
-  var timeFormat = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
-  return timeFormat.parse( time.substring(0,22) + time.substring(23,25) );
-};
+function formatData(highEstimate, lowEstimate, surgeEstimate){
+  var result = { 'MTWTF':{}, 'SS':{} };
+  Object.keys(result).forEach(function(daySegment){
+    result[daySegment]['surge'] = {};
+    result[daySegment]['minFare'] = {};
+    result[daySegment]['maxFare'] = {};
+    for (var i = 0; i < 24; i++){
+      result[daySegment]['surge'][i] = [];
+      result[daySegment]['minFare'][i] = [];
+      result[daySegment]['maxFare'][i] = [];
+    }
+  });
+
+  highEstimate.forEach(function(estimate){
+    var timestamp = new Date(estimate.timeframe.start);
+    var day = timestamp.getDay();
+    var hour = timestamp.getHours();
+    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+      result.MTWTF.maxFare[hour].push(estimate.value);
+    } else {
+      result.SS.maxFare[hour].push(estimate.value);
+    }
+  });
+
+  lowEstimate.forEach(function(estimate){
+    var timestamp = new Date(estimate.timeframe.start);
+    var day = timestamp.getDay();
+    var hour = timestamp.getHours();
+    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+      result.MTWTF.minFare[hour].push(estimate.value);
+    } else {
+      result.SS.minFare[hour].push(estimate.value);
+    }
+  });
+
+  surgeEstimate.forEach(function(estimate){
+    var timestamp = new Date(estimate.timeframe.start);
+    var day = timestamp.getDay();
+    var hour = timestamp.getHours();
+    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+      result.MTWTF.surge[hour].push(estimate.value);
+    } else {
+      result.SS.surge[hour].push(estimate.value);
+    }
+  });
+
+  console.log(result);
+  return result;
+}
