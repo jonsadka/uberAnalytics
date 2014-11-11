@@ -49,47 +49,64 @@ var svg = d3.select(".content").append("svg")
 
 ///////////////////////////////////////////////////////////////////
 //GATHER DATA//////////////////////////////////////////////////////
-
-Keen.ready(function(){
+var getAndRenderData = function(userInputs){
   // SETUP QUERIES
-  var highEstimate = new Keen.Query("average", {
+  var highEstimateQuery = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
-    timeframe: "last_14_days",
+    timeframe: userInputs.timeframe,
     targetProperty: "high_estimate",
-    interval: "daily",
-    filters: [{"property_name":"end","operator":"eq","property_value":"pwll"},
-              {"property_name":"start","operator":"eq","property_value":"warf"},
-              {"property_name":"display_name","operator":"eq","property_value":"uberX"}]
+    interval: "hourly",
+    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
+              {"property_name":"start","operator":"eq","property_value":userInputs.start},
+              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
   });
 
-  var lowEstimate = new Keen.Query("average", {
+  var lowEstimateQuery = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
-    timeframe: "last_14_days",
+    timeframe: userInputs.timeframe,
     targetProperty: "low_estimate",
-    interval: "daily",
-    filters: [{"property_name":"end","operator":"eq","property_value":"pwll"},
-              {"property_name":"start","operator":"eq","property_value":"warf"},
-              {"property_name":"display_name","operator":"eq","property_value":"uberX"}]
+    interval: "hourly",
+    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
+              {"property_name":"start","operator":"eq","property_value":userInputs.start},
+              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
   });
 
-  var surges = new Keen.Query("average", {
+  var surgeEstimateQuery = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
-    timeframe: "last_14_days",
+    timeframe: userInputs.timeframe,
     targetProperty: "surge_multiplier",
-    interval: "daily",
-    filters: [{"property_name":"end","operator":"eq","property_value":"pwll"},
-              {"property_name":"start","operator":"eq","property_value":"warf"},
-              {"property_name":"display_name","operator":"eq","property_value":"uberX"}]
+    interval: "hourly",
+    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
+              {"property_name":"start","operator":"eq","property_value":userInputs.start},
+              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
   });
 
   // RUN QUERIES
-  client.run([highEstimate, lowEstimate, surges], function(response){
-    response.forEach(function(item){
-      console.log(item.result)
-    })
-  })
+  client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
+    var highEstimate = response[0].result;
+    var lowEstimate = response[0].result;
+    var surgeEstimate = response[0].result;
+  });
 
-});
+};
+
+Keen.ready(function(){ getAndRenderData(userInputs); });
+
+///////////////////////////////////////////////////////////////////
+//REFRESH ON CHANGE////////////////////////////////////////////////
+d3.select(document.getElementById("options")).on('change',
+  function(){
+    var userInputs = {
+      timeframe: document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value,
+      start: document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value,
+      end: document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value,
+      product: document.getElementById("product").options[document.getElementById("product").selectedIndex].value
+    };
+
+    getAndRenderData(userInputs);
+  }
+);
+
 
 ///////////////////////////////////////////////////////////////////
 //HELPER FUNCTIONS/////////////////////////////////////////////////
