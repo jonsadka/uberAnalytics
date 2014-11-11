@@ -2,20 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>D3 Uber Analytics</title>
-    <script type="text/javascript" src="bower_components/keen-js/dist/keen.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="bower_components/d3/d3.min.js" charset="utf-8"></script>
+    <title>Uber Analytics</title>
     <link href="style.css" rel="stylesheet" type="text/css">
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-54247812-1', 'auto');
-      ga('send', 'pageview');
-
-    </script>
   </head>
   <body>
     <div class="header">
@@ -23,9 +11,9 @@
       <span class="name"><a href="https://twitter.com/JonSadka">@JONSADKA</a></span>
       <div id="options">
         <span class="custom-dropdown custom-dropdown--white">
-          <select id="dayofweek" class="custom-dropdown__select custom-dropdown__select--white">
-            <option value="yesterday" selected="selected">Yesterday</option>
-            <option value="today">Today</option>
+          <select id="month" class="custom-dropdown__select custom-dropdown__select--white">
+            <option value="this_month" selected="selected">This month</option>
+            <option value="last_month">Last Month</option>
           </select>
         </span>
 
@@ -66,6 +54,18 @@
     </div>
     <div class="content"></div>
     <div class="footer"></div>
+    <!-- scripts -->
+    <script type="text/javascript" src="bower_components/keen-js/dist/keen.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="bower_components/d3/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="uberScript.js" charset="utf-8"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-54247812-1', 'auto');
+      ga('send', 'pageview');
+    </script>
   </body>
 </html>
