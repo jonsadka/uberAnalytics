@@ -61,6 +61,7 @@ var renderGraphs = function(url, userParamaters){
 //SETUP PAGE ELEMENTS//////////////////////////////////////////////
 function visualize(data, v, userParamaters) {
   //DEFINE DATA BOUNDARY///////////////////////////////////////////
+  // console.log(data, v, userParamaters)
   var startTime = isoTimeConvert( data[0].date );
   var endTime = isoTimeConvert( data[data.length-1].date );
   var maxAvg = 0;
@@ -266,6 +267,18 @@ var chooseCar = function(carNumber){
   if (carNumber === 3) return 'uberSUV';
 };
 
+// MAX PRICE QUERY
+// https://api.keen.io/3.0/projects/540a24ab36bca41fa980505c/queries/maximum?api_key=7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325&event_collection=newPricesCollection&filters=%5B%7B%22property_name%22%3A%22end%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22warf%22%7D%2C%7B%22property_name%22%3A%22start%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22pwll%22%7D%2C%7B%22property_name%22%3A%22display_name%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22uberX%22%7D%5D&timeframe=today&timezone=-28800&target_property=high_estimate&group_by=date
+// LOW ESTIMATE
+// https://api.keen.io/3.0/projects/540a24ab36bca41fa980505c/queries/maximum?api_key=7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325&event_collection=newPricesCollection&filters=%5B%7B%22property_name%22%3A%22end%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22warf%22%7D%2C%7B%22property_name%22%3A%22start%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22pwll%22%7D%2C%7B%22property_name%22%3A%22display_name%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22uberX%22%7D%5D&timeframe=today&timezone=-28800&target_property=low_estimate&group_by=date
+// SURGE
+// https://api.keen.io/3.0/projects/540a24ab36bca41fa980505c/queries/maximum?api_key=7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325&event_collection=newPricesCollection&filters=%5B%7B%22property_name%22%3A%22end%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22warf%22%7D%2C%7B%22property_name%22%3A%22start%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22pwll%22%7D%2C%7B%22property_name%22%3A%22display_name%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22uberX%22%7D%5D&timeframe=today&timezone=-28800&target_property=surge_multiplier&group_by=date
+// AVERAGE HIGH PRICE
+// https://api.keen.io/3.0/projects/540a24ab36bca41fa980505c/queries/average?api_key=7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325&event_collection=newPricesCollection&filters=%5B%7B%22property_name%22%3A%22end%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22warf%22%7D%2C%7B%22property_name%22%3A%22start%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22pwll%22%7D%2C%7B%22property_name%22%3A%22display_name%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22uberX%22%7D%5D&timeframe=today&timezone=-28800&target_property=high_estimate&group_by=localized_display_name
+// AVERAGE LOW PRICE
+// https://api.keen.io/3.0/projects/540a24ab36bca41fa980505c/queries/average?api_key=7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325&event_collection=newPricesCollection&filters=%5B%7B%22property_name%22%3A%22end%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22warf%22%7D%2C%7B%22property_name%22%3A%22start%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22pwll%22%7D%2C%7B%22property_name%22%3A%22display_name%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22uberX%22%7D%5D&timeframe=today&timezone=-28800&target_property=low_estimate
+
+
 function getDataUrl(){
   var url = 'https://api.keen.io/';
   var version = '3.0';
@@ -304,40 +317,31 @@ function getDataUrl(){
   return fullURL;
 }
 
-// TEST URL
-// var queryURL = getDataUrl();
-// (function(query){
-//   d3.json(query, function(err, serverJSON){
-//     if (err) return console.warn(err);
-//     console.log(serverJSON)
-//   });
-// })(queryURL);
-
-var getRouteDistance = function(loc1, loc2){
-  // SF ROUTES
-  if ( loc1 === 'pwll' && loc2 === 'warf' ) return 2;
-  if ( loc1 === 'warf' && loc2 === 'pwll' ) return 2;
-  if ( loc1 === 'gogp' && loc2 === 'pwll' ) return 4.1;
-  if ( loc1 === 'pwll' && loc2 === 'gogp' ) return 4.1;
-  if ( loc1 === 'gogp' && loc2 === 'warf' ) return 5.6;
-  if ( loc1 === 'warf' && loc2 === 'gogp' ) return 5.6;
-
-  // LA ROUTES
-  if ( loc1 === 'smon' && loc2 === 'dtla' ) return 15.7;
-  if ( loc1 === 'dtla' && loc2 === 'smon' ) return 15.7;
-  if ( loc1 === 'hlwd' && loc2 === 'smon' ) return 11.5;
-  if ( loc1 === 'smon' && loc2 === 'hlwd' ) return 11.5;
-  if ( loc1 === 'dtla' && loc2 === 'hlwd' ) return 7.5;
-  if ( loc1 === 'hlwd' && loc2 === 'dtla' ) return 7.5;
-
-  // NY ROUTES
-  if ( loc1 === 'grct' && loc2 === 'upma' ) return 7.2;
-  if ( loc1 === 'upma' && loc2 === 'grct' ) return 7.2;
-  if ( loc1 === 'brok' && loc2 === 'grct' ) return 6.2;
-  if ( loc1 === 'grct' && loc2 === 'brok' ) return 6.2;
-  if ( loc1 === 'brok' && loc2 === 'upma' ) return 14.5;
-  if ( loc1 === 'upma' && loc2 === 'brok' ) return 14.5;
+var getMaxPricing = function(start, end, cb){
+  var timeframe = 'yesterday';
+  var estimate = 'high_estimate';
+  var groupType = 'date';
+  var url = 'https://api.keen.io/3.0/projects/540a24ab36bca41fa980505c/queries/maximum?api_key=7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325&event_collection=newPricesCollection&filters=%5B%7B%22property_name%22%3A%22end%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22'
+            + start +'%22%7D%2C%7B%22property_name%22%3A%22start%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22' 
+            + end+ '%22%7D%2C%7B%22property_name%22%3A%22display_name%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22uberX%22%7D%5D&timeframe=' 
+            + timeframe +'&timezone=-28800&target_property=' + estimate + '&group_by=' + groupType;
+  d3.json(url, function(err, serverJSON){
+    if (err) return console.warn(err);
+    cb(serverJSON.result);
+  });
 };
+
+// var getRouteDistance = function(start, end, cb){
+//   var timeframe = 'yesterday';
+//   var url = 'https://api.keen.io/3.0/projects/540a24ab36bca41fa980505c/queries/average?api_key=7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325&event_collection=newPricesCollection&filters=%5B%7B%22property_name%22%3A%22end%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22'
+//             + start +'%22%7D%2C%7B%22property_name%22%3A%22start%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22' 
+//             + end+ '%22%7D%2C%7B%22property_name%22%3A%22display_name%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22uberX%22%7D%5D&timeframe=' 
+//             + timeframe +'&timezone=-28800&target_property=distance';
+//   d3.json(url, function(err, serverJSON){
+//     if (err) return console.warn(err);
+//     cb(serverJSON.result);
+//   });
+// };
 
 var currencyFormatter = d3.format(",.0f");
 
