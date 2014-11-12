@@ -1,13 +1,13 @@
 ///////////////////////////////////////////////////////////////////
 //QUERY SETUP//////////////////////////////////////////////////////
 
-//INITIALIZE KEEN//////////////////////////////////////////////////
+// INITIALIZE KEEN
 var client = new Keen({
   projectId: "540a24ab36bca41fa980505c",
   readKey: "7d266edfa93c5aa9391ab5749c8e0ba3a08f9e1f9e74794b9808209116fca4ed3cadadfad235102244cae3e76d1101608d46c81513af814c98ed17f044b14daee38f1a7e5a69baf7f34ed4c42c7c0a2195ffcc25f2f5a8723ad0b24a69ab5e7be973d607c5cdbaeee6f5e25cc3cc0325"
 });
 
-// GET USER DATA///////////////////////////////////////////////////
+// CAPTURE USER DATA
 var userInputs = {
   timeframe: document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value,
   start: document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value,
@@ -16,12 +16,11 @@ var userInputs = {
 };
 
 ///////////////////////////////////////////////////////////////////
-//SETUP PAGE VARIABLES AND USER INPUTS/////////////////////////////
-
-var topPad = 40;
+//SETUP PAGE VARIABLES ////////////////////////////////////////////
+var topPad = 20;
 var rightPad = 10;
-var leftPad = 40;
-var bottomPad = 15;
+var leftPad = 0;
+var bottomPad = 0;
 
 var width = window.innerWidth;
 var height = window.innerHeight - document.getElementsByClassName('header')[0].offsetHeight;
@@ -29,21 +28,35 @@ var height = window.innerHeight - document.getElementsByClassName('header')[0].o
 var graphHeight = height - topPad - bottomPad;
 var graphWidth = width - rightPad - leftPad;
 
-//CREATE CANVAS//////////////////////////////////////////////////
+var barHeight = 16;
+
+// CREATE CANVAS
 var chartbg = d3.select(".content").append("svg").attr("class", "chartbg")
   .attr("width", width).attr("height", height)
 
 var svg = d3.select(".content").append("svg")
   .attr("width", width).attr("height", height).attr("id", "graphs");
 
+// ESTABLISH SCALES
+var xScale = d3.scale.linear().range([leftPad, width - leftPad - rightPad]);
+var yScale = d3.scale.linear().range([topPad, height - topPad - bottomPad]).domain([0, 23]);
+var surgeIntensityScale = d3.scale.ordinal().range(['rgb(255,255,255)','rgb(240,240,240)','rgb(217,217,217)','rgb(189,189,189)','rgb(150,150,150)','rgb(115,115,115)','rgb(82,82,82)','rgb(37,37,37)','rgb(0,0,0)'])
+var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400])
+
+
+// APPEND TIME LABELS
 svg.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
   .selectAll(".hours").data(new Array(24))
   .enter().append("text").attr("class","hours")
-  .text(function(d,i){ return i; })
-  .attr("x", width / 2)
-  .attr("y",function(d,i){ return i * 20 + 24; })
-  .style("font-weight","100");
-
+  .text(function(d,i){ 
+    if ( i === 12 ) return i + 'pm'
+    if ( i > 12 ) return i - 12 + 'pm';
+    return i + 'am';
+  })
+  .attr("x", graphWidth / 2 + leftPad )
+  .attr("y",function(d,i){ return yScale(i) })
+  .style("font-size", function(){ if (height < 400) return 10; return 12; })
+  .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
 
 ///////////////////////////////////////////////////////////////////
 //GATHER DATA//////////////////////////////////////////////////////
@@ -87,54 +100,99 @@ var getAndRenderData = function(userInputs){
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
 
-  // SURGE INTENSITIES  
-    svg.append("g").attr("class", "surgeintensities--MTWT")
-    .selectAll(".surgeintensity").data(dataCollection.MTWT.surge)
-    .enter().append("rect").attr("class","surgeintensity")
-    .attr("width", 5)
-    .attr("height", 10)
-    .attr("x", width / 2 + 10)
-    .attr("y",function(d,i){ return i * 20 + 14; })
-    .attr("fill", function(d){
-      if (d > 1.25) return 'RGBA(255, 255, 255, ' + d/maxAvgSurge + ')';
-    })
+    xScale.domain([0, maxAvgFare]);
+    surgeIntensityScale.domain([maxAvgFare, 0]);
 
-    svg.append("g").attr("class", "surgeintensities--FSS")
-    .selectAll(".surgeintensity").data(dataCollection.FSS.surge)
-    .enter().append("rect").attr("class","surgeintensity")
-    .attr("width", 5)
-    .attr("height", 10)
-    .attr("x", width / 2 - 20)
-    .attr("y",function(d,i){ return i * 20 + 14; })
-    .attr("fill", function(d){
-      if (d > 1.25) return 'RGBA(255, 255, 255, ' + d/maxAvgSurge + ')';
+    // DRAW VIEW FOR EACH SET OF DATA
+    Object.keys(dataCollection).forEach(function(collection){
+      if ( typeof dataCollection[collection] === 'object' ){
+        // SURGE INTENSITIES  
+        svg.append("g").attr("class", function(){ return "surgeintensities--" + collection; })
+        .selectAll(".surgeintensity").data(dataCollection[collection].surge)
+        .enter().append("rect").attr("class","surgeintensity")
+        .attr("width", 6)
+        .attr("height", barHeight)
+        .attr("x", function(){
+          var shift = collection === 'MTWT' ? 36 : -36;
+          return graphWidth / 2 + leftPad + shift;
+        })
+        .attr("y",function(d,i){ return yScale(i) - barHeight; })
+        .attr("fill", function(d){ return surgeIntensityScale(d); })
+        .attr("stroke-width",1)
+        .attr("stroke", function(d){ return surgeIntensityScale(d); })
+        .attr("opacity",0)
+        .transition().duration(1000).delay(function(d,i){ return i * 100; })
+        .attr("opacity",1);
+
+        // FARE BARS
+        svg.append("g").attr("class", function(){ return "minfares--" + collection; })
+          .selectAll(".maxfare").data(dataCollection[collection].minFare)
+          .enter().append("rect").attr("class","minFare")
+          .attr("width", function(d,i){ return 200 * (d / maxAvgFare); })
+          .attr("height", barHeight)
+          .attr("x", function(d){
+            var shiftAmount = collection === 'MTWT' ? - 200*(d/maxAvgFare) -36 - 10 : 36 + 10;
+            return graphWidth / 2 + leftPad + shiftAmount;
+          })
+          .attr("y",function(d,i){ return yScale(i) - barHeight; })
+          .attr("fill", "none")
+          .attr("stroke-width",1)
+          .attr("stroke", "grey")
+          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
+
+        svg.append("g").attr("class", function(){ return "maxfares--" + collection; })
+          .selectAll(".maxfare").data(dataCollection[collection].maxFare)
+          .enter().append("rect").attr("class","maxfare")
+          .attr("width", function(d,i){ return 200 * (d / maxAvgFare); })
+          .attr("height", barHeight)
+          .attr("x", function(d){
+            var shiftAmount = collection === 'MTWT' ? - 200*(d/maxAvgFare) -36 - 10 : 36 + 10;
+            return graphWidth / 2 + leftPad + shiftAmount;
+          })
+          .attr("y",function(d,i){ return yScale(i) - barHeight; })
+          .attr("fill", "none")
+          .attr("stroke-width",1)
+          .attr("stroke", function(d,i){
+            if (collection === 'MTWT' && d > dataCollection.FSS.maxFare[i]){
+              return "RGBA(239, 72, 119, 1)";
+            } else if (collection === 'FSS' && d > dataCollection.MTWT.maxFare[i]){
+              return "RGBA(239, 72, 119, 1)";
+            }
+            return "grey";
+          })
+          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
+      }
     })
 
   // FARE BARS
-    svg.append("g").attr("class", "maxfares--MTWT")
-    .selectAll(".maxfare").data(dataCollection.MTWT.maxFare)
-    .enter().append("rect").attr("class","maxfare")
-    .attr("width", function(d,i){ return 200 * (d / maxAvgFare) })
-    .attr("height", 10)
-    .attr("x", function(d,i){
-      var shiftAmount = 200 * (1 - (d / maxAvgFare));
-      return width / 2 - 240 + shiftAmount;
-    })
-    .attr("y",function(d,i){ return i * 20 + 14; })
-    .attr("fill", function(d,i){
-      if (d > dataCollection.FSS.maxFare[i]) return "pink";
-    })
+    // svg.append("g").attr("class", "maxfares--MTWT")
+    // .selectAll(".maxfare").data(dataCollection.MTWT.maxFare)
+    // .enter().append("rect").attr("class","maxfare")
+    // .attr("width", function(d,i){ return 200 * (d / maxAvgFare) })
+    // .attr("x", function(d,i){
+    //   var shiftAmount = 200 * (1 - (d / maxAvgFare));
+    //   return width / 2 - 240 + shiftAmount;
+    // })
+    // .attr("fill", function(d,i){
+    //   if (d > dataCollection.FSS.maxFare[i]) return "pink";
+    // })
 
-    svg.append("g").attr("class", "maxfares--FSS")
-    .selectAll(".maxfare").data(dataCollection.FSS.maxFare)
-    .enter().append("rect").attr("class","maxfare")
-    .attr("width", function(d,i){ return 200 * (d / maxAvgFare) })
-    .attr("height", 10)
-    .attr("x", width / 2 + 22)
-    .attr("y",function(d,i){ return i * 20 + 14; })
-    .attr("fill", function(d,i){
-      if (d > dataCollection.MTWT.maxFare[i]) return "pink";
-    })
+    // svg.append("g").attr("class", "maxfares--FSS")
+    // .selectAll(".maxfare").data(dataCollection.FSS.maxFare)
+    // .enter().append("rect").attr("class","maxfare")
+    // .attr("width", function(d,i){ return 200 * (d / maxAvgFare) })
+    // .attr("height", barHeight)
+    // .attr("x", function(){
+    //   return graphWidth / 2 + leftPad + 36 + 10;
+    // })
+    // .attr("y",function(d,i){ return yScale(i) - barHeight })
+    // .attr("fill", "none")
+    // .attr("stroke-width",1)
+    // .attr("stroke", function(d,i){
+    //   if (d > dataCollection.MTWT.maxFare[i]) return "RGBA(239, 72, 119, 1)";
+    //   return "grey";
+    // })
+    // .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
 
   });
 };
