@@ -28,7 +28,7 @@ var height = window.innerHeight - document.getElementsByClassName('header')[0].o
 var graphHeight = height - topPad - bottomPad;
 var graphWidth = width - rightPad - leftPad;
 
-var barHeight = 16;
+var barHeight = 8;
 
 // CREATE CANVAS
 var chartbg = d3.select(".content").append("svg").attr("class", "chartbg")
@@ -40,7 +40,7 @@ var svg = d3.select(".content").append("svg")
 // ESTABLISH SCALES
 var xScale = d3.scale.linear().range([leftPad, width - leftPad - rightPad]);
 var yScale = d3.scale.linear().range([topPad, height - topPad - bottomPad]).domain([0, 23]);
-var surgeIntensityScale = d3.scale.ordinal().range(['rgb(255,255,255)','rgb(240,240,240)','rgb(217,217,217)','rgb(189,189,189)','rgb(150,150,150)','rgb(115,115,115)','rgb(82,82,82)','rgb(37,37,37)','rgb(0,0,0)'])
+var surgeIntensityScale = d3.scale.ordinal().range(['rgb(247,244,249)','rgb(231,225,239)','rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)','rgb(206,18,86)','rgb(152,0,67)','rgb(103,0,31)'])
 var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400])
 
 
@@ -101,7 +101,7 @@ var getAndRenderData = function(userInputs){
     var maxAvgFare = dataCollection.maxAvgFare;
 
     xScale.domain([0, maxAvgFare]);
-    surgeIntensityScale.domain([maxAvgFare, 0]);
+    surgeIntensityScale.domain([maxAvgFare, 1]);
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
@@ -128,25 +128,32 @@ var getAndRenderData = function(userInputs){
         svg.append("g").attr("class", function(){ return "minfares--" + collection; })
           .selectAll(".maxfare").data(dataCollection[collection].minFare)
           .enter().append("rect").attr("class","minFare")
-          .attr("width", function(d,i){ return 200 * (d / maxAvgFare); })
+          .attr("width", function(d,i){ return 300 * (d / maxAvgFare); })
           .attr("height", barHeight)
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWT' ? - 200*(d/maxAvgFare) -36 - 10 : 36 + 10;
+            var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
             return graphWidth / 2 + leftPad + shiftAmount;
           })
           .attr("y",function(d,i){ return yScale(i) - barHeight; })
           .attr("fill", "none")
           .attr("stroke-width",1)
-          .attr("stroke", "grey")
+          .attr("stroke", function(d,i){
+            if (collection === 'MTWT' && d > dataCollection.FSS.minFare[i]){
+              return "RGBA(239, 72, 119, 1)";
+            } else if (collection === 'FSS' && d > dataCollection.MTWT.minFare[i]){
+              return "RGBA(239, 72, 119, 1)";
+            }
+            return "grey";
+          })
           .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
 
         svg.append("g").attr("class", function(){ return "maxfares--" + collection; })
           .selectAll(".maxfare").data(dataCollection[collection].maxFare)
           .enter().append("rect").attr("class","maxfare")
-          .attr("width", function(d,i){ return 200 * (d / maxAvgFare); })
+          .attr("width", function(d,i){ return 300 * (d / maxAvgFare); })
           .attr("height", barHeight)
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWT' ? - 200*(d/maxAvgFare) -36 - 10 : 36 + 10;
+            var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
             return graphWidth / 2 + leftPad + shiftAmount;
           })
           .attr("y",function(d,i){ return yScale(i) - barHeight; })

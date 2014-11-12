@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>D3 Uber Analytics</title>
+    <script type="text/javascript" src="bower_components/d3/d3.js" charset="utf-8"></script>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-54247812-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <h1>UBER ANALYTICS</h1>
+      <span class="name"><a href="https://twitter.com/JonSadka">@JONSADKA</a></span>
+      <div id="options">
+        <span class="custom-dropdown custom-dropdown--white">
+          <select id="dayofweek" class="custom-dropdown__select custom-dropdown__select--white">
+            <option value="Wed Sep 17">WEDNESDAY SEPT|17</option>
+            <option value="Thu Sep 18">THURSDAY SEPT|18</option>
+            <option value="Fri Sep 19">FRIDAY SEPT|19</option>
+            <option value="Sat Sep 20">SATURDAY SEPT|20</option>
+            <option value="Sun Sep 21" selected="selected">SUNDAY SEPT|21</option>
+            <option value="Mon Sep 22">MONDAY SEPT|22</option>
+            <option value="Tue Sep 23">TUESDAY SEPT|23</option>
+          </select>
+        </span>
+
+        <span class="custom-dropdown custom-dropdown--white">
+          <select id="startLoc" class="custom-dropdown__select custom-dropdown__select--white">
+            <option value="gogp">SF | California Academy of Sciences</option>
+            <option value="pwll" selected="selected">SF | Powell & Market</option>
+            <option value="warf">SF | Pier 39</option>
+            <option value="dtla">LA | Walt Disney Concert Hall</option>
+            <option value="smon">LA | Santa Monica Third Street Promenade</option>
+            <option value="hlwd">LA | Mann Chinese Theatres</option>
+            <option value="grct">NY | Grand Central Terminal</option>
+            <option value="upma">NY | American Academy of Arts and Letters</option>
+            <option value="brok">NY | Barclays Center</option>
+          </select>
+        </span>
+
+        <span class="custom-dropdown custom-dropdown--white">
+          <select id="endLoc" class="custom-dropdown__select custom-dropdown__select--white">
+            <option value="gogp">SF | California Academy of Sciences</option>
+            <option value="pwll">SF | Powell & Market</option>
+            <option value="warf" selected="selected">SF | Pier 39</option>
+            <option value="dtla">LA | Walt Disney Concert Hall</option>
+            <option value="smon">LA | Santa Monica Third Street Promenade</option>
+            <option value="hlwd">LA | Mann Chinese Theatres</option>
+            <option value="grct">NY | Grand Central Terminal</option>
+            <option value="upma">NY | American Academy of Arts and Letters</option>
+            <option value="brok">NY | Barclays Center</option>
+          </select>
+        </span>
+      </div>
+    </div>
+    <div class="content"></div>
+    <div class="footer"></div>
+    <script type="text/javascript" src="uberScript.js" charset="utf-8"></script>
+  </body>
+</html>

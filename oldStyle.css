@@ -1,0 +1,191 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+* {
+	margin: 0;
+	padding: 0;
+	font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body{
+	overflow: hidden;
+  background: #fff url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid@1x.jpg) repeat left top;
+	background-size: 18px 18px;
+}
+
+h1 {
+  padding-top: 15px;
+  padding-bottom: 5px;
+  font-size: 42px;
+}
+
+svg {
+  font: 11px;
+  position:absolute
+}
+
+.chartbg {
+  background: #202024 url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid-dark@1x.gif) repeat left top;
+  background-size: 18px 18px;
+}
+
+.header {
+  color: #000;
+  padding-left: 25px;
+  padding-bottom: 15px;
+}
+
+a:-webkit-any-link {
+   text-decoration: none;
+   color: RGBA(33, 188, 215, 1);
+}
+
+.name {
+  color: RGBA(33, 188, 215, 1);
+  position: absolute;
+  right: 50px;
+  top: 25px;
+  text-align: right;
+  text-decoration: none;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #888;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 10px;
+    fill: #888;
+}
+
+.surgeBars {
+  -moz-transition: all 0.25s;
+  -o-transition: all 0.25s;
+  -webkit-transition: all 0.25s;
+  transition: all 0.25s;
+}
+
+.surgeBars:hover {
+  fill: RGBA(225, 225, 225, .9);
+}
+
+.fareline {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 1.5px;
+}
+/*
+.fareline.min:hover,
+.fareline.max:hover{
+  stroke-width: 10px;
+}*/
+
+.fareline.min {
+  stroke-dasharray: 2,10;
+}
+
+.fareline.uberX {
+  stroke: RGBA(225, 225, 225, .7);
+}
+
+.fareline.uberXL {
+  stroke: RGBA(173, 221, 237, 1);
+}
+
+.fareline.uberBLACK {
+  stroke: RGBA(33, 188, 215, 1);
+}
+
+.fareline.uberSUV {
+  stroke: RGBA(0, 128, 154, 1);
+}
+
+.traceline {
+  stroke-dasharray: 1,5;
+  stroke: #fff;
+  stroke-width: 1px;
+}
+
+.custom-dropdown__select{
+    font-size: 12px; /* inherit size from .custom-dropdown */
+    padding: .5em; /* add some space*/
+    margin: 0; /* remove default margins */
+}
+
+.custom-dropdown__select--white {
+    background-color: RGBA(7, 7, 22, 1);
+    color: #fff;
+}
+
+@supports (pointer-events: none) and
+      ((-webkit-appearance: none) or
+      (-moz-appearance: none) or
+      (appearance: none)) {
+
+    .custom-dropdown {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .custom-dropdown__select {
+        padding-right: 2.5em; /* accommodate with the pseudo elements for the dropdown arrow */
+        border: 0;
+        border-radius: 3px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    .custom-dropdown::before,
+    .custom-dropdown::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+    }
+
+    .custom-dropdown::after { /*  Custom dropdown arrow */
+        content: "\25BC";
+        height: 1em;
+        font-size: .625em;
+        line-height: 1;
+        right: 1.2em;
+        top: 50%; margin-top: -.5em;
+    }
+
+    .custom-dropdown::before { /*  Custom dropdown arrow cover */
+        width: 2em;
+        right: 0; top: 0; bottom: 0;
+        border-radius: 0 3px 3px 0;
+    }
+
+    .custom-dropdown__select[disabled] {
+        color: rgba(225,225,225,.3);
+    }
+
+    .custom-dropdown.custom-dropdown--disabled::after {
+        color: rgba(225,225,225,.1);
+    }
+
+    /* White dropdown style */
+    .custom-dropdown--white::before {
+        top: .5em; bottom: .5em;
+        background-color: RGBA(7, 7, 22, 1);
+        border-left: 1px solid rgba(225,225,225,.1);
+    }
+
+    .custom-dropdown--white::after {
+        color: rgba(225,225,225,.9);
+    }
+
+    /* FF only temp fix */
+    @-moz-document url-prefix() {
+        .custom-dropdown__select             { padding-right: .9em }
+        .custom-dropdown--large .custom-dropdown__select { padding-right: 1.3em }
+        .custom-dropdown--small .custom-dropdown__select { padding-right: .5em }
+    }
+}
