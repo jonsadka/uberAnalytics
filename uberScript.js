@@ -28,7 +28,7 @@ var height = window.innerHeight - document.getElementsByClassName('header')[0].o
 var graphHeight = height - topPad - bottomPad;
 var graphWidth = width - rightPad - leftPad;
 
-var barHeight = 8;
+var barHeight = 12;
 
 // CREATE CANVAS
 var chartbg = d3.select(".content").append("svg").attr("class", "chartbg")
@@ -59,155 +59,11 @@ svg.append("g").attr("class", "timetext").attr("fill","white").style("text-ancho
   .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
 
 ///////////////////////////////////////////////////////////////////
-//GATHER DATA//////////////////////////////////////////////////////
-var getAndRenderData = function(userInputs){
-  // SETUP QUERIES
-  var highEstimateQuery = new Keen.Query("average", {
-    eventCollection: "newPricesCollection",
-    timeframe: userInputs.timeframe,
-    targetProperty: "high_estimate",
-    interval: "hourly",
-    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
-              {"property_name":"start","operator":"eq","property_value":userInputs.start},
-              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
-  });
-
-  var lowEstimateQuery = new Keen.Query("average", {
-    eventCollection: "newPricesCollection",
-    timeframe: userInputs.timeframe,
-    targetProperty: "low_estimate",
-    interval: "hourly",
-    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
-              {"property_name":"start","operator":"eq","property_value":userInputs.start},
-              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
-  });
-
-  var surgeEstimateQuery = new Keen.Query("average", {
-    eventCollection: "newPricesCollection",
-    timeframe: userInputs.timeframe,
-    targetProperty: "surge_multiplier",
-    interval: "hourly",
-    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
-              {"property_name":"start","operator":"eq","property_value":userInputs.start},
-              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
-  });
-
-  // RUN QUERIES
-  console.log('Retrieving data from server.');
-  client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
-    console.log('Retrieved data from server!');
-    var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
-    var maxAvgSurge = dataCollection.maxAvgSurge;
-    var maxAvgFare = dataCollection.maxAvgFare;
-
-    xScale.domain([0, maxAvgFare]);
-    surgeIntensityScale.domain([maxAvgFare, 1]);
-
-    // DRAW VIEW FOR EACH SET OF DATA
-    Object.keys(dataCollection).forEach(function(collection){
-      if ( typeof dataCollection[collection] === 'object' ){
-        // SURGE INTENSITIES  
-        svg.append("g").attr("class", function(){ return "surgeintensities--" + collection; })
-        .selectAll(".surgeintensity").data(dataCollection[collection].surge)
-        .enter().append("rect").attr("class","surgeintensity")
-        .attr("width", 6)
-        .attr("height", barHeight)
-        .attr("x", function(){
-          var shift = collection === 'MTWT' ? 36 : -36;
-          return graphWidth / 2 + leftPad + shift;
-        })
-        .attr("y",function(d,i){ return yScale(i) - barHeight; })
-        .attr("fill", function(d){ return surgeIntensityScale(d); })
-        .attr("stroke-width",1)
-        .attr("stroke", function(d){ return surgeIntensityScale(d); })
-        .attr("opacity",0)
-        .transition().duration(1000).delay(function(d,i){ return i * 100; })
-        .attr("opacity",1);
-
-        // FARE BARS
-        svg.append("g").attr("class", function(){ return "minfares--" + collection; })
-          .selectAll(".maxfare").data(dataCollection[collection].minFare)
-          .enter().append("rect").attr("class","minFare")
-          .attr("width", function(d,i){ return 300 * (d / maxAvgFare); })
-          .attr("height", barHeight)
-          .attr("x", function(d){
-            var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
-            return graphWidth / 2 + leftPad + shiftAmount;
-          })
-          .attr("y",function(d,i){ return yScale(i) - barHeight; })
-          .attr("fill", "none")
-          .attr("stroke-width",1)
-          .attr("stroke", function(d,i){
-            if (collection === 'MTWT' && d > dataCollection.FSS.minFare[i]){
-              return "RGBA(239, 72, 119, 1)";
-            } else if (collection === 'FSS' && d > dataCollection.MTWT.minFare[i]){
-              return "RGBA(239, 72, 119, 1)";
-            }
-            return "grey";
-          })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
-
-        svg.append("g").attr("class", function(){ return "maxfares--" + collection; })
-          .selectAll(".maxfare").data(dataCollection[collection].maxFare)
-          .enter().append("rect").attr("class","maxfare")
-          .attr("width", function(d,i){ return 300 * (d / maxAvgFare); })
-          .attr("height", barHeight)
-          .attr("x", function(d){
-            var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
-            return graphWidth / 2 + leftPad + shiftAmount;
-          })
-          .attr("y",function(d,i){ return yScale(i) - barHeight; })
-          .attr("fill", "none")
-          .attr("stroke-width",1)
-          .attr("stroke", function(d,i){
-            if (collection === 'MTWT' && d > dataCollection.FSS.maxFare[i]){
-              return "RGBA(239, 72, 119, 1)";
-            } else if (collection === 'FSS' && d > dataCollection.MTWT.maxFare[i]){
-              return "RGBA(239, 72, 119, 1)";
-            }
-            return "grey";
-          })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
-      }
-    })
-
-  // FARE BARS
-    // svg.append("g").attr("class", "maxfares--MTWT")
-    // .selectAll(".maxfare").data(dataCollection.MTWT.maxFare)
-    // .enter().append("rect").attr("class","maxfare")
-    // .attr("width", function(d,i){ return 200 * (d / maxAvgFare) })
-    // .attr("x", function(d,i){
-    //   var shiftAmount = 200 * (1 - (d / maxAvgFare));
-    //   return width / 2 - 240 + shiftAmount;
-    // })
-    // .attr("fill", function(d,i){
-    //   if (d > dataCollection.FSS.maxFare[i]) return "pink";
-    // })
-
-    // svg.append("g").attr("class", "maxfares--FSS")
-    // .selectAll(".maxfare").data(dataCollection.FSS.maxFare)
-    // .enter().append("rect").attr("class","maxfare")
-    // .attr("width", function(d,i){ return 200 * (d / maxAvgFare) })
-    // .attr("height", barHeight)
-    // .attr("x", function(){
-    //   return graphWidth / 2 + leftPad + 36 + 10;
-    // })
-    // .attr("y",function(d,i){ return yScale(i) - barHeight })
-    // .attr("fill", "none")
-    // .attr("stroke-width",1)
-    // .attr("stroke", function(d,i){
-    //   if (d > dataCollection.MTWT.maxFare[i]) return "RGBA(239, 72, 119, 1)";
-    //   return "grey";
-    // })
-    // .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
-
-  });
-};
-
-Keen.ready(function(){ getAndRenderData(userInputs); });
+//INITIAL RENDER///////////////////////////////////////////////////
+Keen.ready(function(){ getDataandFirstRender(userInputs); });
 
 ///////////////////////////////////////////////////////////////////
-//REFRESH ON CHANGE////////////////////////////////////////////////
+//RE-INITIALIZE ON INPUT CHANGE////////////////////////////////////
 d3.select(document.getElementById("options")).on('change',
   function(){
     var userInputs = {
@@ -217,7 +73,7 @@ d3.select(document.getElementById("options")).on('change',
       product: document.getElementById("product").options[document.getElementById("product").selectedIndex].value
     };
 
-    getAndRenderData(userInputs);
+    getDataandFirstRender(userInputs);
   }
 );
 
