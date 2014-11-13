@@ -54,7 +54,7 @@ var getDataandFirstRender = function(userInputs){
         .attr("height", barHeight)
         .attr("x", function(){
           var shift = collection === 'MTWT' ? 36 : -36;
-          return graphWidth / 2 + leftPad + shift;
+          return graphWidth / 2 + shift;
         })
         .attr("y",function(d,i){ return yScale(i) - barHeight; })
         .attr("fill", function(d){ return surgeIntensityScale(d); })
@@ -72,7 +72,7 @@ var getDataandFirstRender = function(userInputs){
           .attr("height", barHeight)
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
-            return graphWidth / 2 + leftPad + shiftAmount;
+            return graphWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return yScale(i) - barHeight; })
           .attr("fill", "RGBA(0,0,0,0)")
@@ -94,7 +94,7 @@ var getDataandFirstRender = function(userInputs){
           .attr("height", barHeight)
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
-            return graphWidth / 2 + leftPad + shiftAmount;
+            return graphWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return yScale(i) - barHeight; })
           .attr("fill", "RGBA(0,0,0,0)")
@@ -118,7 +118,7 @@ var getDataandFirstRender = function(userInputs){
             thisNode.attr("width", 0).transition().duration(1000).attr("width", finalWidth);
 
             if ( thisNode.attr("class") === 'maxfare--MTWT' ){
-              var startX = graphWidth / 2 + leftPad - 36 - 10
+              var startX = graphWidth / 2 - 36 - 10;
               var finalX = +thisNode.attr("x");
               console.log(startX, finalX)
               thisNode.attr("x", startX).transition().duration(1000).attr("x", 0);

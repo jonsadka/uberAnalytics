@@ -18,49 +18,44 @@ var userInputs = {
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE VARIABLES ////////////////////////////////////////////
 var topPad = 20;
-var rightPad = 10;
-var leftPad = 0;
 var bottomPad = 0;
 
-var width = window.innerWidth;
-var height = window.innerHeight - document.getElementsByClassName('header')[0].offsetHeight;
+var width = 0 //document.getElementById('left').offsetWidth;
+var maxGraphHeight = window.innerHeight //- document.getElementById('header').offsetHeight;
 
-var graphHeight = height - topPad - bottomPad;
-var graphWidth = width - rightPad - leftPad;
+var graphHeight = maxGraphHeight - topPad - bottomPad;
+var graphWidth = width;
 
 var barHeight = 12;
 
 // CREATE CANVAS
-var chartbg = d3.select(".content").append("svg").attr("class", "chartbg")
-  .attr("width", width).attr("height", height)
-
-var svg = d3.select(".content").append("svg")
-  .attr("width", width).attr("height", height).attr("id", "graphs");
+var svg = d3.select("#left").append("svg")
+  .attr("width", width).attr("height", maxGraphHeight).attr("id", "graphs");
 
 // ESTABLISH SCALES
-var xScale = d3.scale.linear().range([leftPad, width - leftPad - rightPad]);
-var yScale = d3.scale.linear().range([topPad, height - topPad - bottomPad]).domain([0, 23]);
+var xScale = d3.scale.linear().range([0, width]);
+var yScale = d3.scale.linear().range([topPad, maxGraphHeight - topPad - bottomPad]).domain([0, 23]);
 var surgeIntensityScale = d3.scale.ordinal().range(['rgb(247,244,249)','rgb(231,225,239)','rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)','rgb(206,18,86)','rgb(152,0,67)','rgb(103,0,31)'])
-var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400])
+var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 
 
 // APPEND TIME LABELS
-svg.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
-  .selectAll(".hours").data(new Array(24))
-  .enter().append("text").attr("class","hours")
-  .text(function(d,i){ 
-    if ( i === 12 ) return i + 'pm'
-    if ( i > 12 ) return i - 12 + 'pm';
-    return i + 'am';
-  })
-  .attr("x", graphWidth / 2 + leftPad )
-  .attr("y",function(d,i){ return yScale(i) })
-  .style("font-size", function(){ if (height < 400) return 10; return 12; })
-  .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
+// svg.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
+//   .selectAll(".hours").data(new Array(24))
+//   .enter().append("text").attr("class","hours")
+//   .text(function(d,i){
+//     if ( i === 12 ) return i + 'pm';
+//     if ( i > 12 ) return i - 12 + 'pm';
+//     return i + 'am';
+//   })
+//   .attr("x", graphWidth / 2 )
+//   .attr("y",function(d,i){ return yScale(i); })
+//   .style("font-size", function(){ if (maxGraphHeight < 400) return 10; return 12; })
+//   .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1)
 
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
-Keen.ready(function(){ getDataandFirstRender(userInputs); });
+// Keen.ready(function(){ getDataandFirstRender(userInputs); });
 
 ///////////////////////////////////////////////////////////////////
 //RE-INITIALIZE ON INPUT CHANGE////////////////////////////////////

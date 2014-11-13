@@ -1,37 +1,30 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
 
-* {
+*, *:after, *:before {
 	margin: 0;
 	padding: 0;
 	font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
 body{
 	overflow: hidden;
+  background-size: 18px 18px;
+}
+
+#header {
   background: #fff url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid@1x.jpg) repeat left top;
-	background-size: 18px 18px;
+  color: #000;
+  padding-left: 25px;
+  padding-bottom: 15px;
 }
 
 h1 {
   padding-top: 15px;
   padding-bottom: 5px;
   font-size: 34px;
-}
-
-svg {
-  font: 11px;
-  position:absolute
-}
-
-.chartbg {
-  background: #202024 url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid-dark@1x.gif) repeat left top;
-  background-size: 18px 18px;
-}
-
-.header {
-  color: #000;
-  padding-left: 25px;
-  padding-bottom: 15px;
 }
 
 a:-webkit-any-link {
@@ -46,6 +39,64 @@ a:-webkit-any-link {
   top: 25px;
   text-align: right;
   text-decoration: none;
+}
+
+/*GRID*/
+grid {
+  margin: 0 0 20px 0;
+}
+
+.grid {
+  background: #202024 url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid-dark@1x.gif) repeat left top;
+  background-size: 18px 18px;
+}
+
+.grid:after {
+  /* Or @extend clearfix */
+  content: "";
+  display: table;
+  clear: both;
+}
+
+[class*='col-'] {
+  float: left;
+  padding-right: 20px;
+}
+.grid [class*='col-']:last-of-type {
+  padding-right: 0;
+}
+
+.col-2-3 {
+  width: 66.66%;
+}
+
+.col-1-3 {
+  width: 33.33%;
+}
+
+.col-1-2 {
+  width: 50%;
+}
+
+.col-1-4 {
+  width: 25%;
+}
+
+.col-1-8 {
+  width: 12.5%;
+}
+
+.module {
+  padding: 20px;
+  background: pink;
+}
+
+/* Opt-in outside padding */
+.grid-pad {
+  padding: 20px 0 20px 20px;
+}
+.grid-pad [class*='col-']:last-of-type {
+  padding-right: 20px;
 }
 
 /*DROPDOWN MENU*/
