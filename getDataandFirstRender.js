@@ -53,7 +53,7 @@ var getDataandFirstRender = function(userInputs){
         .attr("width", 6)
         .attr("height", barHeight)
         .attr("x", function(){
-          var shift = collection === 'MTWT' ? 36 : -36;
+          var shift = collection === 'MTWT' ? -36 : 18;
           return graphLeftWidth / 2 + shift;
         })
         .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
@@ -61,17 +61,17 @@ var getDataandFirstRender = function(userInputs){
         .attr("stroke-width",1)
         .attr("stroke", function(d){ return surgeIntensityScale(d); })
         .attr("opacity",0)
-        .transition().duration(1000).delay(function(d,i){ return i * 100; })
+        .transition().duration(1500).delay(function(d,i){ return i * 100; })
         .attr("opacity",1);
 
         // FARE BARS
         svg.append("g").attr("class", "minfares--" + collection )
           .selectAll(".maxfare").data(dataCollection[collection].minFare)
           .enter().append("rect").attr("class", "minfare--" + collection)
-          .attr("width", function(d,i){ return 300 * (d / maxAvgFare); })
+          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
           .attr("height", barHeight)
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
+            var shiftAmount = collection === 'MTWT' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
@@ -85,15 +85,15 @@ var getDataandFirstRender = function(userInputs){
             }
             return "grey";
           })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1);
+          .attr("opacity",0).transition().duration(1500).delay(function(d,i){ return i * 100; }).attr("opacity",1)
 
         svg.append("g").attr("class", "maxfares--" + collection)
           .selectAll(".maxfare").data(dataCollection[collection].maxFare)
           .enter().append("rect").attr("class","maxfare--" + collection)
-          .attr("width", function(d,i){ return 300 * (d / maxAvgFare); })
+          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
           .attr("height", barHeight)
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
+            var shiftAmount = collection === 'MTWT' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
@@ -107,22 +107,35 @@ var getDataandFirstRender = function(userInputs){
             }
             return "grey";
           })
-          .on("mouseenter", function(d,i){
-            var thisNode = d3.select(this);
-            var finalWidth = +thisNode.attr("width");
-
-            if ( thisNode.attr("class") === 'maxfare--MTWT' ){
-              var startX = graphLeftWidth / 2 - 36 - 10;
-              var finalX = +thisNode.attr("x");
-              thisNode.attr("x", startX).attr("width", 0).transition().duration(1000)
-                      .attr("x", finalX).attr("width", finalWidth);
-            } else {
-              thisNode.attr("width", 0).transition().duration(1000).attr("width", finalWidth);
-            }
-          })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1);
+          .attr("mouseenter", "none")
+          .attr("opacity",0).transition().duration(1500).delay(function(d,i){ return i * 100; }).attr("opacity",1)
+          .each("end", growBars)
       }
-    })
+    });
+
+    function growBars(){
+      var thisNode = d3.select(this);
+      var finalWidth = +thisNode.attr("width");
+      var finalX = +thisNode.attr("x");
+
+      // assign transistion events
+      if ( thisNode.attr("class") === 'maxfare--MTWT' ){
+        thisNode.on("mouseenter", function(d,i){
+          var startX = graphLeftWidth / 2 - 36 - 10;
+          thisNode.attr("x", startX).attr("width", 0).transition().duration(1500)
+                  .attr("x", finalX).attr("width", finalWidth);
+        });
+      } else {
+        thisNode.on("mouseenter", function(d,i){
+          thisNode.attr("width", 0).transition().duration(1500).attr("width", finalWidth);
+        });
+      }
+
+      // prevent premature termination of transition event
+      thisNode.on("mouseout", function(d,i){
+        thisNode.transition().duration(1500).attr("width", finalWidth).attr("x", finalX);
+      });
+    }
 
   });
 };

@@ -21,9 +21,10 @@ var topPad = 15;
 var bottomPad = 5;
 
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
-var graphLeftHeight = document.getElementById('graph-left').offsetHeight  - topPad - bottomPad;
+var graphLeftHeight = document.getElementById('graph-left').offsetHeight - topPad - bottomPad;
 
 var barHeight = 10;
+var barWidth = graphLeftWidth / 2 - 2 * 36;
 
 // CREATE CANVAS
 var svg = d3.select("#graph-left").append("svg")
@@ -36,7 +37,6 @@ var xScale = d3.scale.linear().range([0, graphLeftWidth]);
 var yScale = d3.scale.linear().range([topPad, graphLeftHeight - topPad - bottomPad]).domain([0, 23]);
 var surgeIntensityScale = d3.scale.ordinal().range(['rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)']);
 var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
-
 
 // APPEND TIME LABELS
 svg.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
@@ -55,7 +55,7 @@ svg.append("g").attr("class", "timetext").attr("fill","white").style("text-ancho
   })
   .attr("y",function(d,i){ return yScale(i) + topPad; })
   .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
-  .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1)
+  .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1);
 
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
