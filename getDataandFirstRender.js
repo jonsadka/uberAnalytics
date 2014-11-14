@@ -85,7 +85,7 @@ var getDataandFirstRender = function(userInputs){
             }
             return "grey";
           })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1)
+          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1);
 
         svg.append("g").attr("class", "maxfares--" + collection)
           .selectAll(".maxfare").data(dataCollection[collection].maxFare)
@@ -109,22 +109,18 @@ var getDataandFirstRender = function(userInputs){
           })
           .on("mouseenter", function(d,i){
             var thisNode = d3.select(this);
-            // thisNode.call(growBar, 1000).call(shiftX, 1000)
-
-            // function growBar(){}
-
-
             var finalWidth = +thisNode.attr("width");
-            thisNode.attr("width", 0).transition().duration(1000).attr("width", finalWidth);
 
             if ( thisNode.attr("class") === 'maxfare--MTWT' ){
               var startX = graphLeftWidth / 2 - 36 - 10;
               var finalX = +thisNode.attr("x");
-              console.log(startX, finalX)
-              thisNode.attr("x", startX).transition().duration(1000).attr("x", 0);
+              thisNode.attr("x", startX).attr("width", 0).transition().duration(1000)
+                      .attr("x", finalX).attr("width", finalWidth);
+            } else {
+              thisNode.attr("width", 0).transition().duration(1000).attr("width", finalWidth);
             }
           })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1)
+          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1);
       }
     })
 
