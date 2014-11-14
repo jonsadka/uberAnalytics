@@ -17,8 +17,8 @@ var userInputs = {
 
 ///////////////////////////////////////////////////////////////////
 //SETUP PAGE VARIABLES ////////////////////////////////////////////
-var topPad = 20;
-var bottomPad = 0;
+var topPad = 15;
+var bottomPad = 5;
 
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
 var graphLeftHeight = document.getElementById('graph-left').offsetHeight  - topPad - bottomPad;
@@ -29,12 +29,12 @@ var barHeight = 10;
 var svg = d3.select("#graph-left").append("svg")
   .attr("width", graphLeftWidth)
   .attr("height", graphLeftHeight)
-  .attr("id", "graphs");
+  .attr("id", "graph-left-content");
 
 // ESTABLISH SCALES
 var xScale = d3.scale.linear().range([0, graphLeftWidth]);
 var yScale = d3.scale.linear().range([topPad, graphLeftHeight - topPad - bottomPad]).domain([0, 23]);
-var surgeIntensityScale = d3.scale.ordinal().range(['rgb(247,244,249)','rgb(231,225,239)','rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)','rgb(206,18,86)','rgb(152,0,67)','rgb(103,0,31)'])
+var surgeIntensityScale = d3.scale.ordinal().range(['rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)']);
 var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 
 
@@ -47,8 +47,13 @@ svg.append("g").attr("class", "timetext").attr("fill","white").style("text-ancho
     if ( i > 12 ) return i - 12 + 'pm';
     return i + 'am';
   })
-  .attr("x", graphLeftWidth / 2 )
-  .attr("y",function(d,i){ return yScale(i); })
+  .attr("x", function(){
+    if (graphLeftHeight < 400){
+      return graphLeftWidth / 2 - 10 / 2;
+    }
+    return graphLeftWidth / 2 - 12 / 2;
+  })
+  .attr("y",function(d,i){ return yScale(i) + topPad; })
   .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
   .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1)
 

@@ -27,6 +27,10 @@ h1 {
   font-size: 34px;
 }
 
+h3 {
+  color: white;
+}
+
 a:-webkit-any-link {
    text-decoration: none;
    color: RGBA(33, 188, 215, 1);
@@ -87,7 +91,6 @@ grid {
 }
 
 .module {
-  padding: 20px;
   background: pink;
 }
 

@@ -56,7 +56,7 @@ var getDataandFirstRender = function(userInputs){
           var shift = collection === 'MTWT' ? 36 : -36;
           return graphLeftWidth / 2 + shift;
         })
-        .attr("y",function(d,i){ return yScale(i) - barHeight; })
+        .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
         .attr("fill", function(d){ return surgeIntensityScale(d); })
         .attr("stroke-width",1)
         .attr("stroke", function(d){ return surgeIntensityScale(d); })
@@ -74,7 +74,7 @@ var getDataandFirstRender = function(userInputs){
             var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return yScale(i) - barHeight; })
+          .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
           .attr("fill", "RGBA(0,0,0,0)")
           .attr("stroke-width",1)
           .attr("stroke", function(d,i){
@@ -85,7 +85,7 @@ var getDataandFirstRender = function(userInputs){
             }
             return "grey";
           })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
+          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1)
 
         svg.append("g").attr("class", "maxfares--" + collection)
           .selectAll(".maxfare").data(dataCollection[collection].maxFare)
@@ -96,7 +96,7 @@ var getDataandFirstRender = function(userInputs){
             var shiftAmount = collection === 'MTWT' ? - 300*(d/maxAvgFare) -36 - 10 : 36 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return yScale(i) - barHeight; })
+          .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
           .attr("fill", "RGBA(0,0,0,0)")
           .attr("stroke-width",1)
           .attr("stroke", function(d,i){
@@ -124,7 +124,7 @@ var getDataandFirstRender = function(userInputs){
               thisNode.attr("x", startX).transition().duration(1000).attr("x", 0);
             }
           })
-          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100}).attr("opacity",1)
+          .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1)
       }
     })
 
