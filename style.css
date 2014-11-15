@@ -55,10 +55,14 @@ a:-webkit-any-link {
 .line {
   fill: none;
   stroke-width: 1.5px;
-  stroke: purple;
 }
-.line .ss{
-  stroke: red;
+
+.line.MTWTF{
+  stroke: black;
+}
+
+.line.SS{
+  stroke: purple;
 }
 
 /*GRID*/

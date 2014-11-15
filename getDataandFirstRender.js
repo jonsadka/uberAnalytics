@@ -126,7 +126,7 @@ function getDataandFirstRender(userInputs){
         // LINE GRAPH
         graphRightBottomSVG.append("g").attr("class", "lines--" + collection)
           .append("path").datum(dataCollection[collection].surge)
-          .attr("class","line")
+          .attr("class","line " + collection)
           .attr("d", graphRightBottomLine )
       }
     });
