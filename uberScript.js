@@ -16,30 +16,30 @@ var userInputs = {
 };
 
 ///////////////////////////////////////////////////////////////////
-//SETUP PAGE VARIABLES ////////////////////////////////////////////
-var topPad = 15;
-var bottomPad = 5;
+//SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
+var leftTopPad = 15;
+var rightBottomPad = 5;
 
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
-var graphLeftHeight = document.getElementById('graph-left').offsetHeight - topPad - bottomPad;
+var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - rightBottomPad;
 
-var barHeight = 12;
-var barWidth = graphLeftWidth / 2 - 2 * 36;
+var graphLeftBarHeight = 12;
+var graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
 
 // CREATE CANVAS
-var svg = d3.select("#graph-left").append("svg")
+var graphLeftSVG = d3.select("#graph-left").append("svg")
   .attr("width", graphLeftWidth)
   .attr("height", graphLeftHeight)
   .attr("id", "graph-left-content");
 
 // ESTABLISH SCALES
-var xScale = d3.scale.linear().range([0, graphLeftWidth]);
-var yScale = d3.scale.linear().range([topPad, graphLeftHeight - topPad - bottomPad]).domain([0, 23]);
-var surgeIntensityScale = d3.scale.ordinal().range(['rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)']);
+var graphLeftXScale = d3.scale.linear().range([0, graphLeftWidth]);
+var graphLeftYScale = d3.scale.linear().range([leftTopPad, graphLeftHeight - leftTopPad - rightBottomPad]).domain([0, 23]);
+var graphLeftIntensityScale = d3.scale.ordinal().range(['rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)']);
 var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 
 // APPEND TIME LABELS
-svg.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
+graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
   .selectAll(".hours").data(new Array(24))
   .enter().append("text").attr("class","hours")
   .text(function(d,i){
@@ -53,9 +53,22 @@ svg.append("g").attr("class", "timetext").attr("fill","white").style("text-ancho
     }
     return graphLeftWidth / 2 - 12 / 2;
   })
-  .attr("y",function(d,i){ return yScale(i) + topPad; })
+  .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad; })
   .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
   .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1);
+
+///////////////////////////////////////////////////////////////////
+//SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
+var rightBottomTopPad = 0;
+var rightBottomBottomPad = 0;
+
+var graphRightBottomWidth = document.getElementById('graph-right-bottom').offsetWidth;
+var graphRightBottomHeight = document.getElementById('graph-right-bottom').offsetHeight - rightBottomTopPad - rightBottomBottomPad;
+
+var graphRightBottomSVG = d3.select("#graph-right-bottom").append("svg")
+  .attr("width", graphRightBottomWidth)
+  .attr("height", graphRightBottomHeight)
+  .attr("id", "graph-right-bottom-content");
 
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////

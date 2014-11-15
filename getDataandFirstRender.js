@@ -42,41 +42,41 @@ function getDataandFirstRender(userInputs){
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
 
-    xScale.domain([0, maxAvgFare]);
-    surgeIntensityScale.domain([1, maxAvgSurge]);
+    graphLeftXScale.domain([0, maxAvgFare]);
+    graphLeftIntensityScale.domain([1, maxAvgSurge]);
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
       if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) ){
         // SURGE INTENSITIES  
-        svg.append("g").attr("class", "surgeintensities--" + collection )
+        graphLeftSVG.append("g").attr("class", "surgeintensities--" + collection )
         .selectAll(".surgeintensity").data(dataCollection[collection].surge)
         .enter().append("rect").attr("class", "surgeintensity--" + collection)
         .attr("width", 6)
-        .attr("height", barHeight)
+        .attr("height", graphLeftBarHeight)
         .attr("x", function(){
           var shift = collection === 'MTWTF' ? -36 : 18;
           return graphLeftWidth / 2 + shift;
         })
-        .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
-        .attr("fill", function(d){ return surgeIntensityScale(d); })
+        .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+        .attr("fill", function(d){ return graphLeftIntensityScale(d); })
         .attr("stroke-width",1)
-        .attr("stroke", function(d){ return surgeIntensityScale(d); })
+        .attr("stroke", function(d){ return graphLeftIntensityScale(d); })
         .attr("opacity",0)
         .transition().duration(800).delay(function(d,i){ return i * 100; })
         .attr("opacity",1);
 
         // FARE BARS
-        svg.append("g").attr("class", "minfares--" + collection )
+        graphLeftSVG.append("g").attr("class", "minfares--" + collection )
           .selectAll(".maxfare").data(dataCollection[collection].minFare)
           .enter().append("rect").attr("class", "minfare--" + collection)
-          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
-          .attr("height", barHeight)
+          .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
+          .attr("height", graphLeftBarHeight)
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
           .attr("fill", "RGBA(0,0,0,0)")
           .attr("stroke-width",1)
           .attr("stroke", function(d,i){
@@ -89,16 +89,16 @@ function getDataandFirstRender(userInputs){
           })
           .attr("opacity",0).transition().duration(800).delay(function(d,i){ return i * 100; }).attr("opacity",1)
 
-        svg.append("g").attr("class", "maxfares--" + collection)
+        graphLeftSVG.append("g").attr("class", "maxfares--" + collection)
           .selectAll(".maxfare").data(dataCollection[collection].maxFare)
           .enter().append("rect").attr("class","maxfare--" + collection)
-          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
-          .attr("height", barHeight)
+          .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
+          .attr("height", graphLeftBarHeight)
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
           .attr("fill", "RGBA(0,0,0,0)")
           .attr("stroke-width",1)
           .attr("stroke", function(d,i){

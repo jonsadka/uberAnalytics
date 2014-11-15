@@ -40,8 +40,8 @@ function updateDataandRender(userInputs){
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
 
-    xScale.domain([0, maxAvgFare]);
-    surgeIntensityScale.domain([1, maxAvgSurge]);
+    graphLeftXScale.domain([0, maxAvgFare]);
+    graphLeftIntensityScale.domain([1, maxAvgSurge]);
 
     // UPDATE VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
@@ -49,8 +49,8 @@ function updateDataandRender(userInputs){
         // SURGE INTENSITIES 
         d3.selectAll(".surgeintensity--" + collection).data(dataCollection[collection].surge)
           .transition().duration(1200)
-          .attr("stroke", function(d){ return surgeIntensityScale(d); })
-          .attr("fill", function(d){ return surgeIntensityScale(d); })
+          .attr("stroke", function(d){ return graphLeftIntensityScale(d); })
+          .attr("fill", function(d){ return graphLeftIntensityScale(d); })
 
         // FARE BARS
         d3.selectAll(".minfare--" + collection).data(dataCollection[collection].minFare)
@@ -63,9 +63,9 @@ function updateDataandRender(userInputs){
             return "grey";
           })
           .transition().duration(1200)
-          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
+          .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
 
@@ -79,9 +79,9 @@ function updateDataandRender(userInputs){
             return "grey";
           })
           .transition().duration(1200)
-          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
+          .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("mouseenter", "none")
