@@ -68,6 +68,7 @@ d3.select(document.getElementById("options")).on('change',
   function(){
     var newStart = document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value;
     var newEnd = document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value;
+
     if ( alertInDOM ) document.getElementById('options').lastChild.remove();
     if ( newEnd === newStart ){
       document.getElementById('options')
@@ -82,6 +83,7 @@ d3.select(document.getElementById("options")).on('change',
     } else {
       alertInDOM = false;
     }
+
     var userInputs = {
       timeframe: document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value,
       start: newStart,
@@ -98,6 +100,8 @@ d3.select(document.getElementById("options")).on('change',
 function formatData(highEstimate, lowEstimate, surgeEstimate){
   var maxAvgSurge = 0;
   var maxAvgFare = 0;
+  var bestTimesMTWTF = [];
+  var bestTimesSS = [];
 
   var result = { 'MTWTF':{}, 'SS':{} };
   Object.keys(result).forEach(function(daySegment){
@@ -145,9 +149,19 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   });
 
   Object.keys(result).forEach(function(daySegment){
+    var minCost = Infinity;
+    var bestHours = [];
     Object.keys(result[daySegment]).forEach(function(dataType){
-      result[daySegment][dataType] = result[daySegment][dataType].map(function(collection){
+      result[daySegment][dataType] = result[daySegment][dataType].map(function(collection, hour){
         var mean = d3.mean(collection);
+        if ( dataType === 'minFare' ){
+          if ( mean < minCost ){
+            minCost = mean;
+            bestHours = [hour];
+          } else if ( mean === minCost ) {
+            bestHours.push(hour);
+          }
+        }
         if ( dataType === 'maxFare' && mean > maxAvgFare ){
           maxAvgFare = mean;
         } else if ( dataType === 'surge' && mean > maxAvgSurge ){
@@ -156,11 +170,15 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
         return mean;
       });
     });
+    if ( daySegment === 'MTWTF' ) bestTimesMTWTF = bestHours;
+    if ( daySegment === 'SS' ) bestTimesSS = bestHours;
   });
 
   result['maxAvgSurge'] = maxAvgSurge;
   result['maxAvgFare'] = maxAvgFare;
-
+  result['bestTimesMTWTF'] = bestTimesMTWTF;
+  result['bestTimesSS'] = bestTimesSS;
+console.log(result)
   return result;
 }
 

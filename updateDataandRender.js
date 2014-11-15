@@ -37,13 +37,15 @@ function updateDataandRender(userInputs){
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
+    var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
+    var bestTimesSS = dataCollection.bestTimesSS;
 
     xScale.domain([0, maxAvgFare]);
     surgeIntensityScale.domain([1, maxAvgSurge]);
 
     // UPDATE VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
-      if ( typeof dataCollection[collection] === 'object' ){
+      if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) ){
         // SURGE INTENSITIES 
         d3.selectAll(".surgeintensity--" + collection).data(dataCollection[collection].surge)
           .transition().duration(1200)
@@ -82,34 +84,8 @@ function updateDataandRender(userInputs){
             var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("mouseenter", "none")
-          .each("end", growBars)
       }
     });
-
-    function growBars(){
-      var thisNode = d3.select(this);
-      var finalWidth = +thisNode.attr("width");
-      var finalX = +thisNode.attr("x");
-
-      // assign transistion events
-      if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
-        thisNode.on("mouseenter", function(d,i){
-          var startX = graphLeftWidth / 2 - 36 - 10;
-          thisNode.attr("x", startX).attr("width", 0).transition().duration(1200)
-                  .attr("x", finalX).attr("width", finalWidth);
-        });
-      } else {
-        thisNode.on("mouseenter", function(d,i){
-          thisNode.attr("width", 0).transition().duration(1200).attr("width", finalWidth);
-        });
-      }
-
-      // prevent premature termination of transition event
-      thisNode.on("mouseout", function(d,i){
-        thisNode.transition().duration(1200).attr("width", finalWidth).attr("x", finalX);
-      });
-    }
 
   });
 }

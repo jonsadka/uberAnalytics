@@ -39,13 +39,15 @@ function getDataandFirstRender(userInputs){
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
+    var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
+    var bestTimesSS = dataCollection.bestTimesSS;
 
     xScale.domain([0, maxAvgFare]);
     surgeIntensityScale.domain([1, maxAvgSurge]);
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
-      if ( typeof dataCollection[collection] === 'object' ){
+      if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) ){
         // SURGE INTENSITIES  
         svg.append("g").attr("class", "surgeintensities--" + collection )
         .selectAll(".surgeintensity").data(dataCollection[collection].surge)
