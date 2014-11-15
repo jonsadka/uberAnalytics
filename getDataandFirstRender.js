@@ -47,10 +47,9 @@ function getDataandFirstRender(userInputs){
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
 
     // BOTTOM RIGHT GRAPH COMPONENTS
-    graphRightBottomYScale.domain([maxAvgSurge, 0.8]);
+    graphRightBottomYScale.domain([maxAvgSurge, 1]);
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
-
 
     // DRAW SCALE
     graphRightBottomSVG.append("g").attr("class","y axis").call(graphRightBottomYAxis);

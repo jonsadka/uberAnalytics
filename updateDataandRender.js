@@ -40,8 +40,16 @@ function updateDataandRender(userInputs){
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
 
+    // LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
+
+    // BOTTOM RIGHT GRAPH COMPONENTS
+    graphRightBottomYScale.domain([maxAvgSurge, 1]);
+    graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
+    var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
+
+    d3.selectAll(".y.axis").transition().duration(1500).call(graphRightBottomYAxis);
 
     // UPDATE VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
@@ -87,6 +95,11 @@ function updateDataandRender(userInputs){
           .attr("mouseenter", "none")
           .each("end", growBars)
 
+        // SURGE TRENDS
+        d3.select(".surgetrends--line." + collection)
+          .datum(dataCollection[collection].surge)
+          .transition().duration(1500)
+          .attr("d", graphRightBottomLine )
 
         function growBars(){
           var thisNode = d3.select(this);
