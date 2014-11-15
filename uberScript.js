@@ -23,7 +23,7 @@ var bottomPad = 5;
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
 var graphLeftHeight = document.getElementById('graph-left').offsetHeight - topPad - bottomPad;
 
-var barHeight = 10;
+var barHeight = 12;
 var barWidth = graphLeftWidth / 2 - 2 * 36;
 
 // CREATE CANVAS
@@ -63,16 +63,33 @@ Keen.ready(function(){ getDataandFirstRender(userInputs); });
 
 ///////////////////////////////////////////////////////////////////
 //RE-INITIALIZE ON INPUT CHANGE////////////////////////////////////
+var alertInDOM = false;
 d3.select(document.getElementById("options")).on('change',
   function(){
+    var newStart = document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value;
+    var newEnd = document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value;
+    if ( alertInDOM ) document.getElementById('options').lastChild.remove();
+    if ( newEnd === newStart ){
+      document.getElementById('options')
+        .appendChild(document.createTextNode('Please choose two different locations in the same city.'));
+      alertInDOM = true;
+      return;
+    } else if ( differentCities(newStart, newEnd) ){
+      document.getElementById('options')
+        .appendChild(document.createTextNode('Let\'s not try to Uber across the country, we both know you cannot afford it.'));
+      alertInDOM = true;
+      return;
+    } else {
+      alertInDOM = false;
+    }
     var userInputs = {
       timeframe: document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value,
-      start: document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value,
-      end: document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value,
+      start: newStart,
+      end: newEnd,
       product: document.getElementById("product").options[document.getElementById("product").selectedIndex].value
     };
 
-    getDataandFirstRender(userInputs);
+    updateDataandRender(userInputs);
   }
 );
 
@@ -82,7 +99,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   var maxAvgSurge = 0;
   var maxAvgFare = 0;
 
-  var result = { 'MTWT':{}, 'FSS':{} };
+  var result = { 'MTWTF':{}, 'SS':{} };
   Object.keys(result).forEach(function(daySegment){
     result[daySegment]['surge'] = [];
     result[daySegment]['minFare'] = [];
@@ -98,10 +115,10 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
     var timestamp = new Date(estimate.timeframe.start);
     var day = timestamp.getDay();
     var hour = timestamp.getHours();
-    if ( day === 1 ||  day === 2 || day === 3 || day === 4 ){
-      result.MTWT.maxFare[hour].push(estimate.value);
+    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+      result.MTWTF.maxFare[hour].push(estimate.value);
     } else {
-      result.FSS.maxFare[hour].push(estimate.value);
+      result.SS.maxFare[hour].push(estimate.value);
     }
   });
 
@@ -109,10 +126,10 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
     var timestamp = new Date(estimate.timeframe.start);
     var day = timestamp.getDay();
     var hour = timestamp.getHours();
-    if ( day === 1 ||  day === 2 || day === 3 || day === 4 ){
-      result.MTWT.minFare[hour].push(estimate.value);
+    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+      result.MTWTF.minFare[hour].push(estimate.value);
     } else {
-      result.FSS.minFare[hour].push(estimate.value);
+      result.SS.minFare[hour].push(estimate.value);
     }
   });
 
@@ -120,10 +137,10 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
     var timestamp = new Date(estimate.timeframe.start);
     var day = timestamp.getDay();
     var hour = timestamp.getHours();
-    if ( day === 1 ||  day === 2 || day === 3 || day === 4 ){
-      result.MTWT.surge[hour].push(estimate.value);
+    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+      result.MTWTF.surge[hour].push(estimate.value);
     } else {
-      result.FSS.surge[hour].push(estimate.value);
+      result.SS.surge[hour].push(estimate.value);
     }
   });
 
@@ -145,4 +162,23 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   result['maxAvgFare'] = maxAvgFare;
 
   return result;
+}
+
+function differentCities(start, end){
+  // SF LOCATIONS
+  if ( start === "gogp" && end === "pwll" || start === "gogp" && end === "warf" ) return false;
+  if ( start === "pwll" && end === "gogp" || start === "pwll" && end === "warf" ) return false;
+  if ( start === "warf" && end === "pwll" || start === "warf" && end === "gogp" ) return false;
+
+  // LA LOCATIONS
+  if ( start === "dtla" && end === "smon" || start === "dtla" && end === "hlwd" ) return false;
+  if ( start === "smon" && end === "dtla" || start === "smon" && end === "hlwd" ) return false;
+  if ( start === "hlwd" && end === "smon" || start === "hlwd" && end === "dtla" ) return false;
+
+  // NY LOCATIONS
+  if ( start === "grct" && end === "upma" || start === "grct" && end === "brok" ) return false;
+  if ( start === "upma" && end === "grct" || start === "upma" && end === "brok" ) return false;
+  if ( start === "brok" && end === "upma" || start === "brok" && end === "grct" ) return false;
+
+  return true;
 }

@@ -1,6 +1,4 @@
-///////////////////////////////////////////////////////////////////
-//GATHER DATA AND PERFORM FIRST RENDER/////////////////////////////
-function getDataandFirstRender(userInputs){
+function updateDataandRender(userInputs){
   // SETUP QUERIES
   var highEstimateQuery = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
@@ -33,9 +31,9 @@ function getDataandFirstRender(userInputs){
   });
 
   // RUN QUERIES
-  console.log('Retrieving data from server.');
+  console.log('Retrieving new data from server.');
   client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
-    console.log('Retrieved data from server!');
+    console.log('Retrieved new data from server!');
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
@@ -43,40 +41,17 @@ function getDataandFirstRender(userInputs){
     xScale.domain([0, maxAvgFare]);
     surgeIntensityScale.domain([1, maxAvgSurge]);
 
-    // DRAW VIEW FOR EACH SET OF DATA
+    // UPDATE VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
       if ( typeof dataCollection[collection] === 'object' ){
-        // SURGE INTENSITIES  
-        svg.append("g").attr("class", "surgeintensities--" + collection )
-        .selectAll(".surgeintensity").data(dataCollection[collection].surge)
-        .enter().append("rect").attr("class", "surgeintensity--" + collection)
-        .attr("width", 6)
-        .attr("height", barHeight)
-        .attr("x", function(){
-          var shift = collection === 'MTWTF' ? -36 : 18;
-          return graphLeftWidth / 2 + shift;
-        })
-        .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
-        .attr("fill", function(d){ return surgeIntensityScale(d); })
-        .attr("stroke-width",1)
-        .attr("stroke", function(d){ return surgeIntensityScale(d); })
-        .attr("opacity",0)
-        .transition().duration(800).delay(function(d,i){ return i * 100; })
-        .attr("opacity",1);
+        // SURGE INTENSITIES 
+        d3.selectAll(".surgeintensity--" + collection).data(dataCollection[collection].surge)
+          .transition().duration(1200)
+          .attr("stroke", function(d){ return surgeIntensityScale(d); })
+          .attr("fill", function(d){ return surgeIntensityScale(d); })
 
         // FARE BARS
-        svg.append("g").attr("class", "minfares--" + collection )
-          .selectAll(".maxfare").data(dataCollection[collection].minFare)
-          .enter().append("rect").attr("class", "minfare--" + collection)
-          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
-          .attr("height", barHeight)
-          .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
-            return graphLeftWidth / 2 + shiftAmount;
-          })
-          .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
-          .attr("fill", "RGBA(0,0,0,0)")
-          .attr("stroke-width",1)
+        d3.selectAll(".minfare--" + collection).data(dataCollection[collection].minFare)
           .attr("stroke", function(d,i){
             if (collection === 'MTWTF' && d > dataCollection.SS.minFare[i]){
               return "RGBA(239, 72, 119, 1)";
@@ -85,20 +60,14 @@ function getDataandFirstRender(userInputs){
             }
             return "grey";
           })
-          .attr("opacity",0).transition().duration(800).delay(function(d,i){ return i * 100; }).attr("opacity",1)
-
-        svg.append("g").attr("class", "maxfares--" + collection)
-          .selectAll(".maxfare").data(dataCollection[collection].maxFare)
-          .enter().append("rect").attr("class","maxfare--" + collection)
+          .transition().duration(1200)
           .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
-          .attr("height", barHeight)
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return yScale(i) + topPad - barHeight; })
-          .attr("fill", "RGBA(0,0,0,0)")
-          .attr("stroke-width",1)
+
+        d3.selectAll(".maxfare--" + collection).data(dataCollection[collection].maxFare)
           .attr("stroke", function(d,i){
             if (collection === 'MTWTF' && d > dataCollection.SS.maxFare[i]){
               return "RGBA(239, 72, 119, 1)";
@@ -107,8 +76,13 @@ function getDataandFirstRender(userInputs){
             }
             return "grey";
           })
+          .transition().duration(1200)
+          .attr("width", function(d,i){ return barWidth * (d / maxAvgFare); })
+          .attr("x", function(d){
+            var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
+            return graphLeftWidth / 2 + shiftAmount;
+          })
           .attr("mouseenter", "none")
-          .attr("opacity",0).transition().duration(800).delay(function(d,i){ return i * 100; }).attr("opacity",1)
           .each("end", growBars)
       }
     });
@@ -122,20 +96,20 @@ function getDataandFirstRender(userInputs){
       if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
         thisNode.on("mouseenter", function(d,i){
           var startX = graphLeftWidth / 2 - 36 - 10;
-          thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
+          thisNode.attr("x", startX).attr("width", 0).transition().duration(1200)
                   .attr("x", finalX).attr("width", finalWidth);
         });
       } else {
         thisNode.on("mouseenter", function(d,i){
-          thisNode.attr("width", 0).transition().duration(800).attr("width", finalWidth);
+          thisNode.attr("width", 0).transition().duration(1200).attr("width", finalWidth);
         });
       }
 
       // prevent premature termination of transition event
       thisNode.on("mouseout", function(d,i){
-        thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
+        thisNode.transition().duration(1200).attr("width", finalWidth).attr("x", finalX);
       });
     }
 
   });
-};
+}
