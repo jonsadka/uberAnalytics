@@ -124,8 +124,15 @@ function getDataandFirstRender(userInputs){
 
         // SURGE TRENDS
         graphRightBottomSVG.append("g").attr("class", "surgetrends--lines" + collection)
-          .append("path").datum(dataCollection[collection].surge)
+          .append("path").datum(d3.range(24).map(function(val, idx){
+            return {hour: idx, surge: 1};
+          }))
           .attr("class","surgetrends--line " + collection)
+          .attr("d", graphRightBottomLine )
+
+        d3.select(".surgetrends--line." + collection)
+          .datum(dataCollection[collection].surge)
+          .transition().duration(2000)
           .attr("d", graphRightBottomLine )
 
         // !!!!!!add surgetrends--dot
