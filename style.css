@@ -52,16 +52,16 @@ a:-webkit-any-link {
   shape-rendering: crispEdges;
 }
 
-.line {
+.surgetrends--line {
   fill: none;
   stroke-width: 1.5px;
 }
 
-.line.MTWTF{
+.surgetrends--line.MTWTF{
   stroke: black;
 }
 
-.line.SS{
+.surgetrends--line.SS{
   stroke: purple;
 }
 

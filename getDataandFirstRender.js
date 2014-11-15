@@ -123,11 +123,15 @@ function getDataandFirstRender(userInputs){
           .attr("opacity",0).transition().duration(800).delay(function(d,i){ return i * 100; }).attr("opacity",1)
           .each("end", growBars)
 
-        // LINE GRAPH
-        graphRightBottomSVG.append("g").attr("class", "lines--" + collection)
+        // SURGE TRENDS
+        graphRightBottomSVG.append("g").attr("class", "surgetrends--lines" + collection)
           .append("path").datum(dataCollection[collection].surge)
-          .attr("class","line " + collection)
+          .attr("class","surgetrends--line " + collection)
           .attr("d", graphRightBottomLine )
+
+        // !!!!!!add surgetrends--dot
+        graphRightBottomSVG.append("g").attr("class", "surgetrends--dots" + collection)
+          // .attr("class","surgetrend--dot " + collection)
       }
     });
 
