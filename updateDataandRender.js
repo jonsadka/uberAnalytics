@@ -84,6 +84,33 @@ function updateDataandRender(userInputs){
             var shiftAmount = collection === 'MTWTF' ? - barWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
+          .attr("mouseenter", "none")
+          .each("end", growBars)
+
+
+        function growBars(){
+          var thisNode = d3.select(this);
+          var finalWidth = +thisNode.attr("width");
+          var finalX = +thisNode.attr("x");
+
+          // assign transistion events
+          if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
+            thisNode.on("mouseenter", function(d,i){
+              var startX = graphLeftWidth / 2 - 36 - 10;
+              thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
+                      .attr("x", finalX).attr("width", finalWidth);
+            });
+          } else {
+            thisNode.on("mouseenter", function(d,i){
+              thisNode.attr("width", 0).transition().duration(800).attr("width", finalWidth);
+            });
+          }
+
+          // prevent premature termination of transition event
+          thisNode.on("mouseout", function(d,i){
+            thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
+          });
+        }
       }
     });
 
