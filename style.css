@@ -45,6 +45,22 @@ a:-webkit-any-link {
   text-decoration: none;
 }
 
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.5px;
+  stroke: purple;
+}
+.line .ss{
+  stroke: red;
+}
+
 /*GRID*/
 grid {
   margin: 0 0 20px 0;

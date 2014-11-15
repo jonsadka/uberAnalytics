@@ -60,15 +60,28 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
 ///////////////////////////////////////////////////////////////////
 //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
 var rightBottomTopPad = 0;
-var rightBottomBottomPad = 0;
+var rightBottomBottomPad = 30;
+var rightBottomLeftPad = 50;
+var rightBottomRightPad = 20;
 
 var graphRightBottomWidth = document.getElementById('graph-right-bottom').offsetWidth;
 var graphRightBottomHeight = document.getElementById('graph-right-bottom').offsetHeight - rightBottomTopPad - rightBottomBottomPad;
 
+// CREATE CANVAS
 var graphRightBottomSVG = d3.select("#graph-right-bottom").append("svg")
   .attr("width", graphRightBottomWidth)
   .attr("height", graphRightBottomHeight)
-  .attr("id", "graph-right-bottom-content");
+  .append("g")
+    .attr("transform","translate(" + rightBottomLeftPad + "," + rightBottomRightPad + ")")
+    .attr("id", "graph-right-bottom-content");
+
+// ESTABLISH SCALES
+var graphRightBottomXScale = d3.scale.linear().range([0, graphRightBottomWidth - rightBottomRightPad - rightBottomLeftPad]).domain([0, 23]);
+var graphRightBottomYScale = d3.scale.linear().range([rightBottomTopPad, graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad]);
+
+//  ESTABLISH LINE PATH
+var graphRightBottomLine = d3.svg.line().interpolate("monotone")
+  .x(function(d){ return graphRightBottomXScale(d.hour); })
 
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
@@ -180,6 +193,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
         } else if ( dataType === 'surge' && mean > maxAvgSurge ){
           maxAvgSurge = mean;
         }
+        if (dataType === 'surge') return {hour:hour, surge: mean};
         return mean;
       });
     });
@@ -191,7 +205,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   result['maxAvgFare'] = maxAvgFare;
   result['bestTimesMTWTF'] = bestTimesMTWTF;
   result['bestTimesSS'] = bestTimesSS;
-console.log(result)
+
   return result;
 }
 

@@ -42,29 +42,39 @@ function getDataandFirstRender(userInputs){
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
 
+    // LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
+
+    // BOTTOM RIGHT GRAPH COMPONENTS
+    graphRightBottomYScale.domain([maxAvgSurge, 0.8]);
+    graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
+    var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
+
+
+    // DRAW SCALE
+    graphRightBottomSVG.append("g").attr("class","y axis").call(graphRightBottomYAxis);
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
       if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) ){
         // SURGE INTENSITIES  
         graphLeftSVG.append("g").attr("class", "surgeintensities--" + collection )
-        .selectAll(".surgeintensity").data(dataCollection[collection].surge)
-        .enter().append("rect").attr("class", "surgeintensity--" + collection)
-        .attr("width", 6)
-        .attr("height", graphLeftBarHeight)
-        .attr("x", function(){
-          var shift = collection === 'MTWTF' ? -36 : 18;
-          return graphLeftWidth / 2 + shift;
-        })
-        .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
-        .attr("fill", function(d){ return graphLeftIntensityScale(d); })
-        .attr("stroke-width",1)
-        .attr("stroke", function(d){ return graphLeftIntensityScale(d); })
-        .attr("opacity",0)
-        .transition().duration(800).delay(function(d,i){ return i * 100; })
-        .attr("opacity",1);
+          .selectAll(".surgeintensity").data(dataCollection[collection].surge)
+          .enter().append("rect").attr("class", "surgeintensity--" + collection)
+          .attr("width", 6)
+          .attr("height", graphLeftBarHeight)
+          .attr("x", function(){
+            var shift = collection === 'MTWTF' ? -36 : 18;
+            return graphLeftWidth / 2 + shift;
+          })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .attr("fill", function(d){ return graphLeftIntensityScale(d.surge); })
+          .attr("stroke-width",1)
+          .attr("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
+          .attr("opacity",0)
+          .transition().duration(800).delay(function(d,i){ return i * 100; })
+          .attr("opacity",1);
 
         // FARE BARS
         graphLeftSVG.append("g").attr("class", "minfares--" + collection )
@@ -112,6 +122,12 @@ function getDataandFirstRender(userInputs){
           .attr("mouseenter", "none")
           .attr("opacity",0).transition().duration(800).delay(function(d,i){ return i * 100; }).attr("opacity",1)
           .each("end", growBars)
+
+        // LINE GRAPH
+        graphRightBottomSVG.append("g").attr("class", "lines--" + collection)
+          .append("path").datum(dataCollection[collection].surge)
+          .attr("class","line")
+          .attr("d", graphRightBottomLine )
       }
     });
 

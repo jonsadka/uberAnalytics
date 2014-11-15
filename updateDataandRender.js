@@ -49,8 +49,8 @@ function updateDataandRender(userInputs){
         // SURGE INTENSITIES 
         d3.selectAll(".surgeintensity--" + collection).data(dataCollection[collection].surge)
           .transition().duration(1200)
-          .attr("stroke", function(d){ return graphLeftIntensityScale(d); })
-          .attr("fill", function(d){ return graphLeftIntensityScale(d); })
+          .attr("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
+          .attr("fill", function(d){ return graphLeftIntensityScale(d.surge); })
 
         // FARE BARS
         d3.selectAll(".minfare--" + collection).data(dataCollection[collection].minFare)
