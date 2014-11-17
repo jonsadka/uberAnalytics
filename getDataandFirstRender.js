@@ -51,9 +51,14 @@ function getDataandFirstRender(userInputs){
     graphRightBottomYScale.domain([maxSurge, 1]);
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
+    var graphRightBottomXAxis = d3.svg.axis().scale(graphRightBottomXScale).orient("bottom");
 
-    // DRAW SCALE
-    graphRightBottomSVG.append("g").attr("class","y axis").call(graphRightBottomYAxis);
+    // DRAW AXIES
+    graphRightBottomSVG.append("g").attr("class", "y axis")
+      .call(graphRightBottomYAxis);
+    graphRightBottomSVG.append("g").attr("class", "x axis")
+      .attr("transform","translate(" + 0 + "," + (graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad) + ")")
+      .call(graphRightBottomXAxis);
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){

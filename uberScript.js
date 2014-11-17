@@ -59,8 +59,8 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
 
 ///////////////////////////////////////////////////////////////////
 //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
-var rightBottomTopPad = 0;
-var rightBottomBottomPad = 30;
+var rightBottomTopPad = 10;
+var rightBottomBottomPad = 10;
 var rightBottomLeftPad = 50;
 var rightBottomRightPad = 20;
 
@@ -70,9 +70,9 @@ var graphRightBottomHeight = document.getElementById('graph-right-bottom').offse
 // CREATE CANVAS
 var graphRightBottomSVG = d3.select("#graph-right-bottom").append("svg")
   .attr("width", graphRightBottomWidth)
-  .attr("height", graphRightBottomHeight)
+  .attr("height", document.getElementById('graph-right-bottom').offsetHeight)
   .append("g")
-    .attr("transform","translate(" + rightBottomLeftPad + "," + rightBottomRightPad + ")")
+    .attr("transform","translate(" + rightBottomLeftPad + "," + rightBottomTopPad + ")")
     .attr("id", "graph-right-bottom-content");
 
 // ESTABLISH SCALES
@@ -85,7 +85,9 @@ var graphRightBottomLine = d3.svg.line().interpolate("monotone")
 
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
-Keen.ready(function(){ getDataandFirstRender(userInputs); });
+Keen.ready(function(){ 
+  getDataandFirstRender(userInputs);
+});
 
 ///////////////////////////////////////////////////////////////////
 //RE-INITIALIZE ON INPUT CHANGE////////////////////////////////////

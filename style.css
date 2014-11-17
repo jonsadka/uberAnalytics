@@ -47,6 +47,7 @@ a:-webkit-any-link {
 
 .axis path,
 .axis line {
+  font-size: 10px;
   fill: none;
   stroke: #fff;
   shape-rendering: crispEdges;
