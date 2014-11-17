@@ -58,7 +58,7 @@ function updateDataandRender(userInputs){
       if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) && collection !== 'originalSortedData' ){
         // SURGE INTENSITIES 
         d3.selectAll(".surgeintensity--" + collection).data(dataCollection[collection].surge)
-          .transition().duration(1200)
+          .transition().duration(1500)
           .attr("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
           .attr("fill", function(d){ return graphLeftIntensityScale(d.surge); })
 
@@ -72,7 +72,7 @@ function updateDataandRender(userInputs){
             }
             return "grey";
           })
-          .transition().duration(1200)
+          .transition().duration(1500)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
@@ -88,7 +88,7 @@ function updateDataandRender(userInputs){
             }
             return "grey";
           })
-          .transition().duration(1200)
+          .transition().duration(1500)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
@@ -143,19 +143,47 @@ function updateDataandRender(userInputs){
             })
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
-            })
+            });
 
           circles.enter().append("circle")
             .attr("class","surgetrends--dot " + set)
-            .attr("cx", function(d){
-              return graphRightBottomXScale(d[0]);
-            })
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
             })
+            .attr("cx", graphRightBottomXScale(24) )
             .attr("r", 0)
-            .transition().duration(1500)
+            .transition().duration(1000)
             .attr("r", 2.5)
+            .attr("cx", function(d){
+              return graphRightBottomXScale(d[0]);
+            });
+
+          // ALTERNATIVE ANIMATION
+          // circles.transition().duration(800)
+          //   .attr("cy", graphRightBottomYScale(1) )
+
+          // circles
+          //   .transition().delay(800)
+          //   .attr("cx", function(d){
+          //     return graphRightBottomXScale(d[0]);
+          //   })
+          //   .transition().delay(800).duration(800)
+          //   .attr("cy", function(d){
+          //     return graphRightBottomYScale(d[1]);
+          //   })
+
+          // circles.enter().append("circle")
+          //   .attr("class","surgetrends--dot " + set)
+          //   .attr("cx", function(d){
+          //     return graphRightBottomXScale(d[0]);
+          //   })
+          //   .attr("cy", graphRightBottomYScale(1) )
+          //   .attr("r", 0)
+          //   .transition().delay(800).duration(800)
+          //   .attr("r", 2.5)
+          //   .attr("cy", function(d){
+          //     return graphRightBottomYScale(d[1]);
+          //   })
 
           circles.exit().remove();
         });
