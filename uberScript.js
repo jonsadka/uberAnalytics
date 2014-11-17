@@ -48,6 +48,9 @@ var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
   .selectAll(".hours").data(new Array(24))
   .enter().append("text").attr("class","hours")
+  .attr("hour", function(d, i){
+    return i;
+  })
   .text(formatTime)
   .attr("x", function(){
     if (graphLeftHeight < 400){
@@ -57,7 +60,32 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   })
   .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad; })
   .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
-  .attr("opacity",0).transition().duration(1000).delay(function(d,i){ return i * 100; }).attr("opacity",1);
+  .attr("opacity",0)
+  .on("mouseover", function(){
+    var thisNode = d3.select(this);
+    var hour = thisNode.attr("hour");
+    d3.selectAll(".surgetrends--dot.hour" + hour)
+      .style("fill", "none")
+      .style("stroke", function(d, i){
+        if ( this.classList.contains("MTWTF") ) return "RGBA(173, 221, 237, 1)";
+        if ( this.classList.contains("SS") ) return "RGBA(33, 188, 215, 1)";
+      })
+      .style("stroke-width", 1.5)
+      .attr("r", 4)
+  })
+  .on("mouseout", function(){
+    var thisNode = d3.select(this);
+    var hour = thisNode.attr("hour");
+    d3.selectAll(".surgetrends--dot.hour" + hour)
+      .style("fill", function(d, i){
+        if ( this.classList.contains("MTWTF") ) return "RGBA(173, 221, 237, 1)";
+        if ( this.classList.contains("SS") ) return "RGBA(33, 188, 215, 1)";
+      })
+      .style("stroke", "none")
+      .attr("r", 2)
+  })
+  .transition().duration(1000).delay(function(d,i){ return i * 100; })
+  .attr("opacity",1);
 
 ///////////////////////////////////////////////////////////////////
 //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////

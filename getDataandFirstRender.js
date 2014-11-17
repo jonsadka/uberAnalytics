@@ -153,7 +153,9 @@ function getDataandFirstRender(userInputs){
           var dataPoints = dataCollection[collection][set].surge;
 
           container.selectAll(".surgetrends--dot " + set).data(dataPoints).enter()
-            .append("circle").attr("class","surgetrends--dot " + set)
+            .append("circle").attr("class", function(d){
+              return "surgetrends--dot " + set + " hour" + d[0];
+            })
             .attr("cx", function(d){
               return graphRightBottomXScale(d[0]);
             })
@@ -162,7 +164,7 @@ function getDataandFirstRender(userInputs){
             })
             .attr("r", 0)
             .transition().duration(1500)
-            .attr("r", 2.5)
+            .attr("r", 2)
         });
       }
     });

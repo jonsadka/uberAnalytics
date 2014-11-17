@@ -71,11 +71,11 @@ a:-webkit-any-link {
 }
 
 .surgetrends--line.SS {
-  stroke: RGBA(0, 128, 154, 1);
+  stroke: RGBA(33, 188, 215, 1);
 }
 
 .surgetrends--dot.SS {
-  fill: RGBA(0, 128, 154, 1);
+  fill: RGBA(33, 188, 215, 1);
 }
 
 /*GRID*/

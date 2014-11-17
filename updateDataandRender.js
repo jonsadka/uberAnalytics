@@ -137,23 +137,29 @@ function updateDataandRender(userInputs){
 
           var circles = container.selectAll(".surgetrends--dot." + set).data(dataPoints);
 
-          circles.transition().duration(1000)
+          circles
+            .attr("class", function(d){
+              return "surgetrends--dot " + set + " hour" + d[0];
+            })
+            .transition().duration(1000)
             .attr("cx", function(d){
               return graphRightBottomXScale(d[0]);
             })
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
-            });
+            })
 
           circles.enter().append("circle")
-            .attr("class","surgetrends--dot " + set)
+            .attr("class", function(d){
+              return "surgetrends--dot " + set + " hour" + d[0];
+            })
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
             })
             .attr("cx", graphRightBottomXScale(24) )
             .attr("r", 0)
             .transition().duration(1000)
-            .attr("r", 2.5)
+            .attr("r", 2)
             .attr("cx", function(d){
               return graphRightBottomXScale(d[0]);
             });
@@ -180,7 +186,7 @@ function updateDataandRender(userInputs){
           //   .attr("cy", graphRightBottomYScale(1) )
           //   .attr("r", 0)
           //   .transition().delay(800).duration(800)
-          //   .attr("r", 2.5)
+          //   .attr("r", 2)
           //   .attr("cy", function(d){
           //     return graphRightBottomYScale(d[1]);
           //   })
