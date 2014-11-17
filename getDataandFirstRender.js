@@ -56,7 +56,7 @@ function getDataandFirstRender(userInputs){
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
-      if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) ){
+      if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) && collection !== 'originalSortedData'){
         // SURGE INTENSITIES  
         graphLeftSVG.append("g").attr("class", "surgeintensities--" + collection )
           .selectAll(".surgeintensity").data(dataCollection[collection].surge)
@@ -135,9 +135,27 @@ function getDataandFirstRender(userInputs){
           .transition().duration(2000)
           .attr("d", graphRightBottomLine )
 
-        // !!!!!!add surgetrends--dot
-        graphRightBottomSVG.append("g").attr("class", "surgetrends--dots" + collection)
-          // .attr("class","surgetrend--dot " + collection)
+      }
+      // SURGE TREND DATA DOTS
+      if ( collection === 'originalSortedData' ){
+        Object.keys(dataCollection[collection]).forEach(function(set){
+
+          var container = graphRightBottomSVG.append("g")
+            .attr("class", "surgetrends--dots " + set)
+
+          Object.keys(dataCollection[collection][set].surge).forEach(function(hour){
+            var points = dataCollection[collection][set].surge[hour]
+
+            container.selectAll(".surgetrend--dot " + collection).data(points).enter()
+              .append("circle").attr("class","surgetrend--dot " + set)
+              .attr("cx", graphRightBottomXScale(hour))
+              .attr("cy", function(d){
+                return graphRightBottomYScale(d);
+              })
+              .attr("r", 3);
+          })
+        })
+
       }
     });
 

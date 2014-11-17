@@ -128,6 +128,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   var maxAvgFare = 0;
   var bestTimesMTWTF = [];
   var bestTimesSS = [];
+  var originalSortedData = {};
 
   var result = { 'MTWTF':{}, 'SS':{} };
   Object.keys(result).forEach(function(daySegment){
@@ -142,43 +143,51 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   });
 
   highEstimate.forEach(function(estimate){
-    var timestamp = new Date(estimate.timeframe.start);
-    var day = timestamp.getDay();
-    var hour = timestamp.getHours();
-    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
-      result.MTWTF.maxFare[hour].push(estimate.value);
-    } else {
-      result.SS.maxFare[hour].push(estimate.value);
+    if (estimate.value !== null){
+      var timestamp = new Date(estimate.timeframe.start);
+      var day = timestamp.getDay();
+      var hour = timestamp.getHours();
+      if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+        result.MTWTF.maxFare[hour].push(estimate.value);
+      } else {
+        result.SS.maxFare[hour].push(estimate.value);
+      }
     }
   });
 
   lowEstimate.forEach(function(estimate){
-    var timestamp = new Date(estimate.timeframe.start);
-    var day = timestamp.getDay();
-    var hour = timestamp.getHours();
-    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
-      result.MTWTF.minFare[hour].push(estimate.value);
-    } else {
-      result.SS.minFare[hour].push(estimate.value);
+    if (estimate.value !== null){
+      var timestamp = new Date(estimate.timeframe.start);
+      var day = timestamp.getDay();
+      var hour = timestamp.getHours();
+      if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+        result.MTWTF.minFare[hour].push(estimate.value);
+      } else {
+        result.SS.minFare[hour].push(estimate.value);
+      }
     }
   });
 
   surgeEstimate.forEach(function(estimate){
-    var timestamp = new Date(estimate.timeframe.start);
-    var day = timestamp.getDay();
-    var hour = timestamp.getHours();
-    if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
-      result.MTWTF.surge[hour].push(estimate.value);
-    } else {
-      result.SS.surge[hour].push(estimate.value);
+    if (estimate.value !== null){
+      var timestamp = new Date(estimate.timeframe.start);
+      var day = timestamp.getDay();
+      var hour = timestamp.getHours();
+      if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
+        result.MTWTF.surge[hour].push(estimate.value);
+      } else {
+        result.SS.surge[hour].push(estimate.value);
+      }
     }
   });
-
   Object.keys(result).forEach(function(daySegment){
     var minCost = Infinity;
     var bestHours = [];
+    originalSortedData[daySegment] = {};
     Object.keys(result[daySegment]).forEach(function(dataType){
+      originalSortedData[daySegment][dataType] = {};
       result[daySegment][dataType] = result[daySegment][dataType].map(function(collection, hour){
+        originalSortedData[daySegment][dataType][hour] = collection;
         var mean = d3.mean(collection);
         if ( dataType === 'minFare' ){
           if ( mean < minCost ){
@@ -193,6 +202,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
         } else if ( dataType === 'surge' && mean > maxAvgSurge ){
           maxAvgSurge = mean;
         }
+        if (dataType === 'surge') console.log(collection);
         if (dataType === 'surge') return {hour:hour, surge: mean};
         return mean;
       });
@@ -205,7 +215,8 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   result['maxAvgFare'] = maxAvgFare;
   result['bestTimesMTWTF'] = bestTimesMTWTF;
   result['bestTimesSS'] = bestTimesSS;
-
+  result['originalSortedData'] = originalSortedData;
+console.log(result)
   return result;
 }
 
