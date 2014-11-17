@@ -75,16 +75,17 @@ function getDataandFirstRender(userInputs){
             return graphLeftWidth / 2 + shift;
           })
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
-          .attr("fill", function(d){ return graphLeftIntensityScale(d.surge); })
-          .attr("stroke-width",1)
-          .attr("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
-          .attr("opacity",0)
+          .style("fill", function(d){ return graphLeftIntensityScale(d.surge); })
+          .style("stroke-width",1)
+          .style("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
+          .style("opacity",0)
+          
           .transition().duration(800).delay(function(d,i){ return i * 100; })
-          .attr("opacity",1);
+          .style("opacity",1);
 
         // FARE BARS
         graphLeftSVG.append("g").attr("class", "minfares--" + collection )
-          .selectAll(".maxfare").data(dataCollection[collection].minFare)
+          .selectAll(".minfare--" + collection).data(dataCollection[collection].minFare)
           .enter().append("rect").attr("class", "minfare--" + collection)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("height", graphLeftBarHeight)
@@ -93,20 +94,22 @@ function getDataandFirstRender(userInputs){
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
-          .attr("fill", "RGBA(0,0,0,0)")
-          .attr("stroke-width",1)
-          .attr("stroke", function(d,i){
+          .style("fill", "RGBA(0,0,0,0)")
+          .style("stroke-width",1)
+          .style("stroke", function(d,i){
             if (collection === 'MTWTF' && d > dataCollection.SS.minFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             } else if (collection === 'SS' && d > dataCollection.MTWTF.minFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             }
-            return "grey";
+            return "RGBA(108, 108, 117, 1)";
           })
-          .attr("opacity",0).transition().duration(800).delay(function(d,i){ return i * 100; }).attr("opacity",1)
+          .style("opacity",0)
+          .transition().duration(800).delay(function(d,i){ return i * 100; })
+          .style("opacity",1)
 
         graphLeftSVG.append("g").attr("class", "maxfares--" + collection)
-          .selectAll(".maxfare").data(dataCollection[collection].maxFare)
+          .selectAll(".maxfare--" + collection).data(dataCollection[collection].maxFare)
           .enter().append("rect").attr("class","maxfare--" + collection)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("height", graphLeftBarHeight)
@@ -115,19 +118,70 @@ function getDataandFirstRender(userInputs){
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
-          .attr("fill", "RGBA(0,0,0,0)")
-          .attr("stroke-width",1)
-          .attr("stroke", function(d,i){
+          .style("fill", "RGBA(0,0,0,0)")
+          .style("stroke-width",1)
+          .style("stroke", function(d,i){
             if (collection === 'MTWTF' && d > dataCollection.SS.maxFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             } else if (collection === 'SS' && d > dataCollection.MTWTF.maxFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             }
-            return "grey";
+            return "RGBA(108, 108, 117, 1)";
           })
           .attr("mouseenter", "none")
-          .attr("opacity",0).transition().duration(800).delay(function(d,i){ return i * 100; }).attr("opacity",1)
+          .style("opacity",0)
+          .transition().duration(800).delay(function(d,i){ return i * 100; })
+          .style("opacity",1)
           .each("end", growBars)
+
+        // FARE BAR LABELS
+        graphLeftSVG.append("g").attr("class", "minfares--labels--" + collection )
+          .selectAll(".minfare--label--" + collection).data(dataCollection[collection].minFare)
+          .enter().append("text").attr("class", "minfare--label--" + collection)
+          .text(function(d,i){
+            return '$' + Math.round(d);
+          })
+          .attr("x", function(d){
+            var barWidth = graphLeftBarWidth * (d / maxAvgFare);
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            return graphLeftWidth / 2 + shiftAmount;
+          })
+          .attr("y",function(d,i){ 
+            return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight + graphLeftBarHeight;
+           })
+          .style("fill", "white")
+          .style("opacity",0)
+          .style("font-size", "10px")
+          .style("text-anchor", function(d){
+            if (collection === 'MTWTF') return "end";
+            if (collection === 'SS') return "start";
+          })
+          .transition().duration(800).delay(function(d,i){ return i * 100; })
+          .style("opacity",1)        
+
+        graphLeftSVG.append("g").attr("class", "maxfares--labels--" + collection )
+          .selectAll(".maxfare--label--" + collection).data(dataCollection[collection].maxFare)
+          .enter().append("text").attr("class", "maxfare--label--" + collection)
+          .text(function(d,i){
+            return '$' + Math.round(d);
+          })
+          .attr("x", function(d){
+            var barWidth = graphLeftBarWidth * (d / maxAvgFare);
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            return graphLeftWidth / 2 + shiftAmount;
+          })
+          .attr("y",function(d,i){ 
+            return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight + graphLeftBarHeight;
+           })
+          .style("fill", "white")
+          .style("opacity",0)
+          .style("font-size", "10px")
+          .style("text-anchor", function(d){
+            if (collection === 'MTWTF') return "end";
+            if (collection === 'SS') return "start";
+          })
+          .transition().duration(800).delay(function(d,i){ return i * 100; })
+          .style("opacity",1)   
 
         // SURGE TRENDS
         graphRightBottomSVG.append("g").attr("class", "surgetrends--lines " + collection)

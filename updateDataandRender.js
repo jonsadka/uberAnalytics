@@ -59,18 +59,18 @@ function updateDataandRender(userInputs){
         // SURGE INTENSITIES 
         d3.selectAll(".surgeintensity--" + collection).data(dataCollection[collection].surge)
           .transition().duration(1500)
-          .attr("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
-          .attr("fill", function(d){ return graphLeftIntensityScale(d.surge); })
+          .style("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
+          .style("fill", function(d){ return graphLeftIntensityScale(d.surge); })
 
         // FARE BARS
         d3.selectAll(".minfare--" + collection).data(dataCollection[collection].minFare)
-          .attr("stroke", function(d,i){
+          .style("stroke", function(d,i){
             if (collection === 'MTWTF' && d > dataCollection.SS.minFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             } else if (collection === 'SS' && d > dataCollection.MTWTF.minFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             }
-            return "grey";
+            return "RGBA(108, 108, 117, 1)";
           })
           .transition().duration(1500)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
@@ -80,13 +80,13 @@ function updateDataandRender(userInputs){
           })
 
         d3.selectAll(".maxfare--" + collection).data(dataCollection[collection].maxFare)
-          .attr("stroke", function(d,i){
+          .style("stroke", function(d,i){
             if (collection === 'MTWTF' && d > dataCollection.SS.maxFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             } else if (collection === 'SS' && d > dataCollection.MTWTF.maxFare[i]){
-              return "RGBA(239, 72, 119, 1)";
+              return "white";
             }
-            return "grey";
+            return "RGBA(108, 108, 117, 1)";
           })
           .transition().duration(1500)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
