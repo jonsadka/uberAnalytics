@@ -15,6 +15,12 @@ var userInputs = {
   product: document.getElementById("product").options[document.getElementById("product").selectedIndex].value
 };
 
+var graphsContainerHeight = window.innerHeight - document.getElementById('header').offsetHeight;
+document.getElementById('graph-left').setAttribute("style","height:" + graphsContainerHeight * 0.8 + "px")
+document.getElementById('graph-right-top').setAttribute("style","height:" + graphsContainerHeight * 0.2 + "px")
+document.getElementById('graph-right-bottom').setAttribute("style","height:" + graphsContainerHeight * 0.6 + "px")
+
+
 ///////////////////////////////////////////////////////////////////
 //SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
 var leftTopPad = 15;
@@ -42,11 +48,7 @@ var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
   .selectAll(".hours").data(new Array(24))
   .enter().append("text").attr("class","hours")
-  .text(function(d,i){
-    if ( i === 12 ) return i + 'pm';
-    if ( i > 12 ) return i - 12 + 'pm';
-    return i + 'am';
-  })
+  .text(formatTime)
   .attr("x", function(){
     if (graphLeftHeight < 400){
       return graphLeftWidth / 2 - 10 / 2;
@@ -243,4 +245,11 @@ function differentCities(start, end){
   if ( start === "brok" && end === "upma" || start === "brok" && end === "grct" ) return false;
 
   return true;
+}
+
+function formatTime(d,i){
+  if ( i === 0 ) return '12am'
+  if ( i === 12 ) return i + 'pm';
+  if ( i > 12 ) return i - 12 + 'pm';
+  return i + 'am';
 }

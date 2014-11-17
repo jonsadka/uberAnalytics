@@ -41,15 +41,16 @@ function updateDataandRender(userInputs){
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
 
-    // LEFT GRAPH COMPONENTS
+    // UPDATE LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
 
-    // BOTTOM RIGHT GRAPH COMPONENTS
+    // UPDATE BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomYScale.domain([maxSurge, 1]);
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
 
+    // UPDATE XIES
     d3.selectAll(".y.axis").transition().duration(1500).call(graphRightBottomYAxis);
 
     // UPDATE VIEW FOR EACH SET OF DATA
@@ -132,12 +133,31 @@ function updateDataandRender(userInputs){
         Object.keys(dataCollection[collection]).forEach(function(set){
           var dataPoints = dataCollection[collection][set].surge;
 
-          d3.selectAll(".surgetrends--dot." + set).data(dataPoints)
-            .transition().duration(1000)
+          var container = d3.select('#graph-right-bottom-content');
+
+          var circles = container.selectAll(".surgetrends--dot." + set).data(dataPoints);
+
+          circles.transition().duration(1000)
+            .attr("cx", function(d){
+              return graphRightBottomXScale(d[0]);
+            })
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
             })
-            .attr("r", 3.5);
+
+          circles.enter().append("circle")
+            .attr("class","surgetrends--dot " + set)
+            .attr("cx", function(d){
+              return graphRightBottomXScale(d[0]);
+            })
+            .attr("cy", function(d){
+              return graphRightBottomYScale(d[1]);
+            })
+            .attr("r", 0)
+            .transition().duration(1500)
+            .attr("r", 2.5)
+
+          circles.exit().remove();
         });
       }
     });

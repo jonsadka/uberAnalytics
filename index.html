@@ -14,9 +14,10 @@
           <select id="timeframe" class="custom-dropdown__select custom-dropdown__select--white">
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
-            <option value="last_7_days" selected="selected">Last 7 Days</option>
+            <option value="last_7_days">Last 7 Days</option>
             <option value="last_14_days">Last 14 Days</option>
-            <option value="last_21_days">Last 21 Days</option>
+            <option value="last_21_days" selected="selected">Last 21 Days</option>
+            <option value="last_28_days">Last 28 Days</option>
           </select>
         </span>
 
@@ -57,21 +58,21 @@
     </div>
     
     <div class="grid">
-      <div class="grid grid-pad">
-        <div class="col-1-2">
-          <h3>Hourly Low and High Price Averages</h3>
-          <p style="color: white; font-size: 10px;">Averages calculated using data at 10 minute interval samples.</p>
-          <div class="module" id="graph-left" style="height:400px;">
-          </div>
+      <div class="grid grid-pad" id="graphs">
+        <div class="col-5-8">
+          <h3>Best hours to travel ( MTWTF | SS )</h3>
+          <hr/>
+          <p style="color: white; font-size: 10px;">Reccomendation provided based on maximm price average calculated at 10 minute interval samples.</p>
+          <div class="module" id="graph-right-top"></div>
+          <h3>Average Surge vs Hour Breakout</h3>
+          <hr/>
+          <div class="module" id="graph-right-bottom"></div>
         </div>
-        <div class="col-1-2">
-            <h3>Best hours to travel ( MTWTF | SS )</h3>
-            <p style="color: white; font-size: 10px;">Reccomendation provided based on maximm price average calculated at 10 minute interval samples.</p>
-          <div class="module" id="graph-right-top" style="height:100px;">
-          </div>
-            <h3>Average Surge vs Hour Breakout</h3>
-          <div class="module" id="graph-right-bottom" style="height:300px;">
-          </div>
+        <div class="col-3-8">
+          <h3>Hourly Low and High Price Averages</h3>
+          <hr/>
+          <p style="color: white; font-size: 10px;">Averages calculated using data at 10 minute interval samples.</p>
+          <div class="module" id="graph-left"></div>
         </div>
       </div>
 <!--       <div class="grid grid-pad">

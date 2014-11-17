@@ -1,16 +1,16 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
 
 *, *:after, *:before {
-	margin: 0;
-	padding: 0;
-	font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box;    /* Firefox, other Gecko */
   box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
 body{
-	overflow: hidden;
+  overflow: hidden;
   background-size: 18px 18px;
 }
 
@@ -47,31 +47,35 @@ a:-webkit-any-link {
 
 .axis path,
 .axis line {
-  font-size: 10px;
   fill: none;
   stroke: #fff;
   shape-rendering: crispEdges;
 }
 
+.tick {
+  fill: #fff;
+  font-size: 11px;
+}
+
 .surgetrends--line {
   fill: none;
-  stroke-width: 1.5px;
+  stroke-width: 2px;
 }
 
-.surgetrends--line.MTWTF{
-  stroke: orange;
+.surgetrends--line.MTWTF {
+  stroke: RGBA(173, 221, 237, 1);
 }
 
-.surgetrends--dot.MTWTF{
-  fill: orange;
+.surgetrends--dot.MTWTF {
+  fill: RGBA(173, 221, 237, 1);
 }
 
-.surgetrends--line.SS{
-  stroke: purple;
+.surgetrends--line.SS {
+  stroke: RGBA(0, 128, 154, 1);
 }
 
-.surgetrends--dot.SS{
-  fill: purple;
+.surgetrends--dot.SS {
+  fill: RGBA(0, 128, 154, 1);
 }
 
 /*GRID*/
@@ -115,12 +119,20 @@ grid {
   width: 25%;
 }
 
+.col-5-8 {
+  width: 62.5%;
+}
+
+.col-3-8 {
+  width: 37.5%;
+}
+
 .col-1-8 {
   width: 12.5%;
 }
 
 .module {
-  background: pink;
+  /*background: pink;*/
 }
 
 /* Opt-in outside padding */

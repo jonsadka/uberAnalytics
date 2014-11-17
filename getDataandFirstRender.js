@@ -51,14 +51,15 @@ function getDataandFirstRender(userInputs){
     graphRightBottomYScale.domain([maxSurge, 1]);
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
-    var graphRightBottomXAxis = d3.svg.axis().scale(graphRightBottomXScale).orient("bottom");
+    var graphRightBottomXAxis = d3.svg.axis().scale(graphRightBottomXScale).orient("bottom")
+      .ticks(24).tickFormat(formatTime);
 
     // DRAW AXIES
     graphRightBottomSVG.append("g").attr("class", "y axis")
       .call(graphRightBottomYAxis);
     graphRightBottomSVG.append("g").attr("class", "x axis")
       .attr("transform","translate(" + 0 + "," + (graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad) + ")")
-      .call(graphRightBottomXAxis);
+      .call(graphRightBottomXAxis)
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
@@ -160,8 +161,8 @@ function getDataandFirstRender(userInputs){
               return graphRightBottomYScale(d[1]);
             })
             .attr("r", 0)
-            .transition().duration(1000)
-            .attr("r", 3.5);
+            .transition().duration(1500)
+            .attr("r", 2.5)
         });
       }
     });
