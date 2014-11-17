@@ -103,6 +103,35 @@ function updateDataandRender(userInputs){
           .transition().duration(1500)
           .attr("d", graphRightBottomLine )
 
+        // FARE BAR LABELS
+        d3.selectAll(".minfare--label." + collection).data(dataCollection[collection].minFare)
+          .attr("class", function(d,i){
+              return "minfare--label " + collection + " hour" + i;
+            })
+          .transition().duration(1500)
+          .text(function(d,i){
+            return '$' + Math.round(d * 10) / 10;
+          })
+          .attr("x", function(d){
+            var barWidth = graphLeftBarWidth * (d / maxAvgFare);
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            return graphLeftWidth / 2 + shiftAmount;
+          })
+
+          d3.selectAll(".maxfare--label." + collection).data(dataCollection[collection].maxFare)
+          .attr("class", function(d,i){
+              return "maxfare--label " + collection + " hour" + i;
+            })
+          .transition().duration(1500)
+          .text(function(d,i){
+            return '$' + Math.round(d * 10) / 10;
+          })
+          .attr("x", function(d){
+            var barWidth = graphLeftBarWidth * (d / maxAvgFare);
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            return graphLeftWidth / 2 + shiftAmount;
+          })
+
         function growBars(){
           var thisNode = d3.select(this);
           var finalWidth = +thisNode.attr("width");

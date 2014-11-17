@@ -135,11 +135,13 @@ function getDataandFirstRender(userInputs){
           .each("end", growBars)
 
         // FARE BAR LABELS
-        graphLeftSVG.append("g").attr("class", "minfares--labels--" + collection )
-          .selectAll(".minfare--label--" + collection).data(dataCollection[collection].minFare)
-          .enter().append("text").attr("class", "minfare--label--" + collection)
+        graphLeftSVG.append("g").attr("class", "minfares--labels " + collection )
+          .selectAll(".minfare--label." + collection).data(dataCollection[collection].minFare)
+          .enter().append("text").attr("class", function(d,i){
+              return "minfare--label " + collection + " hour" + i;
+            })
           .text(function(d,i){
-            return '$' + Math.round(d);
+            return '$' + Math.round(d * 10) / 10;
           })
           .attr("x", function(d){
             var barWidth = graphLeftBarWidth * (d / maxAvgFare);
@@ -151,7 +153,7 @@ function getDataandFirstRender(userInputs){
            })
           .style("fill", "white")
           .style("opacity",0)
-          .style("font-size", "10px")
+          .style("font-size", "8px")
           .style("text-anchor", function(d){
             if (collection === 'MTWTF') return "end";
             if (collection === 'SS') return "start";
@@ -159,11 +161,14 @@ function getDataandFirstRender(userInputs){
           .transition().duration(800).delay(function(d,i){ return i * 100; })
           .style("opacity",1)        
 
-        graphLeftSVG.append("g").attr("class", "maxfares--labels--" + collection )
-          .selectAll(".maxfare--label--" + collection).data(dataCollection[collection].maxFare)
-          .enter().append("text").attr("class", "maxfare--label--" + collection)
+        graphLeftSVG.append("g").attr("class", "maxfares--labels " + collection )
+          .selectAll(".maxfare--label." + collection).data(dataCollection[collection].maxFare)
+          .enter().append("text")
+          .attr("class", function(d,i){
+              return "maxfare--label " + collection + " hour" + i;
+            })
           .text(function(d,i){
-            return '$' + Math.round(d);
+            return '$' + Math.round(d * 10) / 10;
           })
           .attr("x", function(d){
             var barWidth = graphLeftBarWidth * (d / maxAvgFare);
@@ -175,7 +180,7 @@ function getDataandFirstRender(userInputs){
            })
           .style("fill", "white")
           .style("opacity",0)
-          .style("font-size", "10px")
+          .style("font-size", "8px")
           .style("text-anchor", function(d){
             if (collection === 'MTWTF') return "end";
             if (collection === 'SS') return "start";

@@ -64,6 +64,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .on("mouseover", function(){
     var thisNode = d3.select(this);
     var hour = thisNode.attr("hour");
+    thisNode.attr("fill", "RGBA(241, 82, 130, 1)");
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", "none")
       .style("stroke", function(d, i){
@@ -72,10 +73,15 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       })
       .style("stroke-width", 1.5)
       .attr("r", 4)
+    d3.selectAll(".minfare--label.hour" + hour)
+      .style("fill", "RGBA(241, 82, 130, 1)")
+    d3.selectAll(".maxfare--label.hour" + hour)
+      .style("fill", "RGBA(241, 82, 130, 1)")
   })
   .on("mouseout", function(){
     var thisNode = d3.select(this);
     var hour = thisNode.attr("hour");
+    thisNode.attr("fill", "white");
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", function(d, i){
         if ( this.classList.contains("MTWTF") ) return "RGBA(173, 221, 237, 1)";
@@ -83,6 +89,10 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       })
       .style("stroke", "none")
       .attr("r", 2)
+    d3.selectAll(".minfare--label.hour" + hour)
+      .style("fill", "white")
+    d3.selectAll(".maxfare--label.hour" + hour)
+      .style("fill", "white")
   })
   .transition().duration(1000).delay(function(d,i){ return i * 100; })
   .attr("opacity",1);
