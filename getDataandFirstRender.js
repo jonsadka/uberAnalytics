@@ -145,18 +145,18 @@ function getDataandFirstRender(userInputs){
           })
           .attr("x", function(d){
             var barWidth = graphLeftBarWidth * (d / maxAvgFare);
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 + 6 : 18 + 10 + barWidth - 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ 
-            return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight + graphLeftBarHeight;
+            return graphLeftYScale(i) + leftTopPad - 2;
            })
-          .style("fill", "white")
+          .style("fill", "none")
           .style("opacity",0)
-          .style("font-size", "8px")
+          .style("font-size", "10px")
           .style("text-anchor", function(d){
-            if (collection === 'MTWTF') return "end";
-            if (collection === 'SS') return "start";
+            if (collection === 'MTWTF') return "start";
+            if (collection === 'SS') return "end";
           })
           .transition().duration(800).delay(function(d,i){ return i * 100; })
           .style("opacity",1)        
@@ -172,15 +172,15 @@ function getDataandFirstRender(userInputs){
           })
           .attr("x", function(d){
             var barWidth = graphLeftBarWidth * (d / maxAvgFare);
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 - 6 : 18 + 10 + barWidth + 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ 
-            return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight + graphLeftBarHeight;
+            return graphLeftYScale(i) + leftTopPad - 2;
            })
           .style("fill", "white")
           .style("opacity",0)
-          .style("font-size", "8px")
+          .style("font-size", "10px")
           .style("text-anchor", function(d){
             if (collection === 'MTWTF') return "end";
             if (collection === 'SS') return "start";

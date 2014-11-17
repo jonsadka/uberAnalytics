@@ -72,7 +72,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
         if ( this.classList.contains("SS") ) return "RGBA(33, 188, 215, 1)";
       })
       .style("stroke-width", 1.5)
-      .attr("r", 4)
+      .attr("r", 5)
     d3.selectAll(".minfare--label.hour" + hour)
       .style("fill", "RGBA(241, 82, 130, 1)")
     d3.selectAll(".maxfare--label.hour" + hour)
@@ -90,7 +90,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       .style("stroke", "none")
       .attr("r", 2)
     d3.selectAll(".minfare--label.hour" + hour)
-      .style("fill", "white")
+      .style("fill", "none")
     d3.selectAll(".maxfare--label.hour" + hour)
       .style("fill", "white")
   })

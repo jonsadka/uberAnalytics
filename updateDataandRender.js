@@ -114,7 +114,7 @@ function updateDataandRender(userInputs){
           })
           .attr("x", function(d){
             var barWidth = graphLeftBarWidth * (d / maxAvgFare);
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 + 6 : 18 + 10 + barWidth - 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
 
@@ -128,7 +128,7 @@ function updateDataandRender(userInputs){
           })
           .attr("x", function(d){
             var barWidth = graphLeftBarWidth * (d / maxAvgFare);
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10 + barWidth;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 - 6 : 18 + 10 + barWidth + 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
 
