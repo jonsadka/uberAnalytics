@@ -37,6 +37,7 @@ function getDataandFirstRender(userInputs){
   client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved data from server!');
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
+    var maxSurge = dataCollection.maxSurge;
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
@@ -47,7 +48,7 @@ function getDataandFirstRender(userInputs){
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
 
     // BOTTOM RIGHT GRAPH COMPONENTS
-    graphRightBottomYScale.domain([maxAvgSurge, 1]);
+    graphRightBottomYScale.domain([maxSurge, 1]);
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
 
@@ -123,7 +124,7 @@ function getDataandFirstRender(userInputs){
           .each("end", growBars)
 
         // SURGE TRENDS
-        graphRightBottomSVG.append("g").attr("class", "surgetrends--lines" + collection)
+        graphRightBottomSVG.append("g").attr("class", "surgetrends--lines " + collection)
           .append("path").datum(d3.range(24).map(function(val, idx){
             return {hour: idx, surge: 1};
           }))
@@ -132,7 +133,7 @@ function getDataandFirstRender(userInputs){
 
         d3.select(".surgetrends--line." + collection)
           .datum(dataCollection[collection].surge)
-          .transition().duration(2000)
+          .transition().delay(1000).duration(2000)
           .attr("d", graphRightBottomLine )
 
       }
@@ -141,21 +142,22 @@ function getDataandFirstRender(userInputs){
         Object.keys(dataCollection[collection]).forEach(function(set){
 
           var container = graphRightBottomSVG.append("g")
-            .attr("class", "surgetrends--dots " + set)
+            .attr("class", "surgetrends--dots " + set);
 
-          Object.keys(dataCollection[collection][set].surge).forEach(function(hour){
-            var points = dataCollection[collection][set].surge[hour]
+          var dataPoints = dataCollection[collection][set].surge;
 
-            container.selectAll(".surgetrend--dot " + collection).data(points).enter()
-              .append("circle").attr("class","surgetrend--dot " + set)
-              .attr("cx", graphRightBottomXScale(hour))
-              .attr("cy", function(d){
-                return graphRightBottomYScale(d);
-              })
-              .attr("r", 3);
-          })
-        })
-
+          container.selectAll(".surgetrends--dot " + set).data(dataPoints).enter()
+            .append("circle").attr("class","surgetrends--dot " + set)
+            .attr("cx", function(d){
+              return graphRightBottomXScale(d[0]);
+            })
+            .attr("cy", function(d){
+              return graphRightBottomYScale(d[1]);
+            })
+            .attr("r", 0)
+            .transition().duration(1000)
+            .attr("r", 3.5);
+        });
       }
     });
 
@@ -184,4 +186,4 @@ function getDataandFirstRender(userInputs){
     }
 
   });
-};
+}

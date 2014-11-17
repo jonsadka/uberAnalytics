@@ -124,6 +124,7 @@ d3.select(document.getElementById("options")).on('change',
 ///////////////////////////////////////////////////////////////////
 //HELPER FUNCTIONS/////////////////////////////////////////////////
 function formatData(highEstimate, lowEstimate, surgeEstimate){
+  var maxSurge = 0;
   var maxAvgSurge = 0;
   var maxAvgFare = 0;
   var bestTimesMTWTF = [];
@@ -185,9 +186,12 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
     var bestHours = [];
     originalSortedData[daySegment] = {};
     Object.keys(result[daySegment]).forEach(function(dataType){
-      originalSortedData[daySegment][dataType] = {};
+      originalSortedData[daySegment][dataType] = [];
       result[daySegment][dataType] = result[daySegment][dataType].map(function(collection, hour){
-        originalSortedData[daySegment][dataType][hour] = collection;
+        collection.forEach(function(value){
+          if (dataType === 'surge' && value > maxSurge) maxSurge = value;
+          originalSortedData[daySegment][dataType].push([hour, value])
+        })
         var mean = d3.mean(collection);
         if ( dataType === 'minFare' ){
           if ( mean < minCost ){
@@ -202,7 +206,6 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
         } else if ( dataType === 'surge' && mean > maxAvgSurge ){
           maxAvgSurge = mean;
         }
-        if (dataType === 'surge') console.log(collection);
         if (dataType === 'surge') return {hour:hour, surge: mean};
         return mean;
       });
@@ -216,6 +219,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   result['bestTimesMTWTF'] = bestTimesMTWTF;
   result['bestTimesSS'] = bestTimesSS;
   result['originalSortedData'] = originalSortedData;
+  result['maxSurge'] = maxSurge;
 console.log(result)
   return result;
 }

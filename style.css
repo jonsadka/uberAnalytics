@@ -58,11 +58,19 @@ a:-webkit-any-link {
 }
 
 .surgetrends--line.MTWTF{
-  stroke: black;
+  stroke: orange;
+}
+
+.surgetrends--dot.MTWTF{
+  fill: orange;
 }
 
 .surgetrends--line.SS{
   stroke: purple;
+}
+
+.surgetrends--dot.SS{
+  fill: purple;
 }
 
 /*GRID*/

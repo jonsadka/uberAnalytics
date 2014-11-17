@@ -35,6 +35,7 @@ function updateDataandRender(userInputs){
   client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved new data from server!');
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
+    var maxSurge = dataCollection.maxSurge;
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
@@ -45,7 +46,7 @@ function updateDataandRender(userInputs){
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
 
     // BOTTOM RIGHT GRAPH COMPONENTS
-    graphRightBottomYScale.domain([maxAvgSurge, 1]);
+    graphRightBottomYScale.domain([maxSurge, 1]);
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
 
@@ -124,6 +125,20 @@ function updateDataandRender(userInputs){
             thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
           });
         }
+      }
+
+      // SURGE TREND DATA DOTS
+      if ( collection === 'originalSortedData' ){
+        Object.keys(dataCollection[collection]).forEach(function(set){
+          var dataPoints = dataCollection[collection][set].surge;
+
+          d3.selectAll(".surgetrends--dot." + set).data(dataPoints)
+            .transition().duration(1000)
+            .attr("cy", function(d){
+              return graphRightBottomYScale(d[1]);
+            })
+            .attr("r", 3.5);
+        });
       }
     });
 
