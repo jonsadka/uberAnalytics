@@ -55,7 +55,7 @@ function updateDataandRender(userInputs){
 
     // UPDATE VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
-      if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) && collection !== 'originalSortedData' ){
+      if (  collection === 'MTWTF' || collection === 'SS' ){
         // SURGE INTENSITIES 
         d3.selectAll(".surgeintensity--" + collection).data(dataCollection[collection].surge)
           .transition().duration(1500)

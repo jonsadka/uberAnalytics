@@ -42,7 +42,7 @@ function getDataandFirstRender(userInputs){
     var maxAvgFare = dataCollection.maxAvgFare;
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
-
+console.log(dataCollection)
     // LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
@@ -63,7 +63,7 @@ function getDataandFirstRender(userInputs){
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
-      if ( typeof dataCollection[collection] === 'object' && !Array.isArray(dataCollection[collection]) && collection !== 'originalSortedData'){
+      if ( collection === 'MTWTF' || collection === 'SS' ){
         // SURGE INTENSITIES  
         graphLeftSVG.append("g").attr("class", "surgeintensities--" + collection )
           .selectAll(".surgeintensity").data(dataCollection[collection].surge)
@@ -226,6 +226,34 @@ function getDataandFirstRender(userInputs){
             .attr("r", 2)
         });
       }
+
+      // APPEND RATE TEXT
+      if ( collection === 'bestTimesMTWTF' || collection === 'bestTimesSS' ){
+        var set = collection === 'bestTimesSS' ? 'SS' : 'MTWTF';
+        graphRightTopSVG.append("g").attr("class", ".besttimes--times " + set)
+          .style("fill", "white")
+          .selectAll(".besttimes--time." + set)
+          .data(dataCollection[collection]).enter().append('text')
+          .attr("class", ".besttimes--time " + set)
+          .text(function(d,i){
+            console.log(d, formatTime(0, d))
+            return formatTime(0, d);
+          })
+          .attr('x', function(d,i){
+            return graphRightBottomXScale(d);
+          })
+          .attr('y', function(d,i){
+            if ( set === 'SS' ) return 25;
+            return 50
+          })
+
+        graphRightTopSVG.append("text").text(set).style("fill", "white")
+          .attr("x", 0).attr('y', function(d,i){
+            if ( set === 'SS' ) return 25;
+            return 50
+          }).style("font-size", "10px")
+      }
+
     });
 
     function growBars(){

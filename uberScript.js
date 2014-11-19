@@ -98,6 +98,17 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .attr("opacity",1);
 
 ///////////////////////////////////////////////////////////////////
+//SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
+var graphRightTopWidth = document.getElementById('graph-right-top').offsetWidth;
+var graphRightTopHeight = document.getElementById('graph-right-top').offsetHeight;
+
+// CREATE CANVAS
+var graphRightTopSVG = d3.select("#graph-right-top").append("svg")
+  .attr("width", graphRightTopWidth)
+  .attr("height", graphRightTopHeight)
+  .attr("id", "graph-right-top-content");
+
+///////////////////////////////////////////////////////////////////
 //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
 var rightBottomTopPad = 10;
 var rightBottomBottomPad = 10;
