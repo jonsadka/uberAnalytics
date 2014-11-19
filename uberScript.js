@@ -65,6 +65,8 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     var thisNode = d3.select(this);
     var hour = thisNode.attr("hour");
     thisNode.attr("fill", "RGBA(241, 82, 130, 1)");
+    d3.selectAll(".besttimes--time.hour" + hour)
+      .style("fill", "RGBA(241, 82, 130, 1)")
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", "none")
       .style("stroke", function(d, i){
@@ -82,6 +84,8 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     var thisNode = d3.select(this);
     var hour = thisNode.attr("hour");
     thisNode.attr("fill", "white");
+    d3.selectAll(".besttimes--time.hour" + hour)
+      .style("fill", "white")
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", function(d, i){
         if ( this.classList.contains("MTWTF") ) return "RGBA(173, 221, 237, 1)";

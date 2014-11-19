@@ -230,11 +230,13 @@ console.log(dataCollection)
       // APPEND RATE TEXT
       if ( collection === 'bestTimesMTWTF' || collection === 'bestTimesSS' ){
         var set = collection === 'bestTimesSS' ? 'SS' : 'MTWTF';
-        graphRightTopSVG.append("g").attr("class", ".besttimes--times " + set)
+        graphRightTopSVG.append("g").attr("class", "besttimes--times " + set)
           .style("fill", "white")
           .selectAll(".besttimes--time." + set)
           .data(dataCollection[collection]).enter().append('text')
-          .attr("class", ".besttimes--time " + set)
+          .attr("class", function(d,i){
+            return "besttimes--time " + set + " hour" + d;
+          })
           .text(function(d,i){
             console.log(d, formatTime(0, d))
             return formatTime(0, d);
@@ -243,14 +245,14 @@ console.log(dataCollection)
             return graphRightBottomXScale(d);
           })
           .attr('y', function(d,i){
-            if ( set === 'SS' ) return 25;
-            return 50
+            if ( set === 'SS' ) return 50;
+            return 25;
           })
 
         graphRightTopSVG.append("text").text(set).style("fill", "white")
           .attr("x", 0).attr('y', function(d,i){
-            if ( set === 'SS' ) return 25;
-            return 50
+            if ( set === 'SS' ) return 50;
+            return 25;
           }).style("font-size", "10px")
       }
 
