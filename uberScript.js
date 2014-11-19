@@ -9,7 +9,7 @@ var client = new Keen({
 
 // CAPTURE USER DATA
 var userInputs = {
-  timeframe: document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value,
+  timeframe: getSpecialDay(document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value),
   start: document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value,
   end: document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value,
   product: document.getElementById("product").options[document.getElementById("product").selectedIndex].value
@@ -153,7 +153,7 @@ d3.select(document.getElementById("options")).on('change',
     }
 
     var userInputs = {
-      timeframe: document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value,
+      timeframe: getSpecialDay(document.getElementById("timeframe").options[document.getElementById("timeframe").selectedIndex].value),
       start: newStart,
       end: newEnd,
       product: document.getElementById("product").options[document.getElementById("product").selectedIndex].value
@@ -290,4 +290,19 @@ function formatTime(d,i){
   if ( i === 12 ) return i + 'pm';
   if ( i > 12 ) return i - 12 + 'pm';
   return i + 'am';
+}
+
+function getSpecialDay(input){
+  if ( input === 'haloween'){
+    return {
+      "start" : "2014-10-27T00:00:00.000Z",
+      "end" : "2014-11-03T00:00:00.000Z"
+    };
+  } else if ( input === 'thanksgiving'){
+    return {
+      "start" : "2014-11-24T00:00:00.000Z",
+      "end" : "2014-12-01T00:00:00.000Z"
+    };
+  }
+  return input;
 }
