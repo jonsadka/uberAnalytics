@@ -79,7 +79,6 @@ console.log(dataCollection)
           .style("stroke-width",1)
           .style("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
           .style("opacity",0)
-          
           .transition().duration(800).delay(function(d,i){ return i * 100; })
           .style("opacity",1);
 
@@ -238,7 +237,6 @@ console.log(dataCollection)
             return "besttimes--time " + set + " hour" + d;
           })
           .text(function(d,i){
-            console.log(d, formatTime(0, d))
             return formatTime(0, d);
           })
           .style("font-size", "12px")
@@ -246,11 +244,9 @@ console.log(dataCollection)
             if ( set === 'SS' ) return 50;
             return 25;
           })
-          .attr('x', 0)
+          .attr('x', 20)
           .transition().duration(1500)
-          .attr('x', function(d,i){
-            return graphRightBottomXScale(d);
-          })
+          .attr('x', graphRightBottomXScale )
 
         graphRightTopSVG.append("text")
           .text(function(){

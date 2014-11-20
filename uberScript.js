@@ -32,6 +32,10 @@ var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftT
 var graphLeftBarHeight = 12;
 var graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
 
+var colorIntensities = 
+['rgb(255,247,236)','rgb(254,232,200)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(179,0,0)','rgb(127,0,0)']
+.reverse();
+
 // CREATE CANVAS
 var graphLeftSVG = d3.select("#graph-left").append("svg")
   .attr("width", graphLeftWidth)
@@ -41,7 +45,7 @@ var graphLeftSVG = d3.select("#graph-left").append("svg")
 // ESTABLISH SCALES
 var graphLeftXScale = d3.scale.linear().range([0, graphLeftWidth]);
 var graphLeftYScale = d3.scale.linear().range([leftTopPad, graphLeftHeight - leftTopPad - rightBottomPad]).domain([0, 23]);
-var graphLeftIntensityScale = d3.scale.ordinal().range(['rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)']);
+var graphLeftIntensityScale = d3.scale.quantile().range(colorIntensities);
 var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 
 // APPEND TIME LABELS
@@ -102,7 +106,27 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .attr("opacity",1);
 
 // APPEND LEGEND
-graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white")
+  var legendContainer = graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white");
+  graphLeftIntensityScale.domain([0,8])
+  legendContainer.selectAll("rect").data(d3.range(9).map(function(a,i){ return i;})).enter().append("rect")
+    .attr("width", 10)
+    .attr("height", 10)
+    .attr("y", function(d,i){
+      return i * 12;
+    })
+    .attr("x", 20)
+    .style("fill", graphLeftIntensityScale)
+
+  legendContainer.selectAll(".datText").data([d3.range(9).map(function(a,i){ if ( i === 0 ){ return "High"}; return "Low";})])
+    .enter().append("text")
+    .text(function(d,i){
+      if (i === 0 || i > 6) return d;
+    })
+    .attr("y", function(d,i){
+      return i * 12 + 20;
+    })
+    .attr("x", 35)
+    .style("fill", white)
 
 ///////////////////////////////////////////////////////////////////
 //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////

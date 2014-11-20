@@ -253,9 +253,7 @@ function updateDataandRender(userInputs){
               return formatTime(0, d);
             })
             .transition().duration(1000)
-            .attr('x', function(d,i){
-              return graphRightBottomXScale(d);
-            })
+            .attr('x', graphRightBottomXScale )
 
           text.enter().append("text")
             .attr("class", function(d){
@@ -269,9 +267,7 @@ function updateDataandRender(userInputs){
               if ( set === 'SS' ) return 50;
               return 25;
             })
-            .attr('x', function(d,i){
-            return graphRightBottomXScale(d);
-          })
+            .attr('x', graphRightBottomXScale )
           .style("fill", "white")
           .style("font-size", "12px")
 
