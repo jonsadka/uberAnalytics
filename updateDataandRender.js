@@ -223,6 +223,61 @@ function updateDataandRender(userInputs){
           circles.exit().remove();
         });
       }
+
+      // UPDATE RATE TEXT
+      if ( collection === 'bestTimesMTWTF' || collection === 'bestTimesSS' ){
+        var set = collection === 'bestTimesSS' ? 'SS' : 'MTWTF';
+
+        var container = d3.select('#graph-right-top-content');
+
+        var text = container.selectAll(".besttimes--time." + set).data(dataCollection[collection]);
+
+        // d3.selectAll(".besttimes--time." + set).transition().duration(800)
+        //   .data(dataCollection[collection]).enter().append('text')
+        //   .attr("class", function(d,i){
+        //     return "besttimes--time " + set + " hour" + d;
+        //   })
+        //   .attr('y', function(d,i){
+        //     if ( set === 'SS' ) return 50;
+        //     return 25;
+        //   })
+        //   .attr('x', 0)
+        //   .transition().duration(1500)
+
+          text
+            .attr("class", function(d){
+              return "besttimes--time " + set + " hour" + d;
+            })
+            .text(function(d,i){
+              console.log(d, formatTime(0, d))
+              return formatTime(0, d);
+            })
+            .transition().duration(1000)
+            .attr('x', function(d,i){
+              return graphRightBottomXScale(d);
+            })
+
+          text.enter().append("text")
+            .attr("class", function(d){
+              return "besttimes--time " + set + " hour" + d;
+            })
+            .text(function(d,i){
+              console.log(d, formatTime(0, d))
+              return formatTime(0, d);
+            })
+            .attr('y', function(d,i){
+              if ( set === 'SS' ) return 50;
+              return 25;
+            })
+            .attr('x', function(d,i){
+            return graphRightBottomXScale(d);
+          })
+          .style("fill", "white")
+          .style("font-size", "12px")
+
+          text.exit().remove()
+      }
+
     });
 
   });

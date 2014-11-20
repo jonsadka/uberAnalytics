@@ -241,15 +241,22 @@ console.log(dataCollection)
             console.log(d, formatTime(0, d))
             return formatTime(0, d);
           })
-          .attr('x', function(d,i){
-            return graphRightBottomXScale(d);
-          })
+          .style("font-size", "12px")
           .attr('y', function(d,i){
             if ( set === 'SS' ) return 50;
             return 25;
           })
+          .attr('x', 0)
+          .transition().duration(1500)
+          .attr('x', function(d,i){
+            return graphRightBottomXScale(d);
+          })
 
-        graphRightTopSVG.append("text").text(set).style("fill", "white")
+        graphRightTopSVG.append("text")
+          .text(function(){
+            if (set === 'SS') return 'weekend';
+            return 'weekday';
+          }).style("fill", "white")
           .attr("x", 0).attr('y', function(d,i){
             if ( set === 'SS' ) return 50;
             return 25;

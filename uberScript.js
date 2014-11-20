@@ -101,6 +101,9 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .transition().duration(1000).delay(function(d,i){ return i * 100; })
   .attr("opacity",1);
 
+// APPEND LEGEND
+graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white")
+
 ///////////////////////////////////////////////////////////////////
 //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
 var graphRightTopWidth = document.getElementById('graph-right-top').offsetWidth;
