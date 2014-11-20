@@ -117,16 +117,18 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     .attr("x", 20)
     .style("fill", graphLeftIntensityScale)
 
-  legendContainer.selectAll(".datText").data([d3.range(9).map(function(a,i){ if ( i === 0 ){ return "High"}; return "Low";})])
+  legendContainer.selectAll(".datText").data(d3.range(9).map(function(a,i){ if ( i === 0 ){ return "High"; } else{return "Low";} }))
     .enter().append("text")
     .text(function(d,i){
-      if (i === 0 || i > 6) return d;
+      // return d
+      if (i === 0 || i === 8) return d;
     })
     .attr("y", function(d,i){
-      return i * 12 + 20;
+      return i * 12 + 10;
     })
     .attr("x", 35)
-    .style("fill", white)
+    .style("fill", "white")
+    .style("font-size", "10px")
 
 ///////////////////////////////////////////////////////////////////
 //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
