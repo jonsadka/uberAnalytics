@@ -212,7 +212,8 @@ console.log(dataCollection)
 
           container.selectAll(".surgetrends--dot " + set).data(dataPoints).enter()
             .append("circle").attr("class", function(d){
-              return "surgetrends--dot " + set + " hour" + d[0];
+              var maxClass = ( d[1] === maxSurge ) ? 'maxsurge' : '';
+              return "surgetrends--dot " + set + " hour" + d[0] + ' ' + maxClass;
             })
             .attr("cx", function(d){
               return graphRightBottomXScale(d[0]);

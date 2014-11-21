@@ -100,7 +100,11 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
         if ( this.classList.contains("SS") ) return "RGBA(33, 188, 215, 1)";
       })
       .style("stroke", "none")
-      .attr("r", 2)
+      .attr("r", function(){
+        console.log(thisNode.attr("class"))
+        if ( this.classList.contains("maxsurge") ) return 8;
+        return 2;
+      })
     d3.selectAll(".minfare--label.hour" + hour)
       .style("fill", "none")
     d3.selectAll(".maxfare--label.hour" + hour)
