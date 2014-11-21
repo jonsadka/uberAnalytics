@@ -178,12 +178,12 @@ console.log(dataCollection)
             return graphLeftYScale(i) + leftTopPad - 2;
            })
           .style("fill", "white")
-          .style("opacity",0)
           .style("font-size", "10px")
           .style("text-anchor", function(d){
             if (collection === 'MTWTF') return "end";
             if (collection === 'SS') return "start";
           })
+          .style("opacity",0)
           .transition().duration(800).delay(function(d,i){ return i * 100; })
           .style("opacity",1)   
 
@@ -237,16 +237,40 @@ console.log(dataCollection)
             return "besttimes--time " + set + " hour" + d;
           })
           .text(function(d,i){
-            return formatTime(0, d);
+            return formatTime(0, d).slice(-3,-1);
           })
-          .style("font-size", "12px")
+          .style("font-size", "18px")
           .attr('y', function(d,i){
             if ( set === 'SS' ) return 50;
             return 25;
           })
           .attr('x', 20)
           .transition().duration(1500)
-          .attr('x', graphRightBottomXScale )
+          .attr('x', function(d,i){
+            return graphRightBottomXScale(d) + 40;
+          })
+
+        d3.select(".besttimes--times." + set)
+          .selectAll(".besttimes--hour." + set)
+          .data(dataCollection[collection]).enter().append('text')
+          .attr("class", function(d,i){
+            return "besttimes--hour " + set + " hour" + d;
+          })
+          .text(function(d,i){
+            return formatTime(0, d).slice(-1);
+          })
+          .attr('y', function(d,i){
+            if ( set === 'SS' ) return 50;
+            return 25;
+          })
+          .attr('x', 20)
+          .transition().duration(1500)
+          .attr('x', function(d,i){
+            var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;
+            return graphRightBottomXScale(d) + offset + 40;
+          })
+          .style("font-size", "9px")
+          .style("text-anchor", "start")
 
         graphRightTopSVG.append("text")
           .text(function(){
@@ -256,7 +280,9 @@ console.log(dataCollection)
           .attr("x", 0).attr('y', function(d,i){
             if ( set === 'SS' ) return 50;
             return 25;
-          }).style("font-size", "10px")
+          })
+          .style("font-size", "10px")
+          .style("text-anchor", "start")
       }
 
     });

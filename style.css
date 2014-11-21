@@ -132,7 +132,7 @@ grid {
 }
 
 .module {
-  background: pink;
+  background: RGBA(255, 223, 241, 0.2);
 }
 
 /* Opt-in outside padding */

@@ -24,7 +24,7 @@ document.getElementById('graph-right-bottom').setAttribute("style","height:" + (
 ///////////////////////////////////////////////////////////////////
 //SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
 var leftTopPad = 15;
-var rightBottomPad = 5;
+var rightBottomPad = 55;
 
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
 var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - rightBottomPad;
@@ -71,6 +71,8 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     thisNode.attr("fill", "RGBA(241, 82, 130, 1)");
     d3.selectAll(".besttimes--time.hour" + hour)
       .style("fill", "RGBA(241, 82, 130, 1)")
+    d3.selectAll(".besttimes--hour.hour" + hour)
+      .style("fill", "RGBA(241, 82, 130, 1)")
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", "none")
       .style("stroke", function(d, i){
@@ -89,6 +91,8 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     var hour = thisNode.attr("hour");
     thisNode.attr("fill", "white");
     d3.selectAll(".besttimes--time.hour" + hour)
+      .style("fill", "white")
+    d3.selectAll(".besttimes--hour.hour" + hour)
       .style("fill", "white")
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", function(d, i){
@@ -109,10 +113,10 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   var legendContainer = graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white");
   graphLeftIntensityScale.domain([0,8])
   legendContainer.selectAll("rect").data(d3.range(9).map(function(a,i){ return i;})).enter().append("rect")
-    .attr("width", 10)
-    .attr("height", 10)
+    .attr("width", 8)
+    .attr("height", 8)
     .attr("y", function(d,i){
-      return i * 12;
+      return i * 9;
     })
     .attr("x", 20)
     .style("fill", graphLeftIntensityScale)
@@ -124,7 +128,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       if (i === 0 || i === 8) return d;
     })
     .attr("y", function(d,i){
-      return i * 12 + 10;
+      return i * 9 + 10;
     })
     .attr("x", 35)
     .style("fill", "white")
@@ -329,10 +333,10 @@ function differentCities(start, end){
 }
 
 function formatTime(d,i){
-  if ( i === 0 ) return '12am'
-  if ( i === 12 ) return i + 'pm';
-  if ( i > 12 ) return i - 12 + 'pm';
-  return i + 'am';
+  if ( i === 0 ) return '12a'
+  if ( i === 12 ) return i + 'p';
+  if ( i > 12 ) return i - 12 + 'p';
+  return i + 'a';
 }
 
 function getSpecialDay(input){

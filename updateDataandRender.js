@@ -132,29 +132,7 @@ function updateDataandRender(userInputs){
             return graphLeftWidth / 2 + shiftAmount;
           })
 
-        function growBars(){
-          var thisNode = d3.select(this);
-          var finalWidth = +thisNode.attr("width");
-          var finalX = +thisNode.attr("x");
 
-          // assign transistion events
-          if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
-            thisNode.on("mouseenter", function(d,i){
-              var startX = graphLeftWidth / 2 - 36 - 10;
-              thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
-                      .attr("x", finalX).attr("width", finalWidth);
-            });
-          } else {
-            thisNode.on("mouseenter", function(d,i){
-              thisNode.attr("width", 0).transition().duration(800).attr("width", finalWidth);
-            });
-          }
-
-          // prevent premature termination of transition event
-          thisNode.on("mouseout", function(d,i){
-            thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
-          });
-        }
       }
 
       // SURGE TREND DATA DOTS
@@ -232,46 +210,102 @@ function updateDataandRender(userInputs){
 
         var text = container.selectAll(".besttimes--time." + set).data(dataCollection[collection]);
 
-        // d3.selectAll(".besttimes--time." + set).transition().duration(800)
-        //   .data(dataCollection[collection]).enter().append('text')
-        //   .attr("class", function(d,i){
-        //     return "besttimes--time " + set + " hour" + d;
-        //   })
-        //   .attr('y', function(d,i){
-        //     if ( set === 'SS' ) return 50;
-        //     return 25;
-        //   })
-        //   .attr('x', 0)
-        //   .transition().duration(1500)
+        text
+          .attr("class", function(d){
+            return "besttimes--time " + set + " hour" + d;
+          })
+          .text(function(d,i){
+            return formatTime(0, d).slice(-3,-1);
+            return formatTime(0, d);
+          })
+          .transition().duration(1000)
+          .attr('x', function(d,i){
+            return graphRightBottomXScale(d) + 40;
+          })
 
-          text
-            .attr("class", function(d){
-              return "besttimes--time " + set + " hour" + d;
-            })
-            .text(function(d,i){
-              console.log(d, formatTime(0, d))
-              return formatTime(0, d);
-            })
-            .transition().duration(1000)
-            .attr('x', graphRightBottomXScale )
-
-          text.enter().append("text")
-            .attr("class", function(d){
-              return "besttimes--time " + set + " hour" + d;
-            })
-            .text(function(d,i){
-              console.log(d, formatTime(0, d))
-              return formatTime(0, d);
-            })
-            .attr('y', function(d,i){
-              if ( set === 'SS' ) return 50;
-              return 25;
-            })
-            .attr('x', graphRightBottomXScale )
+        text.enter().append("text")
+          .attr("class", function(d){
+            return "besttimes--time " + set + " hour" + d;
+          })
+          .text(function(d,i){
+            return formatTime(0, d).slice(-3,-1);
+          })
+          .attr('y', function(d,i){
+            if ( set === 'SS' ) return 50;
+            return 25;
+          })
+          .attr('x', function(d,i){
+            return graphRightBottomXScale(d) + 40;
+          })
+          .style("font-size", "18px")
           .style("fill", "white")
-          .style("font-size", "12px")
+          .style("opacity",0)
+          .transition().duration(1400)
+          .style("opacity",1) 
 
-          text.exit().remove()
+        text.exit().remove();
+
+        var hour = container.selectAll(".besttimes--hour." + set).data(dataCollection[collection]);
+
+        hour.attr("class", function(d,i){
+            return "besttimes--hour " + set + " hour" + d;
+          })
+          .text(function(d,i){
+            return formatTime(0, d).slice(-1);
+          })
+          .transition().duration(1000)
+          .attr('x', function(d,i){
+            var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;
+            return graphRightBottomXScale(d) + offset + 40;
+          })
+
+        hour.enter().append("text")
+          .attr("class", function(d,i){
+            return "besttimes--hour " + set + " hour" + d;
+          })
+          .text(function(d,i){
+            return formatTime(0, d).slice(-1);
+          })
+          .style("font-size", "9px")
+          .attr('y', function(d,i){
+            if ( set === 'SS' ) return 50;
+            return 25;
+          })
+          .attr('x', function(d,i){
+            var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;
+            return graphRightBottomXScale(d) + offset + 40;
+          })
+          .style("fill", "white")
+          .style("opacity",0)
+          .transition().duration(1400)
+          .style("opacity",1) 
+
+        hour.exit().remove();
+
+      }
+
+      function growBars(){
+        var thisNode = d3.select(this);
+        var finalWidth = +thisNode.attr("width");
+        var finalX = +thisNode.attr("x");
+
+        // assign transistion events
+        if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
+          thisNode.on("mouseenter", function(d,i){
+            var startX = graphLeftWidth / 2 - 36 - 10;
+            thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
+                    .attr("x", finalX).attr("width", finalWidth);
+          });
+        } else {
+          thisNode.on("mouseenter", function(d,i){
+            thisNode.attr("width", 0).transition().duration(800).attr("width", finalWidth);
+          });
+        }
+
+        // prevent premature termination of transition event
+        thisNode.on("mouseout", function(d,i){
+          thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
+        });
       }
 
     });
