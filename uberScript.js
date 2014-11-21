@@ -16,9 +16,9 @@ var userInputs = {
 };
 
 var graphsContainerHeight = window.innerHeight - document.getElementById('header').offsetHeight;
-document.getElementById('graph-left').setAttribute("style","height:" + graphsContainerHeight * 0.8 + "px")
-document.getElementById('graph-right-top').setAttribute("style","height:" + graphsContainerHeight * 0.2 + "px")
-document.getElementById('graph-right-bottom').setAttribute("style","height:" + graphsContainerHeight * 0.6 + "px")
+document.getElementById('graph-left').setAttribute("style","height:" + (graphsContainerHeight - 80) + "px")
+document.getElementById('graph-right-top').setAttribute("style","height: 70px")
+document.getElementById('graph-right-bottom').setAttribute("style","height:" + (graphsContainerHeight - 192) + "px")
 
 
 ///////////////////////////////////////////////////////////////////
@@ -306,7 +306,6 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   result['bestTimesSS'] = bestTimesSS;
   result['originalSortedData'] = originalSortedData;
   result['maxSurge'] = maxSurge;
-console.log(result)
   return result;
 }
 
