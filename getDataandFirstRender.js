@@ -222,7 +222,29 @@ console.log(dataCollection)
             })
             .attr("r", 0)
             .transition().duration(1500)
-            .attr("r", 2)
+            .attr("r", function(d,i){
+              if ( d[1] === maxSurge ) return 8;
+              return 2;
+            })
+            .attr("stroke-width", 0)
+            .transition().duration(400)
+            .attr("stroke", function(d,i){
+              if ( d[1] === maxSurge && set === 'SS' ) return "RGBA(33, 188, 215, .5)";
+              if ( d[1] === maxSurge && set === 'MTWTF' ) return "RGBA(173, 221, 237, .5)";
+            })
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 12;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 2;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 12;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", 0)
         });
       }
 

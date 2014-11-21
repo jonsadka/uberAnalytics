@@ -155,6 +155,30 @@ function updateDataandRender(userInputs){
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
             })
+            .attr("stroke-width", 0)
+            .attr("r", 2)
+            .transition().duration(400)
+            .attr("r", function(d,i){
+              if ( d[1] === maxSurge ) return 8;
+              return 2;
+            })
+            .attr("stroke", function(d,i){
+              if ( d[1] === maxSurge && set === 'SS' ) return "RGBA(33, 188, 215, .5)";
+              if ( d[1] === maxSurge && set === 'MTWTF' ) return "RGBA(173, 221, 237, .5)";
+              return "none";
+            })
+            .transition().duration(400)
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 12;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", 0)
+            .transition().duration(400)
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 12;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", 0)
 
           circles.enter().append("circle")
             .attr("class", function(d){
@@ -166,10 +190,32 @@ function updateDataandRender(userInputs){
             .attr("cx", graphRightBottomXScale(24) )
             .attr("r", 0)
             .transition().duration(1000)
-            .attr("r", 2)
             .attr("cx", function(d){
               return graphRightBottomXScale(d[0]);
-            });
+            })
+            .attr("r", function(d,i){
+              if ( d[1] === maxSurge ) return 8;
+              return 2;
+            })
+            .attr("stroke-width", 0)
+            .transition().delay(1000).duration(400)
+            .attr("stroke", function(d,i){
+              if ( d[1] === maxSurge && set === 'SS' ) return "RGBA(33, 188, 215, .5)";
+              if ( d[1] === maxSurge && set === 'MTWTF' ) return "RGBA(173, 221, 237, .5)";
+            })
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 12;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 2;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 12;
+            })
+            .transition().duration(400)
+            .attr("stroke-width", 0)
 
           // ALTERNATIVE ANIMATION
           // circles.transition().duration(800)

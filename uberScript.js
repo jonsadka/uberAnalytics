@@ -340,7 +340,7 @@ function formatTime(d,i){
 }
 
 function getSpecialDay(input){
-  if ( input === 'haloween'){
+  if ( input === 'halloween'){
     return {
       "start" : "2014-10-27T00:00:00.000Z",
       "end" : "2014-11-03T00:00:00.000Z"
