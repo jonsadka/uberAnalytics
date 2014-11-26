@@ -34,6 +34,7 @@ function updateDataandRender(userInputs){
   console.log('Retrieving new data from server.');
   client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved new data from server!');
+    console.log(response)
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
     var maxSurge = dataCollection.maxSurge;
     var maxAvgSurge = dataCollection.maxAvgSurge;
@@ -182,7 +183,8 @@ function updateDataandRender(userInputs){
 
           circles.enter().append("circle")
             .attr("class", function(d){
-              return "surgetrends--dot " + set + " hour" + d[0];
+              var maxClass = ( d[1] === maxSurge ) ? 'maxsurge' : '';
+              return "surgetrends--dot " + set + " hour" + d[0] + ' ' + maxClass;
             })
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
@@ -312,7 +314,7 @@ function updateDataandRender(userInputs){
           .text(function(d,i){
             return formatTime(0, d).slice(-1);
           })
-          .style("font-size", "9px")
+          .style("font-size", "10px")
           .attr('y', function(d,i){
             if ( set === 'SS' ) return 50;
             return 25;

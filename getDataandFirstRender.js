@@ -292,7 +292,7 @@ console.log(dataCollection)
             var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;
             return graphRightBottomXScale(d) + offset + 40;
           })
-          .style("font-size", "9px")
+          .style("font-size", "10px")
           .style("text-anchor", "start")
 
         graphRightTopSVG.append("text")

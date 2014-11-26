@@ -39,7 +39,7 @@ var colorIntensities =
 // CREATE CANVAS
 var graphLeftSVG = d3.select("#graph-left").append("svg")
   .attr("width", graphLeftWidth)
-  .attr("height", graphLeftHeight)
+  .attr("height", document.getElementById('graph-left').offsetHeight)
   .attr("id", "graph-left-content");
 
 // ESTABLISH SCALES
@@ -101,7 +101,6 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       })
       .style("stroke", "none")
       .attr("r", function(){
-        console.log(thisNode.attr("class"))
         if ( this.classList.contains("maxsurge") ) return 8;
         return 2;
       })
@@ -120,7 +119,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     .attr("width", 8)
     .attr("height", 8)
     .attr("y", function(d,i){
-      return i * 9;
+      return graphLeftHeight + leftTopPad - i * 9;
     })
     .attr("x", 20)
     .style("fill", graphLeftIntensityScale)
@@ -132,7 +131,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       if (i === 0 || i === 8) return d;
     })
     .attr("y", function(d,i){
-      return i * 9 + 10;
+      return graphLeftHeight + leftTopPad - i * 9 - 10;
     })
     .attr("x", 35)
     .style("fill", "white")
