@@ -34,7 +34,6 @@ function updateDataandRender(userInputs){
   console.log('Retrieving new data from server.');
   client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved new data from server!');
-    console.log(response)
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
     var maxSurge = dataCollection.maxSurge;
     var maxAvgSurge = dataCollection.maxAvgSurge;

@@ -24,10 +24,10 @@ document.getElementById('graph-right-bottom').setAttribute("style","height:" + (
 ///////////////////////////////////////////////////////////////////
 //SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
 var leftTopPad = 15;
-var rightBottomPad = 55;
+var leftBottomPad = 25;
 
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
-var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - rightBottomPad;
+var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - leftBottomPad;
 
 var graphLeftBarHeight = 12;
 var graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
@@ -44,7 +44,7 @@ var graphLeftSVG = d3.select("#graph-left").append("svg")
 
 // ESTABLISH SCALES
 var graphLeftXScale = d3.scale.linear().range([0, graphLeftWidth]);
-var graphLeftYScale = d3.scale.linear().range([leftTopPad, graphLeftHeight - leftTopPad - rightBottomPad]).domain([0, 23]);
+var graphLeftYScale = d3.scale.linear().range([leftTopPad, graphLeftHeight - leftTopPad - leftBottomPad]).domain([0, 23]);
 var graphLeftIntensityScale = d3.scale.quantile().range(colorIntensities);
 var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 
@@ -114,26 +114,26 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
 
 // APPEND LEGEND
   var legendContainer = graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white");
-  graphLeftIntensityScale.domain([0,8])
+  graphLeftIntensityScale.domain([0,6])
   legendContainer.selectAll("rect").data(d3.range(9).map(function(a,i){ return i;})).enter().append("rect")
-    .attr("width", 8)
-    .attr("height", 8)
+    .attr("width", 6)
+    .attr("height", 4)
     .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 9;
+      return graphLeftHeight + leftTopPad - i * 5 + 15;
     })
-    .attr("x", 20)
+    .attr("x", 10)
     .style("fill", graphLeftIntensityScale)
 
-  legendContainer.selectAll(".datText").data(d3.range(9).map(function(a,i){ if ( i === 0 ){ return "High"; } else{return "Low";} }))
+  legendContainer.selectAll(".datText").data(d3.range(9).map(function(a,i){ if ( i === 0 ){ return "High Surge"; } else{return "Low Surge";} }))
     .enter().append("text")
     .text(function(d,i){
       // return d
       if (i === 0 || i === 8) return d;
     })
     .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 9 - 10;
+      return graphLeftHeight + leftTopPad - i * 4.25 + 17;
     })
-    .attr("x", 35)
+    .attr("x", 22)
     .style("fill", "white")
     .style("font-size", "10px")
 
@@ -194,7 +194,7 @@ d3.select(document.getElementById("options")).on('change',
         .appendChild(document.createTextNode('Please choose two different locations in the same city.'));
       alertInDOM = true;
       return;
-    } else if ( differentCities(newStart, newEnd) ){
+    } else if ( !sameCities(newStart, newEnd) ){
       document.getElementById('options')
         .appendChild(document.createTextNode('Let\'s not try to Uber across the country, we both know you cannot afford it.'));
       alertInDOM = true;
@@ -316,23 +316,26 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   return result;
 }
 
-function differentCities(start, end){
+function sameCities(start, end){
   // SF LOCATIONS
-  if ( start === "gogp" && end === "pwll" || start === "gogp" && end === "warf" ) return false;
-  if ( start === "pwll" && end === "gogp" || start === "pwll" && end === "warf" ) return false;
-  if ( start === "warf" && end === "pwll" || start === "warf" && end === "gogp" ) return false;
+  // 37.7833° N, 122.4167° W
+  if ( start === "gogp" && end === "pwll" || start === "gogp" && end === "warf" ) return "SF";
+  if ( start === "pwll" && end === "gogp" || start === "pwll" && end === "warf" ) return "SF";
+  if ( start === "warf" && end === "pwll" || start === "warf" && end === "gogp" ) return "SF";
 
   // LA LOCATIONS
-  if ( start === "dtla" && end === "smon" || start === "dtla" && end === "hlwd" ) return false;
-  if ( start === "smon" && end === "dtla" || start === "smon" && end === "hlwd" ) return false;
-  if ( start === "hlwd" && end === "smon" || start === "hlwd" && end === "dtla" ) return false;
+  // 34.0500° N, 118.2500° W
+  if ( start === "dtla" && end === "smon" || start === "dtla" && end === "hlwd" ) return "LA";
+  if ( start === "smon" && end === "dtla" || start === "smon" && end === "hlwd" ) return "LA";
+  if ( start === "hlwd" && end === "smon" || start === "hlwd" && end === "dtla" ) return "LA";
 
   // NY LOCATIONS
-  if ( start === "grct" && end === "upma" || start === "grct" && end === "brok" ) return false;
-  if ( start === "upma" && end === "grct" || start === "upma" && end === "brok" ) return false;
-  if ( start === "brok" && end === "upma" || start === "brok" && end === "grct" ) return false;
+  // 40.7127° N, 74.0059° W
+  if ( start === "grct" && end === "upma" || start === "grct" && end === "brok" ) return "NY";
+  if ( start === "upma" && end === "grct" || start === "upma" && end === "brok" ) return "NY";
+  if ( start === "brok" && end === "upma" || start === "brok" && end === "grct" ) return "NY";
 
-  return true;
+  return false;
 }
 
 function formatTime(d,i){
@@ -355,4 +358,20 @@ function getSpecialDay(input){
     };
   }
   return input;
+}
+
+function getSunriseSunset(date){
+  if ( typeof date === 'string'){
+    console.log("string date", date)
+    var date = new Date();
+    if (date ==="this_7_days")
+    if (date ==="this_14_days")
+    if (date ==="this_21_days")
+    if (date ==="this_28_days")
+    if (date ==="this_60_days")
+  } else {
+    console.log("else date", date.start)
+    if (date ==="thanksgiving")
+    if (date ==="halloween")
+  }
 }

@@ -36,6 +36,8 @@ function getDataandFirstRender(userInputs){
   console.log('Retrieving data from server.');
   client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved data from server!');
+    console.log(getSunriseSunset(userInputs.timeframe))
+
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
     var maxSurge = dataCollection.maxSurge;
     var maxAvgSurge = dataCollection.maxAvgSurge;
