@@ -319,11 +319,25 @@ console.log(dataCollection)
     Object.keys(sunTimes).forEach(function(type){
       var hour = sunTimes[type];
       var description = type;
-      if (description === 'sunrise' || description === 'goldenHour' || description === 'sunsetStart' || description === 'sunset'){
+      if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
         d3.select(".sunpositions")
-          .append("line").attr("class", "sunposition " + description)
+          .append("text").attr("class", "sunposition--text " + description)
+          .text(description)
+          .attr("y", graphRightBottomXScale(hour))
+          .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
+          .attr("transform", "rotate(-90)")
+          .attr("dy", ".3em")
+          .style("stroke-width", 0)
+          .style("fill", "red")
+          .style("font-size", "10px")
+          .style("text-anchor", "end");
+
+        var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
+
+        d3.select(".sunpositions")
+          .append("line").attr("class", "sunposition--line " + description)
           .attr("x1", graphRightBottomXScale(hour)).attr("x2", graphRightBottomXScale(hour))
-          .attr("y1", graphRightBottomYScale(1)).attr("y2", graphRightBottomYScale(maxSurge))
+          .attr("y1", graphRightBottomYScale(1)).attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 10)
           .style("stroke", "red")
           .style("stroke-width", 1)
       }

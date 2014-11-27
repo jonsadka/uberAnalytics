@@ -386,7 +386,7 @@ function getSunriseSunset(date, start, end){
 
     // save as hour and minutes
     currentTime = timezoneTime.toString().split(' ')[4].split(':');
-    calculatedTimes[key] = Number(currentTime[0]) + Number(currentTime[1]) / 60;
+    calculatedTimes[key] = Number(currentTime[0]) + (Number(currentTime[1]) / 60);
   }
 
   return calculatedTimes;
