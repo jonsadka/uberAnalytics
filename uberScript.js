@@ -353,8 +353,8 @@ function getSpecialDay(input){
     };
   } else if ( input === 'thanksgiving'){
     return {
-      "start" : "2014-11-24T00:00:00.000Z",
-      "end" : "2014-12-01T00:00:00.000Z"
+      "start" : "2014-11-25T00:00:00.000Z",
+      "end" : "2014-12-03T00:00:00.000Z"
     };
   }
   return input;
@@ -372,13 +372,12 @@ function getSunriseSunset(date, start, end){
     if (date === "this_21_days") averageDate.setDate( averageDate.getDate() - Math.round(21 / 2) );
     if (date === "this_28_days") averageDate.setDate( averageDate.getDate() - Math.round(28 / 2) );
     if (date === "this_60_days") averageDate.setDate( averageDate.getDate() - Math.round(60 / 2) );
-    
-    var calculatedTimes = SunCalc.getTimes(averageDate, latLon[0], latLon[1]);
   } else {
-    console.log("DATE IS A CUSTOM TIME... MUST ADD LOGIC");
-    //   if (date ==="thanksgiving")
-    //   if (date ==="halloween")
+    var averageDate = new Date(date.start);
+
+    var timezoneOffset = averageDate.getTimezoneOffset() * 60000;
   }
+  var calculatedTimes = SunCalc.getTimes(averageDate, latLon[0], latLon[1]);
 
   // Convert calculatedTimestamp to hours
   for (var key in calculatedTimes){
