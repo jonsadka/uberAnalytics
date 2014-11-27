@@ -363,15 +363,26 @@ function getSpecialDay(input){
 function getSunriseSunset(date){
   if ( typeof date === 'string'){
     console.log("string date", date)
-    var date = new Date();
-    if (date ==="this_7_days")
-    if (date ==="this_14_days")
-    if (date ==="this_21_days")
-    if (date ==="this_28_days")
-    if (date ==="this_60_days")
-  } else {
-    console.log("else date", date.start)
-    if (date ==="thanksgiving")
-    if (date ==="halloween")
+    var getSunTimes = new Date();
+    if (date ==="this_7_days"){
+      getSunTimes.setDate( getSunTimes.getDate() - Math.round(7 / 2) )
+    }
+    if (date ==="this_14_days"){
+      getSunTimes.setDate( getSunTimes.getDate() - Math.round(14 / 2) )
+    }
+    if (date ==="this_21_days"){
+      getSunTimes.setDate( getSunTimes.getDate() - Math.round(21 / 2) )
+    }
+    if (date ==="this_28_days"){
+      getSunTimes.setDate( getSunTimes.getDate() - Math.round(28 / 2) )
+    }
+    if (date ==="this_60_days"){
+      getSunTimes.setDate( getSunTimes.getDate() - Math.round(60 / 2) )
+    }
+    console.log(getSunTimes)
+  // } else {
+  //   console.log("else date", date.start)
+  //   if (date ==="thanksgiving")
+  //   if (date ==="halloween")
   }
 }
