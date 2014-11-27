@@ -117,7 +117,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     .attr("width", 6)
     .attr("height", 6)
     .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 7 + 15;
+      return graphLeftHeight + leftTopPad - i * 7 + 10;
     })
     .attr("x", 10)
     .style("fill", graphLeftIntensityScale)
@@ -129,7 +129,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       if (i === 0 || i === 5) return d;
     })
     .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 6.25 + 17;
+      return graphLeftHeight + leftTopPad - i * 6.25 + 15;
     })
     .attr("x", 22)
     .style("fill", "white")

@@ -44,6 +44,8 @@ function updateDataandRender(userInputs){
     // UPDATE LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
+    // GET SUNRISE AND SUNSET
+    var sunTimes = getSunriseSunset(userInputs.timeframe, userInputs.start, userInputs.end);
 
     // UPDATE BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomYScale.domain([maxSurge, 1]);
@@ -131,8 +133,6 @@ function updateDataandRender(userInputs){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 - 6 : 18 + 10 + barWidth + 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
-
-
       }
 
       // SURGE TREND DATA DOTS
@@ -328,8 +328,32 @@ function updateDataandRender(userInputs){
           .style("opacity",1) 
 
         hour.exit().remove();
-
       }
+
+      // SUNRISE AND SUNSET
+      Object.keys(sunTimes).forEach(function(type){
+        var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
+        var description = type;
+        if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
+          d3.select(".sunposition--text." + description)
+            .text(function(){
+              var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
+              return description + " " + displayHour + ":" + sunTimes[type][1];
+            })
+            .attr("transform", "rotate(-90)")
+            .attr("dy", ".3em")
+            .transition().duration(1500)
+            .attr("y", graphRightBottomXScale(hour))
+            .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
+
+          var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
+
+          d3.select(".sunposition--line." + description)
+            .transition().duration(1500)
+            .attr("x1", graphRightBottomXScale(hour))
+            .attr("x2", graphRightBottomXScale(hour))
+        }
+      })
 
       function growBars(){
         var thisNode = d3.select(this);
