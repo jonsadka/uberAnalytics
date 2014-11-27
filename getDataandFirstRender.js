@@ -50,7 +50,7 @@ console.log(dataCollection)
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
     // GET SUNRISE AND SUNSET
-    var times = getSunriseSunset(userInputs.timeframe);
+    var sunTimes = getSunriseSunset(userInputs.timeframe, userInputs.start, userInputs.end);
 
     // BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomYScale.domain([maxSurge, 1]);
@@ -315,17 +315,15 @@ console.log(dataCollection)
     });
 
     // SUNRISE AND SUNSET
-    Object.keys(times).forEach(function(type){
-      var hour = times[type];
+    graphRightBottomSVG.append("g").attr("class", "sunpositions");
+    Object.keys(sunTimes).forEach(function(type){
+      var hour = sunTimes[type];
       var description = type;
-      if (description === 'sunrise' || description === 'sunset'){
-console.log(description, hour)
-        graphRightBottomSVG.append("g").attr("class", "ABC")
-          .append("line")
-          .attr("x1", graphRightBottomXScale(hour))
-          .attr("x2", graphRightBottomXScale(hour))
-          .attr("y1", 0)
-          .attr("y2", 300)
+      if (description === 'sunrise' || description === 'goldenHour' || description === 'sunsetStart' || description === 'sunset'){
+        d3.select(".sunpositions")
+          .append("line").attr("class", "sunposition " + description)
+          .attr("x1", graphRightBottomXScale(hour)).attr("x2", graphRightBottomXScale(hour))
+          .attr("y1", graphRightBottomYScale(1)).attr("y2", graphRightBottomYScale(maxSurge))
           .style("stroke", "red")
           .style("stroke-width", 1)
       }

@@ -50,7 +50,7 @@ function updateDataandRender(userInputs){
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     var graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
 
-    // UPDATE XIES
+    // UPDATE AXIES
     d3.selectAll(".y.axis").transition().duration(1500).call(graphRightBottomYAxis);
 
     // UPDATE VIEW FOR EACH SET OF DATA

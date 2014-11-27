@@ -319,21 +319,21 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
 function sameCities(start, end){
   // SF LOCATIONS
   // 37.7833° N, 122.4167° W
-  if ( start === "gogp" && end === "pwll" || start === "gogp" && end === "warf" ) return "SF";
-  if ( start === "pwll" && end === "gogp" || start === "pwll" && end === "warf" ) return "SF";
-  if ( start === "warf" && end === "pwll" || start === "warf" && end === "gogp" ) return "SF";
+  if ( start === "gogp" && end === "pwll" || start === "gogp" && end === "warf" ) return [37.7833, 122.4167];
+  if ( start === "pwll" && end === "gogp" || start === "pwll" && end === "warf" ) return [37.7833, 122.4167];
+  if ( start === "warf" && end === "pwll" || start === "warf" && end === "gogp" ) return [37.7833, 122.4167];
 
   // LA LOCATIONS
   // 34.0500° N, 118.2500° W
-  if ( start === "dtla" && end === "smon" || start === "dtla" && end === "hlwd" ) return "LA";
-  if ( start === "smon" && end === "dtla" || start === "smon" && end === "hlwd" ) return "LA";
-  if ( start === "hlwd" && end === "smon" || start === "hlwd" && end === "dtla" ) return "LA";
+  if ( start === "dtla" && end === "smon" || start === "dtla" && end === "hlwd" ) return [34.0500, 118.2500];
+  if ( start === "smon" && end === "dtla" || start === "smon" && end === "hlwd" ) return [34.0500, 118.2500];
+  if ( start === "hlwd" && end === "smon" || start === "hlwd" && end === "dtla" ) return [34.0500, 118.2500];
 
   // NY LOCATIONS
   // 40.7127° N, 74.0059° W
-  if ( start === "grct" && end === "upma" || start === "grct" && end === "brok" ) return "NY";
-  if ( start === "upma" && end === "grct" || start === "upma" && end === "brok" ) return "NY";
-  if ( start === "brok" && end === "upma" || start === "brok" && end === "grct" ) return "NY";
+  if ( start === "grct" && end === "upma" || start === "grct" && end === "brok" ) return [40.7127, 74.0059];
+  if ( start === "upma" && end === "grct" || start === "upma" && end === "brok" ) return [40.7127, 74.0059];
+  if ( start === "brok" && end === "upma" || start === "brok" && end === "grct" ) return [40.7127, 74.0059];
 
   return false;
 }
@@ -360,7 +360,9 @@ function getSpecialDay(input){
   return input;
 }
 
-function getSunriseSunset(date){
+function getSunriseSunset(date, start, end){
+  var latLon = sameCities(start, end);
+
   if ( typeof date === 'string'){
     var averageDate = new Date();
     var timezoneOffset = averageDate.getTimezoneOffset() * 60000;
@@ -371,7 +373,7 @@ function getSunriseSunset(date){
     if (date === "this_28_days") averageDate.setDate( averageDate.getDate() - Math.round(28 / 2) );
     if (date === "this_60_days") averageDate.setDate( averageDate.getDate() - Math.round(60 / 2) );
     
-    var calculatedTimes = SunCalc.getTimes(averageDate, 34.0500, 118.25);
+    var calculatedTimes = SunCalc.getTimes(averageDate, latLon[0], latLon[1]);
   } else {
     console.log("DATE IS A CUSTOM TIME... MUST ADD LOGIC");
     //   if (date ==="thanksgiving")
