@@ -373,7 +373,7 @@ function getSunriseSunset(date){
     
     var calculatedTimes = SunCalc.getTimes(averageDate, 34.0500, 118.25);
   } else {
-    console.log("DATA IS A CUSTOM TIME... MUST ADD LOGIC");
+    console.log("DATE IS A CUSTOM TIME... MUST ADD LOGIC");
     //   if (date ==="thanksgiving")
     //   if (date ==="halloween")
   }
@@ -382,10 +382,10 @@ function getSunriseSunset(date){
   for (var key in calculatedTimes){
     // convert from UTC to current timezone
     var timezoneTime = new Date(Date.parse(calculatedTimes[key]) - timezoneOffset);
-    currentHour = timezoneTime.toString().split(' ')[4].split(':');
 
     // save as hour and minutes
-    calculatedTimes[key] = Number(currentHour[0]) + Number(currentHour[1]) / 60;
+    currentTime = timezoneTime.toString().split(' ')[4].split(':');
+    calculatedTimes[key] = Number(currentTime[0]) + Number(currentTime[1]) / 60;
   }
 
   return calculatedTimes;
