@@ -13,12 +13,13 @@
         <span class="custom-dropdown custom-dropdown--white">
           <select id="timeframe" class="custom-dropdown__select custom-dropdown__select--white">
             <!-- <option value="thanksgiving">Thanksgiving Week</option> -->
-            <!-- <option value="halloween" selected="selected">Halloween Week</option> -->
+            <option value="halloween" selected="selected">Halloween Week</option>
             <!-- <option value="this_7_days">Past 7 Days</option> -->
             <!-- <option value="this_14_days">Past 2 Weeks</option> -->
             <option value="this_21_days">Past 3 Weeks</option>
             <option value="this_28_days">Past 4 Weeks</option>
             <option value="this_60_days">Past 2 Months</option>
+            <option value="this_90_days">Past 3 Months</option>
           </select>
         </span>
 
@@ -63,28 +64,28 @@
     <div class="grid">
       <!-- CREATE ROW -->
       <div class="grid grid-pad" id="graphs">
-        <div class="col-3-8">
-          <h3>Hourly Averages</h3>
-          <div style="width:350px;">
-            <hr/>
-          </div>
-          <p style="color: white; font-size: 10px;">Calculated using 10 minute intervals at the specified time range.</p>
-          <div class="module" id="graph-left"></div>
-        </div>
         <div class="col-5-8">
-          <h3>Best Hours</h3>
+          <h3>CHEAPEST HOURS</h3>
           <div>
             <hr/>
           </div>
-          <p style="color: white; font-size: 10px;">Recommendation calculated using average of cheapest hour.</p>
+          <p style="color: grey; font-size: 10px;">Recommendation calculated using average of cheapest hour.</p>
           <div class="module" id="graph-right-top"></div>
 
-          <h3 style="padding-left:50px; text-align: right">Surge Detail</h3>
+          <h3 style="padding-left:50px; text-align: right">AVERAGE SURGE</h3>
           <div style="padding-left:50%;">
             <hr/>
           </div>
-          <p style="color: white; font-size: 10px; padding-left:50px; text-align: right">Calculated at 10 minute intervals in the specified time range.</p>
+          <p style="color: grey; font-size: 10px; padding-left:50px; text-align: right">Calculated at 10 minute intervals in the specified time range.</p>
           <div class="module" id="graph-right-bottom"></div>
+        </div>
+        <div class="col-3-8">
+          <h3>AVERAGE PRICE</h3>
+          <div style="width:350px;">
+            <hr/>
+          </div>
+          <p style="color: grey; font-size: 10px;">Calculated using 10 minute intervals at the specified time range.</p>
+          <div class="module" id="graph-left"></div>
         </div>
       </div>
     </div>

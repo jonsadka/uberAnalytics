@@ -111,29 +111,31 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .attr("opacity",1);
 
 // APPEND LEGEND
-  var legendContainer = graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white");
-  graphLeftIntensityScale.domain([0,6])
-  legendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
-    .attr("width", 6)
-    .attr("height", 6)
-    .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 7 + 10;
-    })
-    .attr("x", 10)
-    .style("fill", graphLeftIntensityScale)
+var legendContainer = graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white");
 
-  legendContainer.selectAll(".datText").data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Surge"; } else{return "High Surge";} }))
-    .enter().append("text")
-    .text(function(d,i){
-      // return d
-      if (i === 0 || i === 5) return d;
-    })
-    .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 6.25 + 15;
-    })
-    .attr("x", 22)
-    .style("fill", "white")
-    .style("font-size", "10px")
+// SURGE INTESNSITY
+graphLeftIntensityScale.domain([0,6])
+legendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
+  .attr("width", 6)
+  .attr("height", 6)
+  .attr("y", function(d,i){
+    return graphLeftHeight + leftTopPad - i * 7 + 10;
+  })
+  .attr("x", 10)
+  .style("fill", graphLeftIntensityScale)
+
+legendContainer.selectAll(".someText").data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
+  .enter().append("text")
+  .text(function(d,i){
+    // return d
+    if (i === 0 || i === 5) return d;
+  })
+  .attr("y", function(d,i){
+    return graphLeftHeight + leftTopPad - i * 6.25 + 15;
+  })
+  .attr("x", 22)
+  .style("fill", "white")
+  .style("font-size", "10px")
 
 ///////////////////////////////////////////////////////////////////
 //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
@@ -214,7 +216,7 @@ d3.select(document.getElementById("options")).on('change',
 
 ///////////////////////////////////////////////////////////////////
 //HELPER FUNCTIONS/////////////////////////////////////////////////
-function formatData(highEstimate, lowEstimate, surgeEstimate){
+function formatData(highEstimate, surgeEstimate){
   var maxSurge = 0;
   var maxAvgSurge = 0;
   var maxAvgFare = 0;
@@ -225,11 +227,9 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
   var result = { 'MTWTF':{}, 'SS':{} };
   Object.keys(result).forEach(function(daySegment){
     result[daySegment]['surge'] = [];
-    result[daySegment]['minFare'] = [];
     result[daySegment]['maxFare'] = [];
     for (var i = 0; i < 24; i++){
       result[daySegment]['surge'].push([]);
-      result[daySegment]['minFare'].push([]);
       result[daySegment]['maxFare'].push([]);
     }
   });
@@ -247,19 +247,6 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
     }
   });
 
-  lowEstimate.forEach(function(estimate){
-    if (estimate.value !== null){
-      var timestamp = new Date(estimate.timeframe.start);
-      var day = timestamp.getDay();
-      var hour = timestamp.getHours();
-      if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
-        result.MTWTF.minFare[hour].push(estimate.value);
-      } else {
-        result.SS.minFare[hour].push(estimate.value);
-      }
-    }
-  });
-
   surgeEstimate.forEach(function(estimate){
     if (estimate.value !== null){
       var timestamp = new Date(estimate.timeframe.start);
@@ -272,6 +259,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
       }
     }
   });
+
   Object.keys(result).forEach(function(daySegment){
     var minCost = Infinity;
     var bestHours = [];
@@ -284,7 +272,7 @@ function formatData(highEstimate, lowEstimate, surgeEstimate){
           originalSortedData[daySegment][dataType].push([hour, value])
         })
         var mean = d3.mean(collection);
-        if ( dataType === 'minFare' ){
+        if ( dataType === 'maxFare' ){
           if ( mean < minCost ){
             minCost = mean;
             bestHours = [hour];

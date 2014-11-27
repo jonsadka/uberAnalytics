@@ -10,16 +10,6 @@ function updateDataandRender(userInputs){
               {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
   });
 
-  var lowEstimateQuery = new Keen.Query("average", {
-    eventCollection: "newPricesCollection",
-    timeframe: userInputs.timeframe,
-    targetProperty: "low_estimate",
-    interval: "hourly",
-    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
-              {"property_name":"start","operator":"eq","property_value":userInputs.start},
-              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
-  });
-
   var surgeEstimateQuery = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
     timeframe: userInputs.timeframe,
@@ -32,9 +22,11 @@ function updateDataandRender(userInputs){
 
   // RUN QUERIES
   console.log('Retrieving new data from server.');
-  client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
+  client.run([highEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved new data from server!');
-    var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
+
+    // LAYUP DATA
+    var dataCollection = formatData(response[0].result, response[1].result);
     var maxSurge = dataCollection.maxSurge;
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
@@ -65,31 +57,9 @@ function updateDataandRender(userInputs){
           .style("fill", function(d){ return graphLeftIntensityScale(d.surge); })
 
         // FARE BARS
-        d3.selectAll(".minfare--" + collection).data(dataCollection[collection].minFare)
-          .style("stroke", function(d,i){
-            if (collection === 'MTWTF' && d > dataCollection.SS.minFare[i]){
-              return "white";
-            } else if (collection === 'SS' && d > dataCollection.MTWTF.minFare[i]){
-              return "white";
-            }
-            return "RGBA(108, 108, 117, 1)";
-          })
-          .transition().duration(1500)
-          .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
-          .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
-            return graphLeftWidth / 2 + shiftAmount;
-          })
-
         d3.selectAll(".maxfare--" + collection).data(dataCollection[collection].maxFare)
-          .style("stroke", function(d,i){
-            if (collection === 'MTWTF' && d > dataCollection.SS.maxFare[i]){
-              return "white";
-            } else if (collection === 'SS' && d > dataCollection.MTWTF.maxFare[i]){
-              return "white";
-            }
-            return "RGBA(108, 108, 117, 1)";
-          })
+          .style("stroke", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
+          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
           .transition().duration(1500)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("x", function(d){
@@ -106,21 +76,7 @@ function updateDataandRender(userInputs){
           .attr("d", graphRightBottomLine )
 
         // FARE BAR LABELS
-        d3.selectAll(".minfare--label." + collection).data(dataCollection[collection].minFare)
-          .attr("class", function(d,i){
-              return "minfare--label " + collection + " hour" + i;
-            })
-          .transition().duration(1500)
-          .text(function(d,i){
-            return '$' + Math.round(d * 10) / 10;
-          })
-          .attr("x", function(d){
-            var barWidth = graphLeftBarWidth * (d / maxAvgFare);
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 + 6 : 18 + 10 + barWidth - 6;
-            return graphLeftWidth / 2 + shiftAmount;
-          })
-
-          d3.selectAll(".maxfare--label." + collection).data(dataCollection[collection].maxFare)
+        d3.selectAll(".maxfare--label." + collection).data(dataCollection[collection].maxFare)
           .attr("class", function(d,i){
               return "maxfare--label " + collection + " hour" + i;
             })
@@ -329,57 +285,58 @@ function updateDataandRender(userInputs){
 
         hour.exit().remove();
       }
+    });
 
-      // SUNRISE AND SUNSET
-      Object.keys(sunTimes).forEach(function(type){
-        var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
-        var description = type;
-        if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
-          d3.select(".sunposition--text." + description)
-            .text(function(){
-              var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
-              return description + " " + displayHour + ":" + sunTimes[type][1];
-            })
-            .attr("transform", "rotate(-90)")
-            .attr("dy", ".3em")
-            .transition().duration(1500)
-            .attr("y", graphRightBottomXScale(hour))
-            .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
+    // UPDATE SUNRISE AND SUNSET LINES
+    Object.keys(sunTimes).forEach(function(type){
+      var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
+      var description = type;
+      if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
+        d3.select(".sunposition--text." + description)
+          .text(function(){
+            var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
+            var displayDesc = description === "goldenHour" ? "golden hour" : description
+            return displayDesc.toUpperCase() + " " + displayHour + ":" + sunTimes[type][1];
+          })
+          .attr("transform", "rotate(-90)")
+          .attr("dy", ".3em")
+          .transition().duration(1500)
+          .attr("y", graphRightBottomXScale(hour))
+          .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
 
-          var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
+        var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
 
-          d3.select(".sunposition--line." + description)
-            .transition().duration(1500)
-            .attr("x1", graphRightBottomXScale(hour))
-            .attr("x2", graphRightBottomXScale(hour))
-        }
-      })
+        d3.select(".sunposition--line." + description)
+          .transition().duration(1500)
+          .attr("x1", graphRightBottomXScale(hour))
+          .attr("x2", graphRightBottomXScale(hour))
+      }
+    })
 
-      function growBars(){
-        var thisNode = d3.select(this);
-        var finalWidth = +thisNode.attr("width");
-        var finalX = +thisNode.attr("x");
+    function growBars(){
+      var thisNode = d3.select(this);
+      var finalWidth = +thisNode.attr("width");
+      var finalX = +thisNode.attr("x");
 
-        // assign transistion events
-        if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
-          thisNode.on("mouseenter", function(d,i){
-            var startX = graphLeftWidth / 2 - 36 - 10;
-            thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
-                    .attr("x", finalX).attr("width", finalWidth);
-          });
-        } else {
-          thisNode.on("mouseenter", function(d,i){
-            thisNode.attr("width", 0).transition().duration(800).attr("width", finalWidth);
-          });
-        }
-
-        // prevent premature termination of transition event
-        thisNode.on("mouseout", function(d,i){
-          thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
+      // assign transistion events
+      if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
+        thisNode.on("mouseenter", function(d,i){
+          var startX = graphLeftWidth / 2 - 36 - 10;
+          thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
+                  .attr("x", finalX).attr("width", finalWidth);
+        });
+      } else {
+        thisNode.on("mouseenter", function(d,i){
+          thisNode.attr("width", 0).transition().duration(800).attr("width", finalWidth);
         });
       }
 
-    });
+      // prevent premature termination of transition event
+      thisNode.on("mouseout", function(d,i){
+        thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
+      });
+    }
+
 
   });
 }

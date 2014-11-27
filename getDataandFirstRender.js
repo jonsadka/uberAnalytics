@@ -12,16 +12,6 @@ function getDataandFirstRender(userInputs){
               {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
   });
 
-  var lowEstimateQuery = new Keen.Query("average", {
-    eventCollection: "newPricesCollection",
-    timeframe: userInputs.timeframe,
-    targetProperty: "low_estimate",
-    interval: "hourly",
-    filters: [{"property_name":"end","operator":"eq","property_value":userInputs.end},
-              {"property_name":"start","operator":"eq","property_value":userInputs.start},
-              {"property_name":"display_name","operator":"eq","property_value":userInputs.product}]
-  });
-
   var surgeEstimateQuery = new Keen.Query("average", {
     eventCollection: "newPricesCollection",
     timeframe: userInputs.timeframe,
@@ -34,17 +24,16 @@ function getDataandFirstRender(userInputs){
 
   // RUN QUERIES
   console.log('Retrieving data from server.');
-  client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
+  client.run([highEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved data from server!');
 
-    var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
+    // LAYUP DATA
+    var dataCollection = formatData(response[0].result, response[1].result);
     var maxSurge = dataCollection.maxSurge;
     var maxAvgSurge = dataCollection.maxAvgSurge;
     var maxAvgFare = dataCollection.maxAvgFare;
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
-
-console.log(dataCollection)
 
     // LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
@@ -64,7 +53,7 @@ console.log(dataCollection)
       .call(graphRightBottomYAxis);
     graphRightBottomSVG.append("g").attr("class", "x axis")
       .attr("transform","translate(" + 0 + "," + (graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad) + ")")
-      .call(graphRightBottomXAxis)
+      .call(graphRightBottomXAxis);
 
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
@@ -88,30 +77,6 @@ console.log(dataCollection)
           .style("opacity",1);
 
         // FARE BARS
-        graphLeftSVG.append("g").attr("class", "minfares--" + collection )
-          .selectAll(".minfare--" + collection).data(dataCollection[collection].minFare)
-          .enter().append("rect").attr("class", "minfare--" + collection)
-          .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
-          .attr("height", graphLeftBarHeight)
-          .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
-            return graphLeftWidth / 2 + shiftAmount;
-          })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
-          .style("fill", "RGBA(0,0,0,0)")
-          .style("stroke-width",1)
-          .style("stroke", function(d,i){
-            if (collection === 'MTWTF' && d > dataCollection.SS.minFare[i]){
-              return "white";
-            } else if (collection === 'SS' && d > dataCollection.MTWTF.minFare[i]){
-              return "white";
-            }
-            return "RGBA(108, 108, 117, 1)";
-          })
-          .style("opacity",0)
-          .transition().duration(800).delay(function(d,i){ return i * 100; })
-          .style("opacity",1)
-
         graphLeftSVG.append("g").attr("class", "maxfares--" + collection)
           .selectAll(".maxfare--" + collection).data(dataCollection[collection].maxFare)
           .enter().append("rect").attr("class","maxfare--" + collection)
@@ -122,16 +87,9 @@ console.log(dataCollection)
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
-          .style("fill", "RGBA(0,0,0,0)")
+          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
           .style("stroke-width",1)
-          .style("stroke", function(d,i){
-            if (collection === 'MTWTF' && d > dataCollection.SS.maxFare[i]){
-              return "white";
-            } else if (collection === 'SS' && d > dataCollection.MTWTF.maxFare[i]){
-              return "white";
-            }
-            return "RGBA(108, 108, 117, 1)";
-          })
+          .style("stroke", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
           .attr("mouseenter", "none")
           .style("opacity",0)
           .transition().duration(800).delay(function(d,i){ return i * 100; })
@@ -139,32 +97,6 @@ console.log(dataCollection)
           .each("end", growBars)
 
         // FARE BAR LABELS
-        graphLeftSVG.append("g").attr("class", "minfares--labels " + collection )
-          .selectAll(".minfare--label." + collection).data(dataCollection[collection].minFare)
-          .enter().append("text").attr("class", function(d,i){
-              return "minfare--label " + collection + " hour" + i;
-            })
-          .text(function(d,i){
-            return '$' + Math.round(d * 10) / 10;
-          })
-          .attr("x", function(d){
-            var barWidth = graphLeftBarWidth * (d / maxAvgFare);
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 + 6 : 18 + 10 + barWidth - 6;
-            return graphLeftWidth / 2 + shiftAmount;
-          })
-          .attr("y",function(d,i){ 
-            return graphLeftYScale(i) + leftTopPad - 2;
-           })
-          .style("fill", "none")
-          .style("opacity",0)
-          .style("font-size", "10px")
-          .style("text-anchor", function(d){
-            if (collection === 'MTWTF') return "start";
-            if (collection === 'SS') return "end";
-          })
-          .transition().duration(800).delay(function(d,i){ return i * 100; })
-          .style("opacity",1)        
-
         graphLeftSVG.append("g").attr("class", "maxfares--labels " + collection )
           .selectAll(".maxfare--label." + collection).data(dataCollection[collection].maxFare)
           .enter().append("text")
@@ -204,8 +136,8 @@ console.log(dataCollection)
           .datum(dataCollection[collection].surge)
           .transition().delay(1000).duration(2000)
           .attr("d", graphRightBottomLine )
-
       }
+      
       // SURGE TREND DATA DOTS
       if ( collection === 'originalSortedData' ){
         Object.keys(dataCollection[collection]).forEach(function(set){
@@ -314,7 +246,7 @@ console.log(dataCollection)
       }
     });
 
-    // SUNRISE AND SUNSET
+    // DRAW SUNRISE AND SUNSET LINES
     graphRightBottomSVG.append("g").attr("class", "sunpositions");
     Object.keys(sunTimes).forEach(function(type){
       var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
@@ -324,12 +256,13 @@ console.log(dataCollection)
           .append("text").attr("class", "sunposition--text " + description)
           .text(function(){
             var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
-            return description + " " + displayHour + ":" + sunTimes[type][1];
+            var displayDesc = description === "goldenHour" ? "golden hour" : description
+            return displayDesc.toUpperCase() + " " + displayHour + ":" + sunTimes[type][1];
           })
           .attr("transform", "rotate(-90)")
           .attr("dy", ".3em")
           .style("stroke-width", 0)
-          .style("fill", "RGBA(241, 82, 130, 1)")
+          .style("fill", "white")
           .style("font-size", "10px")
           .style("text-anchor", "end")
           .attr("y", graphRightBottomXScale(hour))
@@ -345,7 +278,7 @@ console.log(dataCollection)
           .attr("y1", graphRightBottomYScale(1))
           .attr("x2", graphRightBottomXScale(hour))
           .attr("y2", graphRightBottomYScale(1))
-          .style("stroke", "RGBA(241, 82, 130, 1)")
+          .style("stroke", "white")
           .style("stroke-width", 1)
           .transition().duration(1500)
           .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 10)
