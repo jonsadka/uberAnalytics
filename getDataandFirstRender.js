@@ -52,9 +52,6 @@ console.log(dataCollection)
     // GET SUNRISE AND SUNSET
     var times = getSunriseSunset(userInputs.timeframe);
 
-    console.log(times)
-    console.log(graphLeftXScale(times.sunset), graphLeftXScale(times.sunrise) )
-
     // BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomYScale.domain([maxSurge, 1]);
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
@@ -315,8 +312,24 @@ console.log(dataCollection)
           .style("font-size", "10px")
           .style("text-anchor", "start")
       }
-
     });
+
+    // SUNRISE AND SUNSET
+    Object.keys(times).forEach(function(type){
+      var hour = times[type];
+      var description = type;
+      if (description === 'sunrise' || description === 'sunset'){
+console.log(description, hour)
+        graphRightBottomSVG.append("g").attr("class", "ABC")
+          .append("line")
+          .attr("x1", graphRightBottomXScale(hour))
+          .attr("x2", graphRightBottomXScale(hour))
+          .attr("y1", 0)
+          .attr("y2", 300)
+          .style("stroke", "red")
+          .style("stroke-width", 1)
+      }
+    })
 
     function growBars(){
       var thisNode = d3.select(this);
