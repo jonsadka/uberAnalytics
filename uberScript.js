@@ -32,9 +32,7 @@ var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftT
 var graphLeftBarHeight = 12;
 var graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
 
-var colorIntensities = 
-['rgb(255,247,236)','rgb(254,232,200)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(179,0,0)','rgb(127,0,0)']
-.reverse();
+var colorIntensities = ['rgb(231,225,239)','rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)','rgb(206,18,86)'];
 
 // CREATE CANVAS
 var graphLeftSVG = d3.select("#graph-left").append("svg")
@@ -115,23 +113,23 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
 // APPEND LEGEND
   var legendContainer = graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white");
   graphLeftIntensityScale.domain([0,6])
-  legendContainer.selectAll("rect").data(d3.range(9).map(function(a,i){ return i;})).enter().append("rect")
+  legendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
     .attr("width", 6)
-    .attr("height", 4)
+    .attr("height", 6)
     .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 5 + 15;
+      return graphLeftHeight + leftTopPad - i * 7 + 15;
     })
     .attr("x", 10)
     .style("fill", graphLeftIntensityScale)
 
-  legendContainer.selectAll(".datText").data(d3.range(9).map(function(a,i){ if ( i === 0 ){ return "High Surge"; } else{return "Low Surge";} }))
+  legendContainer.selectAll(".datText").data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Surge"; } else{return "High Surge";} }))
     .enter().append("text")
     .text(function(d,i){
       // return d
-      if (i === 0 || i === 8) return d;
+      if (i === 0 || i === 5) return d;
     })
     .attr("y", function(d,i){
-      return graphLeftHeight + leftTopPad - i * 4.25 + 17;
+      return graphLeftHeight + leftTopPad - i * 6.25 + 17;
     })
     .attr("x", 22)
     .style("fill", "white")
