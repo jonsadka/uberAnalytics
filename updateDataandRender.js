@@ -156,11 +156,11 @@ function updateDataandRender(userInputs){
               return graphRightBottomYScale(d[1]);
             })
             .attr("stroke-width", 0)
-            .attr("r", 2)
+            .attr("r", 1.5)
             .transition().duration(400)
             .attr("r", function(d,i){
               if ( d[1] === maxSurge ) return 8;
-              return 2;
+              return 1.5;
             })
             .attr("stroke", function(d,i){
               if ( d[1] === maxSurge && set === 'SS' ) return "RGBA(33, 188, 215, .5)";
@@ -196,7 +196,7 @@ function updateDataandRender(userInputs){
             })
             .attr("r", function(d,i){
               if ( d[1] === maxSurge ) return 8;
-              return 2;
+              return 1.5;
             })
             .attr("stroke-width", 0)
             .transition().delay(1000).duration(400)
@@ -209,7 +209,7 @@ function updateDataandRender(userInputs){
             })
             .transition().duration(400)
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 2;
+              if ( d[1] === maxSurge ) return 1.5;
             })
             .transition().duration(400)
             .attr("stroke-width", function(d,i){

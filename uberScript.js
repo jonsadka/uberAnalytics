@@ -102,7 +102,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       .style("stroke", "none")
       .attr("r", function(){
         if ( this.classList.contains("maxsurge") ) return 8;
-        return 2;
+        return 1.5;
       })
     d3.selectAll(".minfare--label.hour" + hour)
       .style("fill", "none")
@@ -386,7 +386,7 @@ function getSunriseSunset(date, start, end){
 
     // save as hour and minutes
     currentTime = timezoneTime.toString().split(' ')[4].split(':');
-    calculatedTimes[key] = Number(currentTime[0]) + (Number(currentTime[1]) / 60);
+    calculatedTimes[key] = currentTime;
   }
 
   return calculatedTimes;
