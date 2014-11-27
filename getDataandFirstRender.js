@@ -36,7 +36,6 @@ function getDataandFirstRender(userInputs){
   console.log('Retrieving data from server.');
   client.run([highEstimateQuery, lowEstimateQuery, surgeEstimateQuery], function(response){
     console.log('Retrieved data from server!');
-    console.log(getSunriseSunset(userInputs.timeframe))
 
     var dataCollection = formatData(response[0].result, response[1].result, response[2].result);
     var maxSurge = dataCollection.maxSurge;
@@ -44,10 +43,17 @@ function getDataandFirstRender(userInputs){
     var maxAvgFare = dataCollection.maxAvgFare;
     var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     var bestTimesSS = dataCollection.bestTimesSS;
+
 console.log(dataCollection)
+
     // LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
+    // GET SUNRISE AND SUNSET
+    var times = getSunriseSunset(userInputs.timeframe);
+
+    console.log(times)
+    console.log(graphLeftXScale(times.sunset), graphLeftXScale(times.sunrise) )
 
     // BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomYScale.domain([maxSurge, 1]);

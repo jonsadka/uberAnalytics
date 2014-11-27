@@ -362,27 +362,31 @@ function getSpecialDay(input){
 
 function getSunriseSunset(date){
   if ( typeof date === 'string'){
-    console.log("string date", date)
-    var getSunTimes = new Date();
-    if (date ==="this_7_days"){
-      getSunTimes.setDate( getSunTimes.getDate() - Math.round(7 / 2) )
-    }
-    if (date ==="this_14_days"){
-      getSunTimes.setDate( getSunTimes.getDate() - Math.round(14 / 2) )
-    }
-    if (date ==="this_21_days"){
-      getSunTimes.setDate( getSunTimes.getDate() - Math.round(21 / 2) )
-    }
-    if (date ==="this_28_days"){
-      getSunTimes.setDate( getSunTimes.getDate() - Math.round(28 / 2) )
-    }
-    if (date ==="this_60_days"){
-      getSunTimes.setDate( getSunTimes.getDate() - Math.round(60 / 2) )
-    }
-    console.log(getSunTimes)
-  // } else {
-  //   console.log("else date", date.start)
-  //   if (date ==="thanksgiving")
-  //   if (date ==="halloween")
+    var averageDate = new Date();
+    var timezoneOffset = averageDate.getTimezoneOffset() * 60000;
+
+    if (date === "this_7_days") averageDate.setDate( averageDate.getDate() - Math.round(7 / 2) );
+    if (date === "this_14_days") averageDate.setDate( averageDate.getDate() - Math.round(14 / 2) );
+    if (date === "this_21_days") averageDate.setDate( averageDate.getDate() - Math.round(21 / 2) );
+    if (date === "this_28_days") averageDate.setDate( averageDate.getDate() - Math.round(28 / 2) );
+    if (date === "this_60_days") averageDate.setDate( averageDate.getDate() - Math.round(60 / 2) );
+    
+    var calculatedTimes = SunCalc.getTimes(averageDate, 34.0500, 118.25);
+  } else {
+    console.log("DATA IS A CUSTOM TIME... MUST ADD LOGIC");
+    //   if (date ==="thanksgiving")
+    //   if (date ==="halloween")
   }
+
+  // Convert calculatedTimestamp to hours
+  for (var key in calculatedTimes){
+    // convert from UTC to current timezone
+    var timezoneTime = new Date(Date.parse(calculatedTimes[key]) - timezoneOffset);
+    currentHour = timezoneTime.toString().split(' ')[4].split(':');
+
+    // save as hour and minutes
+    calculatedTimes[key] = Number(currentHour[0]) + Number(currentHour[1]) / 60;
+  }
+
+  return calculatedTimes;
 }
