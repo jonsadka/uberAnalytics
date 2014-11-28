@@ -50,10 +50,32 @@ function getDataandFirstRender(userInputs){
 
     // DRAW AXIES
     graphRightBottomSVG.append("g").attr("class", "y axis")
-      .call(graphRightBottomYAxis);
+      .call(graphRightBottomYAxis)
+      .style("opacity",0)
+      .transition().duration(500)
+      .style("opacity",1)
+
     graphRightBottomSVG.append("g").attr("class", "x axis")
       .attr("transform","translate(" + 0 + "," + (graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad) + ")")
-      .call(graphRightBottomXAxis);
+      .call(graphRightBottomXAxis)
+      .style("opacity",0)
+      .transition().duration(500)
+      .style("opacity",1)
+
+    // APPEND CHART AXIS LABEL
+    graphRightBottomLegendContainer
+      .append("text")
+      .text("surge multiplier")
+      .attr("text-anchor", "end")
+      .attr("x", -rightBottomTopPad)
+      .attr("y", 4)
+      .attr("dy", "0.75em")
+      .attr("transform","rotate(-90)")
+      .attr("fill", "#777")
+      .style("font-size", "10px")
+      .style("opacity",0)
+      .transition().duration(500)
+      .style("opacity",1)
 
     // DRAW SUNRISE AND SUNSET LINES
     graphRightBottomSVG.append("g").attr("class", "sunpositions");

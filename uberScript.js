@@ -260,6 +260,7 @@ graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLeg
         .transition().duration(400).style("stroke-width", 1.5);
     });
   }
+
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
 Keen.ready(function(){ 

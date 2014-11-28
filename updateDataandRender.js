@@ -115,6 +115,7 @@ function updateDataandRender(userInputs){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 - 6 : 18 + 10 + barWidth + 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
+          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
       }
 
       // SURGE TREND DATA DOTS
@@ -283,6 +284,7 @@ function updateDataandRender(userInputs){
             return formatTime(0, d);
           })
           .transition().duration(1000)
+
           .attr('x', function(d,i){
             return graphRightBottomXScale(d) + 40;
           })

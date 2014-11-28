@@ -97,7 +97,7 @@ grid {
 
 [class*='col-'] {
   float: left;
-  padding-right: 50px;
+  padding-right: 20px;
 }
 .grid [class*='col-']:last-of-type {
   padding-right: 0;
