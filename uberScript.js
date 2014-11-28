@@ -111,11 +111,11 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .attr("opacity",1);
 
 // APPEND LEGEND
-var legendContainer = graphLeftSVG.append("g").attr("class", "legend").attr("fill", "white");
+var graphLeftLegendContainer = graphLeftSVG.append("g").attr("class", "graph-left-legend").attr("fill", "white");
 
 // SURGE INTESNSITY
 graphLeftIntensityScale.domain([0,6])
-legendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
+graphLeftLegendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
   .attr("width", 6)
   .attr("height", 6)
   .attr("y", function(d,i){
@@ -124,7 +124,7 @@ legendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;}
   .attr("x", 10)
   .style("fill", graphLeftIntensityScale)
 
-legendContainer.selectAll(".someText").data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
+graphLeftLegendContainer.selectAll(".someText").data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
   .enter().append("text")
   .text(function(d,i){
     // return d
@@ -150,7 +150,7 @@ var graphRightTopSVG = d3.select("#graph-right-top").append("svg")
 
 ///////////////////////////////////////////////////////////////////
 //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
-var rightBottomTopPad = 10;
+var rightBottomTopPad = 15;
 var rightBottomBottomPad = 10;
 var rightBottomLeftPad = 50;
 var rightBottomRightPad = 20;
@@ -170,9 +170,39 @@ var graphRightBottomSVG = d3.select("#graph-right-bottom").append("svg")
 var graphRightBottomXScale = d3.scale.linear().range([0, graphRightBottomWidth - rightBottomRightPad - rightBottomLeftPad]).domain([0, 23]);
 var graphRightBottomYScale = d3.scale.linear().range([rightBottomTopPad, graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad]);
 
-//  ESTABLISH LINE PATH
+// ESTABLISH LINE PATH
 var graphRightBottomLine = d3.svg.line().interpolate("monotone")
   .x(function(d){ return graphRightBottomXScale(d.hour); })
+
+// APPEND LEGEND
+var graphRightBottomLegendContainer = graphRightBottomSVG.append("g").attr("class", "graph-right-bottom-legend").attr("fill", "white");
+var graphRightBottomLegendData = [{label:"weekend", color:"RGBA(33, 188, 215, 1)"},{label:"weekday", color:"RGBA(173, 221, 237, 1)"}];
+graphRightBottomLegendContainer.selectAll("legendCircles").data(graphRightBottomLegendData)
+  .enter().append("circle")
+  .attr("r", 5)
+  .attr("cx", function(d,i){
+    return graphRightBottomXScale(23) - 72 * (i+1) + 14;
+  })
+  .attr("cy", -2)
+  .attr("fill", function(d){
+    return d.color;
+  })
+
+graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLegendData)
+  .enter().append("text")
+  .text(function(d,i){
+    return d.label;
+  })
+  .attr("x", function(d,i){
+    return graphRightBottomXScale(23) - 72 * i;
+  })
+  .attr("y", -3)
+  .style("font-size", "12px")
+  .attr("dy", "0.35em")
+  .attr("fill", function(d){
+    return d.color;
+  })
+  .style("text-anchor", "end")
 
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
