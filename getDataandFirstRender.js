@@ -220,7 +220,10 @@ function getDataandFirstRender(userInputs){
             if ( set === 'SS' ) return 50;
             return 25;
           })
-          .attr('x', 20)
+          .attr('x', function(d,i){
+            var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;
+            return offset + 20;
+          })
           .transition().duration(1500)
           .attr('x', function(d,i){
             var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;

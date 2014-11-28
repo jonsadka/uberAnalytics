@@ -68,9 +68,9 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     var hour = thisNode.attr("hour");
     thisNode.attr("fill", "RGBA(241, 82, 130, 1)");
     d3.selectAll(".besttimes--time.hour" + hour)
-      .style("fill", "RGBA(241, 82, 130, 1)")
+      .style("fill", "RGBA(241, 82, 130, 1)").style("font-size", "22px")
     d3.selectAll(".besttimes--hour.hour" + hour)
-      .style("fill", "RGBA(241, 82, 130, 1)")
+      .style("fill", "RGBA(241, 82, 130, 1)").style("font-size", "12px")
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", "none")
       .style("stroke", function(d, i){
@@ -89,19 +89,16 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     var hour = thisNode.attr("hour");
     thisNode.attr("fill", "white");
     d3.selectAll(".besttimes--time.hour" + hour)
-      .style("fill", "white")
+      .style("fill", "white").style("font-size", "18px")
     d3.selectAll(".besttimes--hour.hour" + hour)
-      .style("fill", "white")
+      .style("fill", "white").style("font-size", "10px")
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", function(d, i){
         if ( this.classList.contains("MTWTF") ) return "RGBA(173, 221, 237, 1)";
         if ( this.classList.contains("SS") ) return "RGBA(33, 188, 215, 1)";
       })
       .style("stroke", "none")
-      .attr("r", function(){
-        if ( this.classList.contains("maxsurge") ) return 8;
-        return 1.5;
-      })
+      .attr("r", 1.5)
     d3.selectAll(".minfare--label.hour" + hour)
       .style("fill", "none")
     d3.selectAll(".maxfare--label.hour" + hour)
