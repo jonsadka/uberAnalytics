@@ -55,6 +55,47 @@ function getDataandFirstRender(userInputs){
       .attr("transform","translate(" + 0 + "," + (graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad) + ")")
       .call(graphRightBottomXAxis);
 
+    // DRAW SUNRISE AND SUNSET LINES
+    graphRightBottomSVG.append("g").attr("class", "sunpositions");
+    Object.keys(sunTimes).forEach(function(type){
+      var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
+      var description = type;
+      if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
+        d3.select(".sunpositions")
+          .append("text").attr("class", "sunposition--text " + description)
+          .text(function(){
+            var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
+            var displayDesc = description === "goldenHour" ? "golden hour" : description
+            return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
+          })
+          .attr("transform", "rotate(-90)")
+          .attr("dy", ".3em")
+          .style("stroke-width", 0)
+          .style("fill", "white")
+          .style("font-size", "10px")
+          .style("text-anchor", "end")
+          .attr("y", graphRightBottomXScale(hour))
+          .attr("x", graphRightBottomYScale(1))
+          .transition().duration(1500)
+          .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
+
+        var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
+
+        d3.select(".sunpositions")
+          .append("line").attr("class", "sunposition--line " + description)
+          .attr("x1", graphRightBottomXScale(hour))
+          .attr("y1", graphRightBottomYScale(1))
+          .attr("x2", graphRightBottomXScale(hour))
+          .attr("y2", graphRightBottomYScale(1))
+          .style("stroke", "white")
+          .style("stroke-width", 1)
+          .style("stroke-dasharray", "1,1")
+          .transition().duration(1500)
+          .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 6)
+
+      }
+    })
+
     // DRAW VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
       if ( collection === 'MTWTF' || collection === 'SS' ){
@@ -65,7 +106,7 @@ function getDataandFirstRender(userInputs){
           .attr("width", 6)
           .attr("height", graphLeftBarHeight)
           .attr("x", function(){
-            var shift = collection === 'MTWTF' ? -36 : 18;
+            var shift = collection === 'MTWTF' ? - 25 : 18;
             return graphLeftWidth / 2 + shift;
           })
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
@@ -83,7 +124,7 @@ function getDataandFirstRender(userInputs){
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("height", graphLeftBarHeight)
           .attr("x", function(d){
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 : 18 + 10;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
@@ -108,14 +149,14 @@ function getDataandFirstRender(userInputs){
           })
           .attr("x", function(d){
             var barWidth = graphLeftBarWidth * (d / maxAvgFare);
-            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) -36 - 10 - 6 : 18 + 10 + barWidth + 6;
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 - 6 : 18 + 10 + barWidth + 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ 
             return graphLeftYScale(i) + leftTopPad - 2;
            })
-          .style("fill", "white")
-          .style("font-size", "10px")
+          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
+          .style("font-size", "12px")
           .style("text-anchor", function(d){
             if (collection === 'MTWTF') return "end";
             if (collection === 'SS') return "start";
@@ -180,6 +221,44 @@ function getDataandFirstRender(userInputs){
             })
             .transition().duration(400)
             .attr("stroke-width", 0)
+            .transition()
+            .attr("stroke-width", 10)
+            .attr("stroke", "RGBA(225,225,225,0)")
+            .each("end", detailDot)
+        });
+      }
+
+      function detailDot(){
+        var thisNode = d3.select(this);
+        thisNode.on("mouseover", function(d,i){
+          var nodeHour = thisNode[0][0].__data__[0];
+          var nodeSurge = thisNode[0][0].__data__[1];
+          d3.select("#graph-right-bottom-content").append("text")
+            .attr("id", "specialText").text("Surge | " + Math.round(nodeSurge*100)/100 )
+            .attr("x", function(){
+              if (nodeHour > 20 ) return graphRightBottomXScale(nodeHour) - 12;
+              return graphRightBottomXScale(nodeHour) + 12;
+            })
+            .attr("text-anchor", function(){
+              if (nodeHour > 20 ) return "end";
+              return "start";
+            })
+            .attr("y", graphRightBottomYScale(nodeSurge) - 12)
+            .style("font-size", "12px")
+            .style("fill", "RGBA(194, 230, 153, 1)")
+            .style("opacity", 0)
+            .transition().duration(400)
+            .style("opacity", 1)
+
+          thisNode.transition().duration(400)
+            .attr("r", 8)
+        });
+
+        // prevent premature termination of transition event
+        thisNode.on("mouseout", function(d,i){
+          d3.select("#specialText").remove()
+          thisNode.transition().duration(400)
+            .attr("r", 1.5)
         });
       }
 
@@ -246,47 +325,6 @@ function getDataandFirstRender(userInputs){
       }
     });
 
-    // DRAW SUNRISE AND SUNSET LINES
-    graphRightBottomSVG.append("g").attr("class", "sunpositions");
-    Object.keys(sunTimes).forEach(function(type){
-      var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
-      var description = type;
-      if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
-        d3.select(".sunpositions")
-          .append("text").attr("class", "sunposition--text " + description)
-          .text(function(){
-            var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
-            var displayDesc = description === "goldenHour" ? "golden hour" : description
-            return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
-          })
-          .attr("transform", "rotate(-90)")
-          .attr("dy", ".3em")
-          .style("stroke-width", 0)
-          .style("fill", "white")
-          .style("font-size", "10px")
-          .style("text-anchor", "end")
-          .attr("y", graphRightBottomXScale(hour))
-          .attr("x", graphRightBottomYScale(1))
-          .transition().duration(1500)
-          .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
-
-        var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
-
-        d3.select(".sunpositions")
-          .append("line").attr("class", "sunposition--line " + description)
-          .attr("x1", graphRightBottomXScale(hour))
-          .attr("y1", graphRightBottomYScale(1))
-          .attr("x2", graphRightBottomXScale(hour))
-          .attr("y2", graphRightBottomYScale(1))
-          .style("stroke", "white")
-          .style("stroke-width", 1)
-          .style("stroke-dasharray", "1,1")
-          .transition().duration(1500)
-          .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 6)
-
-      }
-    })
-
     function growBars(){
       var thisNode = d3.select(this);
       var finalWidth = +thisNode.attr("width");
@@ -295,7 +333,7 @@ function getDataandFirstRender(userInputs){
       // assign transistion events
       if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
         thisNode.on("mouseenter", function(d,i){
-          var startX = graphLeftWidth / 2 - 36 - 10;
+          var startX = graphLeftWidth / 2 - 13 - 10 - 6;
           thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
                   .attr("x", finalX).attr("width", finalWidth);
         });

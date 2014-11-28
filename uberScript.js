@@ -23,8 +23,8 @@ document.getElementById('graph-right-bottom').setAttribute("style","height:" + (
 
 ///////////////////////////////////////////////////////////////////
 //SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
-var leftTopPad = 15;
-var leftBottomPad = 25;
+var leftTopPad = 25;
+var leftBottomPad = 15;
 
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
 var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - leftBottomPad;
@@ -56,9 +56,9 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .text(formatTime)
   .attr("x", function(){
     if (graphLeftHeight < 400){
-      return graphLeftWidth / 2 - 10 / 2;
+      return graphLeftWidth / 2 - 10 / 2 + 6;
     }
-    return graphLeftWidth / 2 - 12 / 2;
+    return graphLeftWidth / 2 - 12 / 2 + 6;
   })
   .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad; })
   .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
@@ -66,11 +66,11 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
   .on("mouseover", function(){
     var thisNode = d3.select(this);
     var hour = thisNode.attr("hour");
-    thisNode.attr("fill", "RGBA(241, 82, 130, 1)");
+    thisNode.style("font-size", "18px");
     d3.selectAll(".besttimes--time.hour" + hour)
-      .style("fill", "RGBA(241, 82, 130, 1)").style("font-size", "22px")
+      .style("fill", "RGBA(194, 230, 153, 1)").style("font-size", "22px")
     d3.selectAll(".besttimes--hour.hour" + hour)
-      .style("fill", "RGBA(241, 82, 130, 1)").style("font-size", "12px")
+      .style("fill", "RGBA(194, 230, 153, 1)").style("font-size", "12px")
     d3.selectAll(".surgetrends--dot.hour" + hour)
       .style("fill", "none")
       .style("stroke", function(d, i){
@@ -79,15 +79,13 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       })
       .style("stroke-width", 1.5)
       .attr("r", 5)
-    d3.selectAll(".minfare--label.hour" + hour)
-      .style("fill", "RGBA(241, 82, 130, 1)")
     d3.selectAll(".maxfare--label.hour" + hour)
-      .style("fill", "RGBA(241, 82, 130, 1)")
+        .style("font-size", "18px")
   })
   .on("mouseout", function(){
     var thisNode = d3.select(this);
     var hour = thisNode.attr("hour");
-    thisNode.attr("fill", "white");
+    thisNode.style("font-size", "12px");
     d3.selectAll(".besttimes--time.hour" + hour)
       .style("fill", "white").style("font-size", "18px")
     d3.selectAll(".besttimes--hour.hour" + hour)
@@ -99,10 +97,8 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       })
       .style("stroke", "none")
       .attr("r", 1.5)
-    d3.selectAll(".minfare--label.hour" + hour)
-      .style("fill", "none")
     d3.selectAll(".maxfare--label.hour" + hour)
-      .style("fill", "white")
+      .style("font-size", "12px")
   })
   .transition().duration(1000).delay(function(d,i){ return i * 100; })
   .attr("opacity",1);
@@ -110,21 +106,46 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
 // APPEND LEGEND
 var graphLeftLegendContainer = graphLeftSVG.append("g").attr("class", "graph-left-legend").attr("fill", "white");
 
-// SURGE INTESNSITY
-graphLeftIntensityScale.domain([0,6])
-graphLeftLegendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
-  .attr("width", 30)
-  .attr("height", 6)
-  .attr("y", function(d,i){
-    return graphLeftHeight + leftTopPad + leftBottomPad - 30;
-  })
-  .attr("x", function(d,i){
-    return i * 34;
-  })
-  .style("fill", graphLeftIntensityScale)
-  .style("opacity", 0)
-  .transition().duration(3400)
-  .style("opacity", 1)
+  // DAY OF WEEK
+  var graphLeftLegendData = [{className:"SS", label:"WEEKEND"},{className:"MTWTF", label:"WEEKDAY"}];
+  graphLeftLegendContainer.selectAll("legendText").data(graphLeftLegendData)
+    .enter().append("text")
+    .attr("timeframe", function(d,i){ return d.className; })
+    .text(function(d,i){
+      return d.label;
+    })
+    .attr("x", function(d){
+      var shiftAmount = d.className === 'MTWTF' ? -20 : 20;
+      return graphLeftWidth / 2 + shiftAmount;
+    })
+    .attr("y", 22)
+    .style("font-size", "18px")
+    .attr("dy", "0.35em")
+    .style("fill", "white")
+    .attr("text-anchor", function(d){
+      if (d.className === "SS") return "start";
+      return "end";
+    })
+    .style("opacity", 0)
+    .transition().delay(1000).duration(2000)
+    .style("opacity", 1)
+
+  // SURGE INTESNSITY
+  graphLeftIntensityScale.domain([0,6])
+  graphLeftLegendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
+    .attr("width", graphLeftWidth / 12)
+    .attr("height", 4)
+    .attr("y", function(d,i){
+      return graphLeftHeight + leftTopPad + leftBottomPad - 30;
+    })
+    .attr("x", function(d,i){
+      var shift = graphLeftWidth / 4;
+      return i * (graphLeftWidth / 12 + 1.5) + shift - 1.5 * 5;
+    })
+    .style("fill", graphLeftIntensityScale)
+    .style("opacity", 0)
+    .transition().delay(1000).duration(2000)
+    .style("opacity", 1)
 
 graphLeftLegendContainer.selectAll(".someText")
   .data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
@@ -137,12 +158,13 @@ graphLeftLegendContainer.selectAll(".someText")
     return graphLeftHeight + leftTopPad + leftBottomPad - 10;
   })
   .attr("x", function(d,i){
-    return i * 50;
+    var shift = i === 5 ? graphLeftWidth / 4 + (graphLeftWidth / 12) - 50 : graphLeftWidth / 4;
+    return i * (graphLeftWidth / 12 + 1.5) + shift - 1.5 * 5;
   })
   .style("fill", "white")
   .style("font-size", "10px")
   .style("opacity", 0)
-  .transition().duration(3400)
+  .transition().delay(1000).duration(2000)
   .style("opacity", 1)
 
 ///////////////////////////////////////////////////////////////////
@@ -403,8 +425,8 @@ function getSpecialDay(input){
     };
   } else if ( input === 'thanksgiving'){
     return {
-      "start" : "2014-11-25T00:00:00.000Z",
-      "end" : "2014-12-03T00:00:00.000Z"
+      "start" : "2014-11-24T00:00:00.000Z",
+      "end" : "2014-12-02T00:00:00.000Z"
     };
   }
   return input;
