@@ -111,31 +111,27 @@ function updateDataandRender(userInputs){
             .attr("cy", function(d){
               return graphRightBottomYScale(d[1]);
             })
-            .attr("stroke-width", 0)
             .attr("r", 1.5)
-            .transition().duration(400)
-            .attr("r", function(d,i){
-              if ( d[1] === maxSurge ) return 8;
-              return 1.5;
-            })
+            .attr("stroke-width", 0)
+            .transition().delay(1600).duration(400)
             .attr("stroke", function(d,i){
               if ( d[1] === maxSurge && set === 'SS' ) return "RGBA(33, 188, 215, .5)";
               if ( d[1] === maxSurge && set === 'MTWTF' ) return "RGBA(173, 221, 237, .5)";
-              return "none";
+            })
+            .attr("stroke-width", function(d,i){
+              if ( d[1] === maxSurge ) return 20;
             })
             .transition().duration(400)
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 12;
+              if ( d[1] === maxSurge ) return 0;
             })
-            .transition().duration(400)
-            .attr("stroke-width", 0)
             .transition().duration(400)
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 12;
+              if ( d[1] === maxSurge ) return 20;
             })
             .transition().duration(400)
             .attr("stroke-width", 0)
-
+            
           circles.enter().append("circle")
             .attr("class", function(d){
               var maxClass = ( d[1] === maxSurge ) ? 'maxsurge' : '';
@@ -150,26 +146,23 @@ function updateDataandRender(userInputs){
             .attr("cx", function(d){
               return graphRightBottomXScale(d[0]);
             })
-            .attr("r", function(d,i){
-              if ( d[1] === maxSurge ) return 8;
-              return 1.5;
-            })
+            .attr("r", 1.5)
             .attr("stroke-width", 0)
-            .transition().delay(1000).duration(400)
+            .transition().delay(1600).duration(400)
             .attr("stroke", function(d,i){
               if ( d[1] === maxSurge && set === 'SS' ) return "RGBA(33, 188, 215, .5)";
               if ( d[1] === maxSurge && set === 'MTWTF' ) return "RGBA(173, 221, 237, .5)";
             })
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 12;
+              if ( d[1] === maxSurge ) return 20;
             })
             .transition().duration(400)
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 1.5;
+              if ( d[1] === maxSurge ) return 0;
             })
             .transition().duration(400)
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 12;
+              if ( d[1] === maxSurge ) return 20;
             })
             .transition().duration(400)
             .attr("stroke-width", 0)
@@ -296,7 +289,7 @@ function updateDataandRender(userInputs){
           .text(function(){
             var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
             var displayDesc = description === "goldenHour" ? "golden hour" : description
-            return displayDesc.toUpperCase() + " " + displayHour + ":" + sunTimes[type][1];
+            return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
           })
           .attr("transform", "rotate(-90)")
           .attr("dy", ".3em")

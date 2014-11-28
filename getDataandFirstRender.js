@@ -137,7 +137,7 @@ function getDataandFirstRender(userInputs){
           .transition().delay(1000).duration(2000)
           .attr("d", graphRightBottomLine )
       }
-      
+
       // SURGE TREND DATA DOTS
       if ( collection === 'originalSortedData' ){
         Object.keys(dataCollection[collection]).forEach(function(set){
@@ -160,26 +160,23 @@ function getDataandFirstRender(userInputs){
             })
             .attr("r", 0)
             .transition().duration(1500)
-            .attr("r", function(d,i){
-              if ( d[1] === maxSurge ) return 8;
-              return 1.5;
-            })
+            .attr("r", 1.5)
             .attr("stroke-width", 0)
-            .transition().duration(400)
+            .transition().delay(3000).duration(400)
             .attr("stroke", function(d,i){
               if ( d[1] === maxSurge && set === 'SS' ) return "RGBA(33, 188, 215, .5)";
               if ( d[1] === maxSurge && set === 'MTWTF' ) return "RGBA(173, 221, 237, .5)";
             })
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 12;
+              if ( d[1] === maxSurge ) return 20;
             })
             .transition().duration(400)
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 1.5;
+              if ( d[1] === maxSurge ) return 0;
             })
             .transition().duration(400)
             .attr("stroke-width", function(d,i){
-              if ( d[1] === maxSurge ) return 12;
+              if ( d[1] === maxSurge ) return 20;
             })
             .transition().duration(400)
             .attr("stroke-width", 0)
@@ -257,7 +254,7 @@ function getDataandFirstRender(userInputs){
           .text(function(){
             var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
             var displayDesc = description === "goldenHour" ? "golden hour" : description
-            return displayDesc.toUpperCase() + " " + displayHour + ":" + sunTimes[type][1];
+            return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
           })
           .attr("transform", "rotate(-90)")
           .attr("dy", ".3em")
@@ -280,8 +277,9 @@ function getDataandFirstRender(userInputs){
           .attr("y2", graphRightBottomYScale(1))
           .style("stroke", "white")
           .style("stroke-width", 1)
+          .style("stroke-dasharray", "1,1")
           .transition().duration(1500)
-          .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 10)
+          .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 6)
 
       }
     })

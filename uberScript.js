@@ -116,26 +116,37 @@ var graphLeftLegendContainer = graphLeftSVG.append("g").attr("class", "graph-lef
 // SURGE INTESNSITY
 graphLeftIntensityScale.domain([0,6])
 graphLeftLegendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
-  .attr("width", 6)
+  .attr("width", 30)
   .attr("height", 6)
   .attr("y", function(d,i){
-    return graphLeftHeight + leftTopPad - i * 7 + 10;
+    return graphLeftHeight + leftTopPad + leftBottomPad - 30;
   })
-  .attr("x", 10)
+  .attr("x", function(d,i){
+    return i * 34;
+  })
   .style("fill", graphLeftIntensityScale)
+  .style("opacity", 0)
+  .transition().duration(3400)
+  .style("opacity", 1)
 
-graphLeftLegendContainer.selectAll(".someText").data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
+graphLeftLegendContainer.selectAll(".someText")
+  .data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
   .enter().append("text")
   .text(function(d,i){
     // return d
     if (i === 0 || i === 5) return d;
   })
   .attr("y", function(d,i){
-    return graphLeftHeight + leftTopPad - i * 6.25 + 15;
+    return graphLeftHeight + leftTopPad + leftBottomPad - 10;
   })
-  .attr("x", 22)
+  .attr("x", function(d,i){
+    return i * 50;
+  })
   .style("fill", "white")
   .style("font-size", "10px")
+  .style("opacity", 0)
+  .transition().duration(3400)
+  .style("opacity", 1)
 
 ///////////////////////////////////////////////////////////////////
 //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
@@ -176,20 +187,26 @@ var graphRightBottomLine = d3.svg.line().interpolate("monotone")
 
 // APPEND LEGEND
 var graphRightBottomLegendContainer = graphRightBottomSVG.append("g").attr("class", "graph-right-bottom-legend").attr("fill", "white");
-var graphRightBottomLegendData = [{label:"weekend", color:"RGBA(33, 188, 215, 1)"},{label:"weekday", color:"RGBA(173, 221, 237, 1)"}];
+var graphRightBottomLegendData = [{className:"SS", label:"weekend", color:"RGBA(33, 188, 215, 1)"},{className:"MTWTF", label:"weekday", color:"RGBA(173, 221, 237, 1)"}];
 graphRightBottomLegendContainer.selectAll("legendCircles").data(graphRightBottomLegendData)
   .enter().append("circle")
+  .attr("timeframe", function(d,i){ return d.className; })
   .attr("r", 5)
   .attr("cx", function(d,i){
     return graphRightBottomXScale(23) - 72 * (i+1) + 14;
   })
   .attr("cy", -2)
-  .attr("fill", function(d){
+  .style("fill", function(d){
     return d.color;
   })
+  .style("opacity", 0)
+  .transition().duration(3400)
+  .style("opacity", 1)
+  .each("end", highlighLine)
 
 graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLegendData)
   .enter().append("text")
+  .attr("timeframe", function(d,i){ return d.className; })
   .text(function(d,i){
     return d.label;
   })
@@ -199,11 +216,31 @@ graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLeg
   .attr("y", -3)
   .style("font-size", "12px")
   .attr("dy", "0.35em")
-  .attr("fill", function(d){
+  .style("fill", function(d){
     return d.color;
   })
   .style("text-anchor", "end")
+  .style("opacity", 0)
+  .transition().duration(3400)
+  .style("opacity", 1)
+  .each("end", highlighLine)
 
+  function highlighLine(){
+    var thisNode = d3.select(this);
+    var timeframe = thisNode.attr("timeframe");
+
+    thisNode.on("mouseover", function(d,i){
+      d3.selectAll(".surgetrends--line." + timeframe)
+        .transition().duration(400)
+        .style("stroke-width", 6)
+    });
+
+    // prevent premature termination of transition event
+    thisNode.on("mouseout", function(d,i){
+      d3.selectAll(".surgetrends--line." + timeframe)
+        .transition().duration(400).style("stroke-width", 1.5);
+    });
+  }
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
 Keen.ready(function(){ 
