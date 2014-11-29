@@ -7,6 +7,8 @@ var maxAvgFare;
 var bestTimesMTWTF;
 var bestTimesSS;
 var sunTimes;
+var minAvgFareMTWTF;
+var minAvgFareSS;
 
 ///////////////////////////////////////////////////////////////////
 //GATHER DATA AND PERFORM FIRST RENDER/////////////////////////////
@@ -44,6 +46,8 @@ function getDataandFirstRender(userInputs){
     maxAvgFare = dataCollection.maxAvgFare;
     bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     bestTimesSS = dataCollection.bestTimesSS;
+    minAvgFareMTWTF = dataCollection.minAvgFareMTWTF;
+    minAvgFareSS = dataCollection.minAvgFareSS;
 
     // LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
@@ -160,9 +164,15 @@ function getDataandFirstRender(userInputs){
             return graphLeftWidth / 2 + shiftAmount;
           })
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
-          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
+          .style("fill", function(d){ 
+            if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
+            return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);
+           })
           .style("stroke-width",1)
-          .style("stroke", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
+          .style("stroke", function(d){ 
+            if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
+            return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);
+           })
           .attr("mouseenter", "none")
           .style("opacity",0)
           .transition().duration(800).delay(function(d,i){ return i * 100; })
@@ -187,7 +197,10 @@ function getDataandFirstRender(userInputs){
           .attr("y",function(d,i){ 
             return graphLeftYScale(i) + leftTopPad - 2;
            })
-          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
+          .style("fill", function(d){ 
+            if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
+            return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);
+           })
           .style("font-size", "12px")
           .style("text-anchor", function(d){
             if (collection === 'MTWTF') return "end";

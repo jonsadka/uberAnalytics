@@ -32,6 +32,8 @@ function updateDataandRender(userInputs){
     maxAvgFare = dataCollection.maxAvgFare;
     bestTimesMTWTF = dataCollection.bestTimesMTWTF;
     bestTimesSS = dataCollection.bestTimesSS;
+    minAvgFareMTWTF = dataCollection.minAvgFareMTWTF;
+    minAvgFareSS = dataCollection.minAvgFareSS;
 
     // UPDATE LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
@@ -82,8 +84,14 @@ function updateDataandRender(userInputs){
 
         // FARE BARS
         d3.selectAll(".maxfare--" + collection).data(dataCollection[collection].maxFare)
-          .style("stroke", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
-          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
+          .style("fill", function(d){ 
+            if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
+            return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);
+           })
+           .style("stroke", function(d){ 
+            if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
+            return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);
+           })
           .transition().duration(1500)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("x", function(d){
@@ -113,7 +121,10 @@ function updateDataandRender(userInputs){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 - 6 : 18 + 10 + barWidth + 6;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .style("fill", function(d){ return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge); })
+          .style("fill", function(d){ 
+            if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
+            return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);
+           })
       }
 
       // SURGE TREND DATA DOTS
