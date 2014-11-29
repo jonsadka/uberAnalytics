@@ -109,7 +109,7 @@ var graphLeftLegendContainer = graphLeftSVG.append("g").attr("class", "graph-lef
   // DAY OF WEEK
   var graphLeftLegendData = [{className:"SS", label:"WEEKEND"},{className:"MTWTF", label:"WEEKDAY"}];
   graphLeftLegendContainer.selectAll("legendText").data(graphLeftLegendData)
-    .enter().append("text")
+    .enter().append("text").attr("class", "legendtext")
     .attr("timeframe", function(d,i){ return d.className; })
     .text(function(d,i){
       return d.label;
@@ -133,6 +133,7 @@ var graphLeftLegendContainer = graphLeftSVG.append("g").attr("class", "graph-lef
   // SURGE INTESNSITY
   graphLeftIntensityScale.domain([0,6])
   graphLeftLegendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
+    .attr("class", "surgeintensity--rect")
     .attr("width", graphLeftWidth / 12)
     .attr("height", 4)
     .attr("y", function(d,i){
@@ -150,6 +151,7 @@ var graphLeftLegendContainer = graphLeftSVG.append("g").attr("class", "graph-lef
 graphLeftLegendContainer.selectAll(".someText")
   .data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
   .enter().append("text")
+  .attr("class", "surgeintensity--text")
   .text(function(d,i){
     // return d
     if (i === 0 || i === 5) return d;
@@ -190,6 +192,7 @@ var graphRightBottomHeight = document.getElementById('graph-right-bottom').offse
 
 // CREATE CANVAS
 var graphRightBottomSVG = d3.select("#graph-right-bottom").append("svg")
+  .attr("id", "graph-right-bottom-svg")
   .attr("width", graphRightBottomWidth)
   .attr("height", document.getElementById('graph-right-bottom').offsetHeight)
   .append("g")
@@ -209,6 +212,7 @@ var graphRightBottomLegendContainer = graphRightBottomSVG.append("g").attr("clas
 var graphRightBottomLegendData = [{className:"SS", label:"weekend", color:"RGBA(33, 188, 215, 1)"},{className:"MTWTF", label:"weekday", color:"RGBA(173, 221, 237, 1)"}];
 graphRightBottomLegendContainer.selectAll("legendCircles").data(graphRightBottomLegendData)
   .enter().append("circle")
+  .attr("class", "legendcircles")
   .attr("timeframe", function(d,i){ return d.className; })
   .attr("r", 5)
   .attr("cx", function(d,i){
@@ -225,6 +229,7 @@ graphRightBottomLegendContainer.selectAll("legendCircles").data(graphRightBottom
 
 graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLegendData)
   .enter().append("text")
+  .attr("class", "legendtext2")
   .attr("timeframe", function(d,i){ return d.className; })
   .text(function(d,i){
     return d.label;

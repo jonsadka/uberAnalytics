@@ -1,20 +1,18 @@
 function resizeRender (){
-  var graphsContainerHeight = window.innerHeight - document.getElementById('header').offsetHeight;
+  graphsContainerHeight = window.innerHeight - document.getElementById('header').offsetHeight;
   document.getElementById('graph-left').setAttribute("style","height:" + (graphsContainerHeight - 80) + "px")
   document.getElementById('graph-right-top').setAttribute("style","height: 70px")
   document.getElementById('graph-right-bottom').setAttribute("style","height:" + (graphsContainerHeight - 192) + "px")
 
   ///////////////////////////////////////////////////////////////////
   //SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
-  var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
-  var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - leftBottomPad;
+  graphLeftWidth = document.getElementById('graph-left').offsetWidth;
+  graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - leftBottomPad;
 
-  var graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
+  graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
 
   // CREATE CANVAS
-  var graphLeftSVG = d3.select("#graph-left-content")
-
-  graphLeftSVG
+  d3.select("#graph-left-content")
     .attr("width", graphLeftWidth)
     .attr("height", document.getElementById('graph-left').offsetHeight)
 
@@ -33,161 +31,237 @@ function resizeRender (){
     .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad; })
     .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
 
-  // // APPEND LEGEND
-  // var graphLeftLegendContainer = graphLeftSVG.append("g").attr("class", "graph-left-legend").attr("fill", "white");
+    // DAY OF WEEK
+    d3.selectAll(".legendtext")
+      .attr("x", function(d){
+        var shiftAmount = d.className === 'MTWTF' ? -20 : 20;
+        return graphLeftWidth / 2 + shiftAmount;
+      })
 
-  //   // DAY OF WEEK
-  //   var graphLeftLegendData = [{className:"SS", label:"WEEKEND"},{className:"MTWTF", label:"WEEKDAY"}];
-  //   graphLeftLegendContainer.selectAll("legendText").data(graphLeftLegendData)
-  //     .enter().append("text")
-  //     .attr("timeframe", function(d,i){ return d.className; })
-  //     .text(function(d,i){
-  //       return d.label;
-  //     })
-  //     .attr("x", function(d){
-  //       var shiftAmount = d.className === 'MTWTF' ? -20 : 20;
-  //       return graphLeftWidth / 2 + shiftAmount;
-  //     })
-  //     .attr("y", 22)
-  //     .style("font-size", "18px")
-  //     .attr("dy", "0.35em")
-  //     .style("fill", "white")
-  //     .attr("text-anchor", function(d){
-  //       if (d.className === "SS") return "start";
-  //       return "end";
-  //     })
-  //     .style("opacity", 0)
-  //     .transition().delay(1000).duration(2000)
-  //     .style("opacity", 1)
+    // SURGE INTESNSITY
+    d3.selectAll(".surgeintensity--rect")
+      .attr("width", graphLeftWidth / 12)
+      .attr("y", function(d,i){
+        return graphLeftHeight + leftTopPad + leftBottomPad - 30;
+      })
+      .attr("x", function(d,i){
+        var shift = graphLeftWidth / 4;
+        return i * (graphLeftWidth / 12 + 1.5) + shift - 1.5 * 5;
+      })
 
-  //   // SURGE INTESNSITY
-  //   graphLeftIntensityScale.domain([0,6])
-  //   graphLeftLegendContainer.selectAll("rect").data(d3.range(6).map(function(a,i){ return i;})).enter().append("rect")
-  //     .attr("width", graphLeftWidth / 12)
-  //     .attr("height", 4)
-  //     .attr("y", function(d,i){
-  //       return graphLeftHeight + leftTopPad + leftBottomPad - 30;
-  //     })
-  //     .attr("x", function(d,i){
-  //       var shift = graphLeftWidth / 4;
-  //       return i * (graphLeftWidth / 12 + 1.5) + shift - 1.5 * 5;
-  //     })
-  //     .style("fill", graphLeftIntensityScale)
-  //     .style("opacity", 0)
-  //     .transition().delay(1000).duration(2000)
-  //     .style("opacity", 1)
+  d3.selectAll(".surgeintensity--text")
+    .attr("y", function(d,i){
+      return graphLeftHeight + leftTopPad + leftBottomPad - 10;
+    })
+    .attr("x", function(d,i){
+      var shift = i === 5 ? graphLeftWidth / 4 + (graphLeftWidth / 12) - 50 : graphLeftWidth / 4;
+      return i * (graphLeftWidth / 12 + 1.5) + shift - 1.5 * 5;
+    })
 
-  // graphLeftLegendContainer.selectAll(".someText")
-  //   .data(d3.range(6).map(function(a,i){ if ( i === 0 ){ return "Low Price"; } else{return "High Price";} }))
-  //   .enter().append("text")
-  //   .text(function(d,i){
-  //     // return d
-  //     if (i === 0 || i === 5) return d;
-  //   })
-  //   .attr("y", function(d,i){
-  //     return graphLeftHeight + leftTopPad + leftBottomPad - 10;
-  //   })
-  //   .attr("x", function(d,i){
-  //     var shift = i === 5 ? graphLeftWidth / 4 + (graphLeftWidth / 12) - 50 : graphLeftWidth / 4;
-  //     return i * (graphLeftWidth / 12 + 1.5) + shift - 1.5 * 5;
-  //   })
-  //   .style("fill", "white")
-  //   .style("font-size", "10px")
-  //   .style("opacity", 0)
-  //   .transition().delay(1000).duration(2000)
-  //   .style("opacity", 1)
+  ///////////////////////////////////////////////////////////////////
+  //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
+  graphRightTopWidth = document.getElementById('graph-right-top').offsetWidth;
+  graphRightTopHeight = document.getElementById('graph-right-top').offsetHeight;
 
-  // ///////////////////////////////////////////////////////////////////
-  // //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
-  // var graphRightTopWidth = document.getElementById('graph-right-top').offsetWidth;
-  // var graphRightTopHeight = document.getElementById('graph-right-top').offsetHeight;
+  // CREATE CANVAS
+  d3.select("#graph-right-top-content")
+    .attr("width", graphRightTopWidth)
+    .attr("height", graphRightTopHeight)
 
-  // // CREATE CANVAS
-  // var graphRightTopSVG = d3.select("#graph-right-top").append("svg")
-  //   .attr("width", graphRightTopWidth)
-  //   .attr("height", graphRightTopHeight)
-  //   .attr("id", "graph-right-top-content");
+  ///////////////////////////////////////////////////////////////////
+  //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
+  graphRightBottomWidth = document.getElementById('graph-right-bottom').offsetWidth;
+  graphRightBottomHeight = document.getElementById('graph-right-bottom').offsetHeight - rightBottomTopPad - rightBottomBottomPad;
 
-  // ///////////////////////////////////////////////////////////////////
-  // //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
-  // var rightBottomTopPad = 15;
-  // var rightBottomBottomPad = 10;
-  // var rightBottomLeftPad = 50;
-  // var rightBottomRightPad = 20;
+  // CREATE CANVAS
+  d3.select("#graph-right-bottom-svg")
+    .attr("width", graphRightBottomWidth)
+    .attr("height", document.getElementById('graph-right-bottom').offsetHeight)
+  d3.select("#graph-right-bottom-content")
+    .attr("transform","translate(" + rightBottomLeftPad + "," + rightBottomTopPad + ")")
 
-  // var graphRightBottomWidth = document.getElementById('graph-right-bottom').offsetWidth;
-  // var graphRightBottomHeight = document.getElementById('graph-right-bottom').offsetHeight - rightBottomTopPad - rightBottomBottomPad;
+  // ESTABLISH SCALES
+  graphRightBottomXScale = d3.scale.linear().range([0, graphRightBottomWidth - rightBottomRightPad - rightBottomLeftPad]).domain([0, 23]);
+  graphRightBottomYScale = d3.scale.linear().range([rightBottomTopPad, graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad]);
 
-  // // CREATE CANVAS
-  // var graphRightBottomSVG = d3.select("#graph-right-bottom").append("svg")
-  //   .attr("width", graphRightBottomWidth)
-  //   .attr("height", document.getElementById('graph-right-bottom').offsetHeight)
-  //   .append("g")
-  //     .attr("transform","translate(" + rightBottomLeftPad + "," + rightBottomTopPad + ")")
-  //     .attr("id", "graph-right-bottom-content");
+  // ESTABLISH LINE PATH
+  graphRightBottomLine = d3.svg.line().interpolate("monotone")
+    .x(function(d){ return graphRightBottomXScale(d.hour); })
 
-  // // ESTABLISH SCALES
-  // var graphRightBottomXScale = d3.scale.linear().range([0, graphRightBottomWidth - rightBottomRightPad - rightBottomLeftPad]).domain([0, 23]);
-  // var graphRightBottomYScale = d3.scale.linear().range([rightBottomTopPad, graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad]);
+  // APPEND LEGEND
+  d3.selectAll(".legendcircles")
+    .attr("cx", function(d,i){
+      return graphRightBottomXScale(23) - 72 * (i+1) + 14;
+    })
 
-  // // ESTABLISH LINE PATH
-  // var graphRightBottomLine = d3.svg.line().interpolate("monotone")
-  //   .x(function(d){ return graphRightBottomXScale(d.hour); })
+  d3.selectAll(".legendtext2")
+    .attr("x", function(d,i){
+      return graphRightBottomXScale(23) - 72 * i;
+    })
 
-  // // APPEND LEGEND
-  // var graphRightBottomLegendContainer = graphRightBottomSVG.append("g").attr("class", "graph-right-bottom-legend").attr("fill", "white");
-  // var graphRightBottomLegendData = [{className:"SS", label:"weekend", color:"RGBA(33, 188, 215, 1)"},{className:"MTWTF", label:"weekday", color:"RGBA(173, 221, 237, 1)"}];
-  // graphRightBottomLegendContainer.selectAll("legendCircles").data(graphRightBottomLegendData)
-  //   .enter().append("circle")
-  //   .attr("timeframe", function(d,i){ return d.className; })
-  //   .attr("r", 5)
-  //   .attr("cx", function(d,i){
-  //     return graphRightBottomXScale(23) - 72 * (i+1) + 14;
-  //   })
-  //   .attr("cy", -2)
-  //   .style("fill", function(d){
-  //     return d.color;
-  //   })
-  //   .style("opacity", 0)
-  //   .transition().duration(3400)
-  //   .style("opacity", 1)
-  //   .each("end", highlighLine)
+  resizeData();
+}
 
-  // graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLegendData)
-  //   .enter().append("text")
-  //   .attr("timeframe", function(d,i){ return d.className; })
-  //   .text(function(d,i){
-  //     return d.label;
-  //   })
-  //   .attr("x", function(d,i){
-  //     return graphRightBottomXScale(23) - 72 * i;
-  //   })
-  //   .attr("y", -3)
-  //   .style("font-size", "12px")
-  //   .attr("dy", "0.35em")
-  //   .style("fill", function(d){
-  //     return d.color;
-  //   })
-  //   .style("text-anchor", "end")
-  //   .style("opacity", 0)
-  //   .transition().duration(3400)
-  //   .style("opacity", 1)
-  //   .each("end", highlighLine)
+function resizeData(){
+    // BOTTOM RIGHT GRAPH COMPONENTS
+    graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
+    graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
+    graphRightBottomXAxis = d3.svg.axis().scale(graphRightBottomXScale).orient("bottom")
+      .ticks(24).tickFormat(formatTime);
 
-  //   function highlighLine(){
-  //     var thisNode = d3.select(this);
-  //     var timeframe = thisNode.attr("timeframe");
+    // DRAW AXIES
+    d3.select(".y.axis").call(graphRightBottomYAxis)
+    d3.select(".x.axis").call(graphRightBottomYAxis)
+      .attr("transform","translate(" + 0 + "," + (graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad) + ")")
+      .call(graphRightBottomXAxis)
 
-  //     thisNode.on("mouseover", function(d,i){
-  //       d3.selectAll(".surgetrends--line." + timeframe)
-  //         .transition().duration(400)
-  //         .style("stroke-width", 6)
-  //     });
+    // DRAW SUNRISE AND SUNSET LINES
+    // Object.keys(sunTimes).forEach(function(type){
+    //   var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
+    //   var description = type;
+    //   if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
+    //     d3.select(".sunposition--text." + description)
+    //       .text(function(){
+    //         var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
+    //         var displayDesc = description === "goldenHour" ? "golden hour" : description
+    //         return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
+    //       })
+    //       .attr("y", graphRightBottomXScale(hour))
+    //       .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
 
-  //     // prevent premature termination of transition event
-  //     thisNode.on("mouseout", function(d,i){
-  //       d3.selectAll(".surgetrends--line." + timeframe)
-  //         .transition().duration(400).style("stroke-width", 1.5);
-  //     });
-  //   }
+    //     var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
+
+    //     d3.selectAll(".sunposition--line." + description)
+    //       .attr("x1", graphRightBottomXScale(hour))
+    //       .attr("y1", graphRightBottomYScale(1))
+    //       .attr("x2", graphRightBottomXScale(hour))
+    //       .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 6)
+    //   }
+    // })
+
+    // DRAW VIEW FOR EACH SET OF DATA
+    Object.keys(dataCollection).forEach(function(collection){
+      if ( collection === 'MTWTF' || collection === 'SS' ){
+        // SURGE INTENSITIES  
+        d3.selectAll(".surgeintensity--" + collection)
+          .attr("x", function(){
+            var shift = collection === 'MTWTF' ? - 25 : 18;
+            return graphLeftWidth / 2 + shift;
+          })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+
+        // FARE BARS
+
+        d3.selectAll(".maxfare--" + collection)
+          .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
+          .attr("x", function(d){
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 : 18 + 10;
+            return graphLeftWidth / 2 + shiftAmount;
+          })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .each(growBars)
+
+        // FARE BAR LABELS
+        d3.selectAll(".maxfare--label." + collection)
+          .attr("x", function(d){
+            var barWidth = graphLeftBarWidth * (d / maxAvgFare);
+            var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 - 6 : 18 + 10 + barWidth + 6;
+            return graphLeftWidth / 2 + shiftAmount;
+          })
+          .attr("y",function(d,i){ 
+            return graphLeftYScale(i) + leftTopPad - 2;
+          })
+
+        // // SURGE TRENDS
+        // d3.select(".surgetrends--line." + collection)
+        //   .attr("d", graphRightBottomLine )
+      }
+
+      // SURGE TREND DATA DOTS
+      if ( collection === 'originalSortedData' ){
+        Object.keys(dataCollection[collection]).forEach(function(set){
+          // d3.selectAll(".surgetrends--dot")
+          //   .attr("cx", function(d){
+          //     return graphRightBottomXScale(d[0]);
+          //   })
+          //   .attr("cy", function(d){
+          //     return graphRightBottomYScale(d[1]);
+          //   })
+        });
+      }
+
+      // function detailDot(){
+      //   var thisNode = d3.select(this);
+      //   thisNode.on("mouseover", function(d,i){
+      //     var nodeHour = thisNode[0][0].__data__[0];
+      //     var nodeSurge = thisNode[0][0].__data__[1];
+      //     d3.select("#graph-right-bottom-content").append("text")
+      //       .attr("id", "specialText").text("Surge | " + Math.round(nodeSurge*100)/100 )
+      //       .attr("x", function(){
+      //         if (nodeHour > 20 ) return graphRightBottomXScale(nodeHour) - 12;
+      //         return graphRightBottomXScale(nodeHour) + 12;
+      //       })
+      //       .attr("text-anchor", function(){
+      //         if (nodeHour > 20 ) return "end";
+      //         return "start";
+      //       })
+      //       .attr("y", graphRightBottomYScale(nodeSurge) - 12)
+      //       .style("font-size", "12px")
+      //       .style("fill", "RGBA(194, 230, 153, 1)")
+      //       .style("opacity", 0)
+      //       .transition().duration(400)
+      //       .style("opacity", 1)
+
+      //     thisNode.transition().duration(400)
+      //       .attr("r", 8)
+      //   });
+
+      //   // prevent premature termination of transition event
+      //   thisNode.on("mouseout", function(d,i){
+      //     d3.select("#specialText").remove()
+      //     thisNode.transition().duration(400)
+      //       .attr("r", 1.5)
+      //   });
+      // }
+
+      // APPEND RATE TEXT
+      if ( collection === 'bestTimesMTWTF' || collection === 'bestTimesSS' ){
+        var set = collection === 'bestTimesSS' ? 'SS' : 'MTWTF';
+        graphRightTopSVG.append("g").attr("class", "besttimes--times " + set)
+        d3.selectAll(".besttimes--time")
+          .attr('x', function(d,i){
+            return graphRightBottomXScale(d) + 40;
+          })
+
+        d3.selectAll(".besttimes--hour")
+          .attr('x', function(d,i){
+            var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;
+            return graphRightBottomXScale(d) + offset + 40;
+          })
+      }
+    });
+
+    function growBars(){
+      var thisNode = d3.select(this);
+      var finalWidth = +thisNode.attr("width");
+      var finalX = +thisNode.attr("x");
+
+      // assign transistion events
+      if ( thisNode.attr("class") === 'maxfare--MTWTF' ){
+        thisNode.on("mouseenter", function(d,i){
+          var startX = graphLeftWidth / 2 - 13 - 10 - 6;
+          thisNode.attr("x", startX).attr("width", 0).transition().duration(800)
+                  .attr("x", finalX).attr("width", finalWidth);
+        });
+      } else {
+        thisNode.on("mouseenter", function(d,i){
+          thisNode.attr("width", 0).transition().duration(800).attr("width", finalWidth);
+        });
+      }
+
+      // prevent premature termination of transition event
+      thisNode.on("mouseout", function(d,i){
+        thisNode.transition().duration(800).attr("width", finalWidth).attr("x", finalX);
+      });
+    }
 }

@@ -26,18 +26,18 @@ function updateDataandRender(userInputs){
     console.log('Retrieved new data from server!');
 
     // LAYUP DATA
-    var dataCollection = formatData(response[0].result, response[1].result);
-    var maxSurge = dataCollection.maxSurge;
-    var maxAvgSurge = dataCollection.maxAvgSurge;
-    var maxAvgFare = dataCollection.maxAvgFare;
-    var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
-    var bestTimesSS = dataCollection.bestTimesSS;
+    dataCollection = formatData(response[0].result, response[1].result);
+    maxSurge = dataCollection.maxSurge;
+    maxAvgSurge = dataCollection.maxAvgSurge;
+    maxAvgFare = dataCollection.maxAvgFare;
+    bestTimesMTWTF = dataCollection.bestTimesMTWTF;
+    bestTimesSS = dataCollection.bestTimesSS;
 
     // UPDATE LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
     // GET SUNRISE AND SUNSET
-    var sunTimes = getSunriseSunset(userInputs.timeframe, userInputs.start, userInputs.end);
+    sunTimes = getSunriseSunset(userInputs.timeframe, userInputs.start, userInputs.end);
 
     // UPDATE BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomYScale.domain([maxSurge, 1]);
@@ -58,8 +58,6 @@ function updateDataandRender(userInputs){
             var displayDesc = description === "goldenHour" ? "golden hour" : description
             return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
           })
-          .attr("transform", "rotate(-90)")
-          .attr("dy", ".3em")
           .transition().duration(1500)
           .attr("y", graphRightBottomXScale(hour))
           .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)

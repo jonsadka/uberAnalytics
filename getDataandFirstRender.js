@@ -1,4 +1,14 @@
 ///////////////////////////////////////////////////////////////////
+//GLOBAL STORAGE FOR RERENDERING///////////////////////////////////
+var dataCollection;
+var maxSurge;
+var maxAvgSurge;
+var maxAvgFare;
+var bestTimesMTWTF;
+var bestTimesSS;
+var sunTimes;
+
+///////////////////////////////////////////////////////////////////
 //GATHER DATA AND PERFORM FIRST RENDER/////////////////////////////
 function getDataandFirstRender(userInputs){
   // SETUP QUERIES
@@ -28,18 +38,18 @@ function getDataandFirstRender(userInputs){
     console.log('Retrieved data from server!');
 
     // LAYUP DATA
-    var dataCollection = formatData(response[0].result, response[1].result);
-    var maxSurge = dataCollection.maxSurge;
-    var maxAvgSurge = dataCollection.maxAvgSurge;
-    var maxAvgFare = dataCollection.maxAvgFare;
-    var bestTimesMTWTF = dataCollection.bestTimesMTWTF;
-    var bestTimesSS = dataCollection.bestTimesSS;
+    dataCollection = formatData(response[0].result, response[1].result);
+    maxSurge = dataCollection.maxSurge;
+    maxAvgSurge = dataCollection.maxAvgSurge;
+    maxAvgFare = dataCollection.maxAvgFare;
+    bestTimesMTWTF = dataCollection.bestTimesMTWTF;
+    bestTimesSS = dataCollection.bestTimesSS;
 
     // LEFT GRAPH COMPONENTS
     graphLeftXScale.domain([0, maxAvgFare]);
     graphLeftIntensityScale.domain([1, maxAvgSurge]);
     // GET SUNRISE AND SUNSET
-    var sunTimes = getSunriseSunset(userInputs.timeframe, userInputs.start, userInputs.end);
+    sunTimes = getSunriseSunset(userInputs.timeframe, userInputs.start, userInputs.end);
 
     // BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomYScale.domain([maxSurge, 1]);
