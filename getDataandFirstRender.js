@@ -123,7 +123,7 @@ function getDataandFirstRender(userInputs){
           .style("stroke-width", 1)
           .style("stroke-dasharray", "1,1")
           .transition().duration(1500)
-          .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 6)
+          .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width)
 
       }
     })

@@ -5,22 +5,22 @@ function resizeRender (){
   document.getElementById('graph-right-bottom').setAttribute("style","height:" + (graphsContainerHeight - 192) + "px")
 
   ///////////////////////////////////////////////////////////////////
-  //SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
+  //UPDATE LEFT GRAPH VARIABLES /////////////////////////////////////
   graphLeftWidth = document.getElementById('graph-left').offsetWidth;
   graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - leftBottomPad;
 
   graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
 
-  // CREATE CANVAS
+  // UPDATE CANVAS
   d3.select("#graph-left-content")
     .attr("width", graphLeftWidth)
     .attr("height", document.getElementById('graph-left').offsetHeight)
 
-  // ESTABLISH SCALES
+  // UPDATE SCALES
   graphLeftXScale = d3.scale.linear().range([0, graphLeftWidth]);
   graphLeftYScale = d3.scale.linear().range([leftTopPad, graphLeftHeight - leftTopPad - leftBottomPad]).domain([0, 23]);
 
-  // APPEND TIME LABELS
+  // UPDATE TIME LABELS
   d3.selectAll(".hours").data(new Array(24))
     .attr("x", function(){
       if (graphLeftHeight < 400){
@@ -59,36 +59,36 @@ function resizeRender (){
     })
 
   ///////////////////////////////////////////////////////////////////
-  //SETUP TOP RIGHT GRAPH VARIABLES /////////////////////////////////
+  //UPDATE TOP RIGHT GRAPH VARIABLES ////////////////////////////////
   graphRightTopWidth = document.getElementById('graph-right-top').offsetWidth;
   graphRightTopHeight = document.getElementById('graph-right-top').offsetHeight;
 
-  // CREATE CANVAS
+  // UPDATE CANVAS
   d3.select("#graph-right-top-content")
     .attr("width", graphRightTopWidth)
     .attr("height", graphRightTopHeight)
 
   ///////////////////////////////////////////////////////////////////
-  //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
+  //UPDATE BOTTOM RIGHT GRAPH VARIABLES /////////////////////////////
   graphRightBottomWidth = document.getElementById('graph-right-bottom').offsetWidth;
   graphRightBottomHeight = document.getElementById('graph-right-bottom').offsetHeight - rightBottomTopPad - rightBottomBottomPad;
 
-  // CREATE CANVAS
+  // UPDATE CANVAS
   d3.select("#graph-right-bottom-svg")
     .attr("width", graphRightBottomWidth)
     .attr("height", document.getElementById('graph-right-bottom').offsetHeight)
   d3.select("#graph-right-bottom-content")
     .attr("transform","translate(" + rightBottomLeftPad + "," + rightBottomTopPad + ")")
 
-  // ESTABLISH SCALES
+  // UPDATE SCALES
   graphRightBottomXScale = d3.scale.linear().range([0, graphRightBottomWidth - rightBottomRightPad - rightBottomLeftPad]).domain([0, 23]);
   graphRightBottomYScale = d3.scale.linear().range([rightBottomTopPad, graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad]);
 
-  // ESTABLISH LINE PATH
+  // UPDATE LINE PATH
   graphRightBottomLine = d3.svg.line().interpolate("monotone")
     .x(function(d){ return graphRightBottomXScale(d.hour); })
 
-  // APPEND LEGEND
+  // UPDATE LEGEND
   d3.selectAll(".legendcircles")
     .attr("cx", function(d,i){
       return graphRightBottomXScale(23) - 72 * (i+1) + 14;
@@ -103,43 +103,42 @@ function resizeRender (){
 }
 
 function resizeData(){
-    // BOTTOM RIGHT GRAPH COMPONENTS
+    // UPDATE BOTTOM RIGHT GRAPH COMPONENTS
     graphRightBottomLine.y(function(d){ return graphRightBottomYScale(d.surge); });
     graphRightBottomYAxis = d3.svg.axis().scale(graphRightBottomYScale).orient("left");
     graphRightBottomXAxis = d3.svg.axis().scale(graphRightBottomXScale).orient("bottom")
       .ticks(24).tickFormat(formatTime);
 
-    // DRAW AXIES
+    // UPDATE DRAW AXIES
     d3.select(".y.axis").call(graphRightBottomYAxis)
     d3.select(".x.axis").call(graphRightBottomYAxis)
       .attr("transform","translate(" + 0 + "," + (graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad) + ")")
       .call(graphRightBottomXAxis)
 
-    // DRAW SUNRISE AND SUNSET LINES
-    // Object.keys(sunTimes).forEach(function(type){
-    //   var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
-    //   var description = type;
-    //   if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
-    //     d3.select(".sunposition--text." + description)
-    //       .text(function(){
-    //         var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
-    //         var displayDesc = description === "goldenHour" ? "golden hour" : description
-    //         return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
-    //       })
-    //       .attr("y", graphRightBottomXScale(hour))
-    //       .attr("x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad)
+    // UPDATE SUNRISE AND SUNSET LINES
+    Object.keys(sunTimes).forEach(function(type){
+      var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
+      var description = type;
+      console.log("y", graphRightBottomXScale(hour), "x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad )
+      if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
+        d3.select(".sunposition--text." + description)
+          .text(function(){
+            var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
+            var displayDesc = description === "goldenHour" ? "golden hour" : description
+            return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
+          })
+          .attr("y", graphRightBottomXScale(hour))
 
-    //     var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
+        var textSize = document.getElementsByClassName("sunposition--text " + description)[0].getBBox();
 
-    //     d3.selectAll(".sunposition--line." + description)
-    //       .attr("x1", graphRightBottomXScale(hour))
-    //       .attr("y1", graphRightBottomYScale(1))
-    //       .attr("x2", graphRightBottomXScale(hour))
-    //       .attr("y2", graphRightBottomYScale(maxSurge) + textSize.width + 6)
-    //   }
-    // })
+        d3.selectAll(".sunposition--line." + description)
+          .attr("x1", graphRightBottomXScale(hour))
+          .attr("y1", graphRightBottomYScale(1))
+          .attr("x2", graphRightBottomXScale(hour))
+      }
+    })
 
-    // DRAW VIEW FOR EACH SET OF DATA
+    // UPDATE VIEW FOR EACH SET OF DATA
     Object.keys(dataCollection).forEach(function(collection){
       if ( collection === 'MTWTF' || collection === 'SS' ){
         // SURGE INTENSITIES  
@@ -151,7 +150,6 @@ function resizeData(){
           .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
 
         // FARE BARS
-
         d3.selectAll(".maxfare--" + collection)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
           .attr("x", function(d){
@@ -224,7 +222,7 @@ function resizeData(){
       //   });
       // }
 
-      // APPEND RATE TEXT
+      // UPDATE RATE TEXT
       if ( collection === 'bestTimesMTWTF' || collection === 'bestTimesSS' ){
         var set = collection === 'bestTimesSS' ? 'SS' : 'MTWTF';
         graphRightTopSVG.append("g").attr("class", "besttimes--times " + set)

@@ -256,13 +256,32 @@ graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLeg
     thisNode.on("mouseover", function(d,i){
       d3.selectAll(".surgetrends--line." + timeframe)
         .transition().duration(400)
-        .style("stroke-width", 6)
+        .style("stroke-width", 5)
+
+      if ( timeframe === 'SS'){
+        d3.selectAll(".surgetrends--line.MTWTF")
+          .transition().duration(400)
+          .style("stroke-width", 0)
+        d3.selectAll(".surgetrends--dot.MTWTF")
+          .transition().duration(400)
+          .attr("r", 0)
+      } else {
+        d3.selectAll(".surgetrends--line.SS")
+          .transition().duration(400)
+          .style("stroke-width", 0)
+        d3.selectAll(".surgetrends--dot.SS")
+          .transition().duration(400)
+          .attr("r", 0)
+      }
     });
 
     // prevent premature termination of transition event
     thisNode.on("mouseout", function(d,i){
-      d3.selectAll(".surgetrends--line." + timeframe)
+      d3.selectAll(".surgetrends--line")
         .transition().duration(400).style("stroke-width", 1.5);
+      d3.selectAll(".surgetrends--dot")
+        .transition().duration(400)
+        .attr("r", 1.5)
     });
   }
 
