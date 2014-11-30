@@ -512,10 +512,6 @@ function verticalFont(){
   return 14;
 }
 
-function fareBarSize(){
-  return (graphLeftHeight - 100)/24;
-}
-
 function horizontalFont(){
   if (graphRightBottomWidth < 200) return 6;
   if (graphRightBottomWidth < 300) return 8;

@@ -140,12 +140,12 @@ function getDataandFirstRender(userInputs){
           .selectAll(".surgeintensity").data(dataCollection[collection].surge)
           .enter().append("rect").attr("class", "surgeintensity--" + collection)
           .attr("width", 6)
-          .attr("height", fareBarSize)
+          .attr("height", graphLeftBarHeight)
           .attr("x", function(){
             var shift = collection === 'MTWTF' ? - 25 : 18;
             return graphLeftWidth / 2 + shift;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - fareBarSize(); })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
           .style("fill", function(d){ return graphLeftIntensityScale(d.surge); })
           .style("stroke-width",1)
           .style("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
@@ -158,12 +158,12 @@ function getDataandFirstRender(userInputs){
           .selectAll(".maxfare--" + collection).data(dataCollection[collection].maxFare)
           .enter().append("rect").attr("class","maxfare--" + collection)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
-          .attr("height", fareBarSize)
+          .attr("height", graphLeftBarHeight)
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - fareBarSize(); })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
           .style("fill", function(d){ 
             if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
             return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);
