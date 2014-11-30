@@ -24,7 +24,7 @@ document.getElementById('graph-right-bottom').setAttribute("style","height:" + (
 ///////////////////////////////////////////////////////////////////
 //SETUP LEFT GRAPH VARIABLES //////////////////////////////////////
 var leftTopPad = 25;
-var leftBottomPad = 15;
+var leftBottomPad = 10;
 
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
 var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - leftBottomPad;
@@ -61,7 +61,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
     return graphLeftWidth / 2 - 12 / 2 + 6;
   })
   .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad; })
-  .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
+  .style("font-size", verticalFont)
   .attr("opacity",0)
   .on("mouseover", function(){
     var thisNode = d3.select(this);
@@ -80,7 +80,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       .style("stroke-width", 1.5)
       .attr("r", 5)
     d3.selectAll(".maxfare--label.hour" + hour)
-        .style("font-size", "18px")
+        .style("font-size", "20px")
   })
   .on("mouseout", function(){
     var thisNode = d3.select(this);
@@ -98,7 +98,7 @@ graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("t
       .style("stroke", "none")
       .attr("r", 1.5)
     d3.selectAll(".maxfare--label.hour" + hour)
-      .style("font-size", "12px")
+      .style("font-size", verticalFont)
   })
   .transition().duration(1000).delay(function(d,i){ return i * 100; })
   .attr("opacity",1);
@@ -182,10 +182,10 @@ var graphRightTopSVG = d3.select("#graph-right-top").append("svg")
 
 ///////////////////////////////////////////////////////////////////
 //SETUP BOTTOM RIGHT GRAPH VARIABLES //////////////////////////////
-var rightBottomTopPad = 15;
-var rightBottomBottomPad = 10;
+var rightBottomTopPad = 16;
+var rightBottomBottomPad = 4;
 var rightBottomLeftPad = 50;
-var rightBottomRightPad = 20;
+var rightBottomRightPad = 10;
 
 var graphRightBottomWidth = document.getElementById('graph-right-bottom').offsetWidth;
 var graphRightBottomHeight = document.getElementById('graph-right-bottom').offsetHeight - rightBottomTopPad - rightBottomBottomPad;
@@ -218,7 +218,7 @@ graphRightBottomLegendContainer.selectAll("legendCircles").data(graphRightBottom
   .attr("cx", function(d,i){
     return graphRightBottomXScale(23) - 72 * (i+1) + 14;
   })
-  .attr("cy", -2)
+  .attr("cy", -9)
   .style("fill", function(d){
     return d.color;
   })
@@ -237,7 +237,7 @@ graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLeg
   .attr("x", function(d,i){
     return graphRightBottomXScale(23) - 72 * i;
   })
-  .attr("y", -3)
+  .attr("y", -10)
   .style("font-size", "12px")
   .attr("dy", "0.35em")
   .style("fill", function(d){
@@ -502,4 +502,24 @@ function getSunriseSunset(date, start, end){
   }
 
   return calculatedTimes;
+}
+
+function verticalFont(){
+  if (graphLeftHeight < 200) return 6;
+  if (graphLeftHeight < 300) return 8;
+  if (graphLeftHeight < 400) return 10;
+  if (graphLeftHeight < 500) return 12;
+  return 14;
+}
+
+function fareBarSize(){
+  return (graphLeftHeight - 100)/24;
+}
+
+function horizontalFont(){
+  if (graphRightBottomWidth < 200) return 6;
+  if (graphRightBottomWidth < 300) return 8;
+  if (graphRightBottomWidth < 400) return 10;
+  if (graphRightBottomWidth < 500) return 12;
+  return 14;
 }

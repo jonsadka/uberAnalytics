@@ -29,7 +29,7 @@ function resizeRender (){
       return graphLeftWidth / 2 - 12 / 2 + 6;
     })
     .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad; })
-    .style("font-size", function(){ if (graphLeftHeight < 400) return 10; return 12; })
+    .style("font-size", verticalFont )
 
     // DAY OF WEEK
     d3.selectAll(".legendtext")
@@ -57,6 +57,7 @@ function resizeRender (){
       var shift = i === 5 ? graphLeftWidth / 4 + (graphLeftWidth / 12) - 50 : graphLeftWidth / 4;
       return i * (graphLeftWidth / 12 + 1.5) + shift - 1.5 * 5;
     })
+
 
   ///////////////////////////////////////////////////////////////////
   //UPDATE TOP RIGHT GRAPH VARIABLES ////////////////////////////////
@@ -119,7 +120,6 @@ function resizeData(){
     Object.keys(sunTimes).forEach(function(type){
       var hour = Number(sunTimes[type][0]) + (Number(sunTimes[type][1]) / 60);
       var description = type;
-      console.log("y", graphRightBottomXScale(hour), "x", graphRightBottomYScale(maxSurge) - rightBottomTopPad - rightBottomBottomPad )
       if (description === 'sunrise' || description === 'goldenHour' || description === 'sunset'){
         d3.select(".sunposition--text." + description)
           .text(function(){
@@ -143,20 +143,22 @@ function resizeData(){
       if ( collection === 'MTWTF' || collection === 'SS' ){
         // SURGE INTENSITIES  
         d3.selectAll(".surgeintensity--" + collection)
+          .attr("height", fareBarSize)
           .attr("x", function(){
             var shift = collection === 'MTWTF' ? - 25 : 18;
             return graphLeftWidth / 2 + shift;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - fareBarSize(); })
 
         // FARE BARS
         d3.selectAll(".maxfare--" + collection)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
+          .attr("height", fareBarSize)
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - fareBarSize(); })
           .each(growBars)
 
         // FARE BAR LABELS
@@ -169,6 +171,7 @@ function resizeData(){
           .attr("y",function(d,i){ 
             return graphLeftYScale(i) + leftTopPad - 2;
           })
+          .style("font-size", verticalFont)
 
         // SURGE TRENDS
         d3.select(".surgetrends--line." + collection)
