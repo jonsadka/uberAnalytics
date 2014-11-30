@@ -298,15 +298,19 @@ d3.select(document.getElementById("options")).on('change',
     var newStart = document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value;
     var newEnd = document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value;
 
-    if ( alertInDOM ) document.getElementById('options').lastChild.remove();
+    if ( alertInDOM ) document.getElementById('header').lastChild.remove();
     if ( newEnd === newStart ){
-      document.getElementById('options')
-        .appendChild(document.createTextNode('Please choose two different locations in the same city.'));
+      var alertDiv = document.createElement("div");
+      alertDiv.innerHTML = 'Please choose two different locations in the same city.';
+      alertDiv.className += 'travelalert';
+      document.getElementById('header').appendChild(alertDiv);
       alertInDOM = true;
       return;
     } else if ( !sameCities(newStart, newEnd) ){
-      document.getElementById('options')
-        .appendChild(document.createTextNode('Let\'s not try to Uber across the country, we both know you cannot afford it.'));
+      var alertDiv = document.createElement("div");
+      alertDiv.innerHTML = 'Let\'s not try to Uber across the country, we both know you can\'t afford it.';
+      document.getElementById('header').appendChild(alertDiv);
+      alertDiv.className += 'travelalert';
       alertInDOM = true;
       return;
     } else {
@@ -516,13 +520,5 @@ function graphLeftBarHeight(){
   if (graphLeftHeight < 300) return 8;
   if (graphLeftHeight < 400) return 10;
   if (graphLeftHeight < 500) return 12;
-  return 14;
-}
-
-function horizontalFont(){
-  if (graphRightBottomWidth < 200) return 6;
-  if (graphRightBottomWidth < 300) return 8;
-  if (graphRightBottomWidth < 400) return 10;
-  if (graphRightBottomWidth < 500) return 12;
   return 14;
 }

@@ -45,6 +45,10 @@ a:-webkit-any-link {
   text-decoration: none;
 }
 
+.travelalert {
+  color: RGBA(246, 93, 151, 1);
+}
+
 .axis path,
 .axis line {
   fill: none;
