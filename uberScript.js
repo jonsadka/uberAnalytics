@@ -29,7 +29,6 @@ var leftBottomPad = 10;
 var graphLeftWidth = document.getElementById('graph-left').offsetWidth;
 var graphLeftHeight = document.getElementById('graph-left').offsetHeight - leftTopPad - leftBottomPad;
 
-var graphLeftBarHeight = 12;
 var graphLeftBarWidth = graphLeftWidth / 2 - 2 * 36;
 
 var colorIntensities = ['rgb(231,225,239)','rgb(212,185,218)','rgb(201,148,199)','rgb(223,101,176)','rgb(231,41,138)','rgb(206,18,86)'];
@@ -505,6 +504,14 @@ function getSunriseSunset(date, start, end){
 }
 
 function verticalFont(){
+  if (graphLeftHeight < 200) return 6;
+  if (graphLeftHeight < 300) return 8;
+  if (graphLeftHeight < 400) return 10;
+  if (graphLeftHeight < 500) return 12;
+  return 14;
+}
+
+function graphLeftBarHeight(){
   if (graphLeftHeight < 200) return 6;
   if (graphLeftHeight < 300) return 8;
   if (graphLeftHeight < 400) return 10;

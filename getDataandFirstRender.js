@@ -145,7 +145,7 @@ function getDataandFirstRender(userInputs){
             var shift = collection === 'MTWTF' ? - 25 : 18;
             return graphLeftWidth / 2 + shift;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight(); })
           .style("fill", function(d){ return graphLeftIntensityScale(d.surge); })
           .style("stroke-width",1)
           .style("stroke", function(d){ return graphLeftIntensityScale(d.surge); })
@@ -163,7 +163,7 @@ function getDataandFirstRender(userInputs){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight(); })
           .style("fill", function(d){ 
             if ( d === minAvgFareSS || d === minAvgFareMTWTF ) return "#e5f5e0";
             return graphLeftIntensityScale( (d / maxAvgFare) * maxAvgSurge);

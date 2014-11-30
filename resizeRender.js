@@ -142,20 +142,22 @@ function resizeData(){
       if ( collection === 'MTWTF' || collection === 'SS' ){
         // SURGE INTENSITIES  
         d3.selectAll(".surgeintensity--" + collection)
+          .attr("height", graphLeftBarHeight)
           .attr("x", function(){
             var shift = collection === 'MTWTF' ? - 25 : 18;
             return graphLeftWidth / 2 + shift;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight(); })
 
         // FARE BARS
         d3.selectAll(".maxfare--" + collection)
           .attr("width", function(d,i){ return graphLeftBarWidth * (d / maxAvgFare); })
+          .attr("height", graphLeftBarHeight)
           .attr("x", function(d){
             var shiftAmount = collection === 'MTWTF' ? - graphLeftBarWidth*(d/maxAvgFare) - 19 - 10 : 18 + 10;
             return graphLeftWidth / 2 + shiftAmount;
           })
-          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight; })
+          .attr("y",function(d,i){ return graphLeftYScale(i) + leftTopPad - graphLeftBarHeight(); })
           .each(growBars)
 
         // FARE BAR LABELS
@@ -168,6 +170,7 @@ function resizeData(){
           .attr("y",function(d,i){ 
             return graphLeftYScale(i) + leftTopPad - 2;
           })
+          .style("font-size", verticalFont)
 
         // SURGE TRENDS
         d3.select(".surgetrends--line." + collection)
