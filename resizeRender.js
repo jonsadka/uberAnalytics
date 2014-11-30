@@ -170,9 +170,9 @@ function resizeData(){
             return graphLeftYScale(i) + leftTopPad - 2;
           })
 
-        // // SURGE TRENDS
-        // d3.select(".surgetrends--line." + collection)
-        //   .attr("d", graphRightBottomLine )
+        // SURGE TRENDS
+        d3.select(".surgetrends--line." + collection)
+          .attr("d", graphRightBottomLine )
       }
 
       // SURGE TREND DATA DOTS
