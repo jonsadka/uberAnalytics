@@ -82,7 +82,7 @@ function resizeRender (){
 
   // UPDATE SCALES
   graphRightBottomXScale = d3.scale.linear().range([0, graphRightBottomWidth - rightBottomRightPad - rightBottomLeftPad]).domain([0, 23]);
-  graphRightBottomYScale = d3.scale.linear().range([rightBottomTopPad, graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad]);
+  graphRightBottomYScale = d3.scale.linear().range([rightBottomTopPad, graphRightBottomHeight - rightBottomTopPad - rightBottomBottomPad]).domain([maxSurge, 1]);
 
   // UPDATE LINE PATH
   graphRightBottomLine = d3.svg.line().interpolate("monotone")
@@ -178,49 +178,15 @@ function resizeData(){
       // SURGE TREND DATA DOTS
       if ( collection === 'originalSortedData' ){
         Object.keys(dataCollection[collection]).forEach(function(set){
-          // d3.selectAll(".surgetrends--dot")
-          //   .attr("cx", function(d){
-          //     return graphRightBottomXScale(d[0]);
-          //   })
-          //   .attr("cy", function(d){
-          //     return graphRightBottomYScale(d[1]);
-          //   })
+          d3.selectAll(".surgetrends--dot." + set)
+            .attr("cx", function(d){
+              return graphRightBottomXScale(d[0]);
+            })
+            .attr("cy", function(d){
+              return graphRightBottomYScale(d[1]);
+            })
         });
       }
-
-      // function detailDot(){
-      //   var thisNode = d3.select(this);
-      //   thisNode.on("mouseover", function(d,i){
-      //     var nodeHour = thisNode[0][0].__data__[0];
-      //     var nodeSurge = thisNode[0][0].__data__[1];
-      //     d3.select("#graph-right-bottom-content").append("text")
-      //       .attr("id", "specialText").text("Surge | " + Math.round(nodeSurge*100)/100 )
-      //       .attr("x", function(){
-      //         if (nodeHour > 20 ) return graphRightBottomXScale(nodeHour) - 12;
-      //         return graphRightBottomXScale(nodeHour) + 12;
-      //       })
-      //       .attr("text-anchor", function(){
-      //         if (nodeHour > 20 ) return "end";
-      //         return "start";
-      //       })
-      //       .attr("y", graphRightBottomYScale(nodeSurge) - 12)
-      //       .style("font-size", "12px")
-      //       .style("fill", "RGBA(194, 230, 153, 1)")
-      //       .style("opacity", 0)
-      //       .transition().duration(400)
-      //       .style("opacity", 1)
-
-      //     thisNode.transition().duration(400)
-      //       .attr("r", 8)
-      //   });
-
-      //   // prevent premature termination of transition event
-      //   thisNode.on("mouseout", function(d,i){
-      //     d3.select("#specialText").remove()
-      //     thisNode.transition().duration(400)
-      //       .attr("r", 1.5)
-      //   });
-      // }
 
       // UPDATE RATE TEXT
       if ( collection === 'bestTimesMTWTF' || collection === 'bestTimesSS' ){
