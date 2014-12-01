@@ -16,9 +16,9 @@ var userInputs = {
 };
 
 var graphsContainerHeight = window.innerHeight - document.getElementById('header').offsetHeight;
-document.getElementById('graph-left').setAttribute("style","height:" + (graphsContainerHeight - 80) + "px")
-document.getElementById('graph-right-top').setAttribute("style","height: 70px")
-document.getElementById('graph-right-bottom').setAttribute("style","height:" + (graphsContainerHeight - 192) + "px")
+document.getElementById('graph-left').setAttribute("style","height:" + (graphsContainerHeight - 78) + "px");
+document.getElementById('graph-right-top').setAttribute("style","height: 70px");
+document.getElementById('graph-right-bottom').setAttribute("style","height:" + (graphsContainerHeight - 186) + "px");
 
 
 ///////////////////////////////////////////////////////////////////
@@ -43,7 +43,6 @@ var graphLeftSVG = d3.select("#graph-left").append("svg")
 var graphLeftXScale = d3.scale.linear().range([0, graphLeftWidth]);
 var graphLeftYScale = d3.scale.linear().range([leftTopPad, graphLeftHeight - leftTopPad - leftBottomPad]).domain([0, 23]);
 var graphLeftIntensityScale = d3.scale.quantile().range(colorIntensities);
-var elementSizeScale = d3.scale.ordinal().range([10,12,14]).domain([1280, 400]);
 
 // APPEND TIME LABELS
 graphLeftSVG.append("g").attr("class", "timetext").attr("fill","white").style("text-anchor","middle")
@@ -217,7 +216,7 @@ graphRightBottomLegendContainer.selectAll("legendCircles").data(graphRightBottom
   .attr("cx", function(d,i){
     return graphRightBottomXScale(23) - 72 * (i+1) + 14;
   })
-  .attr("cy", -9)
+  .attr("cy", -10)
   .style("fill", function(d){
     return d.color;
   })
@@ -231,13 +230,13 @@ graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLeg
   .attr("class", "legendtext2")
   .attr("timeframe", function(d,i){ return d.className; })
   .text(function(d,i){
-    return d.label;
+    return d.label.toUpperCase();
   })
   .attr("x", function(d,i){
     return graphRightBottomXScale(23) - 72 * i;
   })
   .attr("y", -10)
-  .style("font-size", "12px")
+  .style("font-size", "10px")
   .attr("dy", "0.35em")
   .style("fill", function(d){
     return d.color;
@@ -512,6 +511,12 @@ function verticalFont(){
   if (graphLeftHeight < 300) return 8;
   if (graphLeftHeight < 400) return 10;
   if (graphLeftHeight < 500) return 12;
+  return 14;
+}
+
+function horizontalFont(){
+  if (graphLeftWidth < 300) return 10;
+  if (graphLeftWidth < 500) return 12;
   return 14;
 }
 

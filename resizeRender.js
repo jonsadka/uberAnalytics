@@ -1,8 +1,8 @@
 function resizeRender (){
   graphsContainerHeight = window.innerHeight - document.getElementById('header').offsetHeight;
-  document.getElementById('graph-left').setAttribute("style","height:" + (graphsContainerHeight - 80) + "px")
-  document.getElementById('graph-right-top').setAttribute("style","height: 70px")
-  document.getElementById('graph-right-bottom').setAttribute("style","height:" + (graphsContainerHeight - 192) + "px")
+  document.getElementById('graph-left').setAttribute("style","height:" + (graphsContainerHeight - 78) + "px");
+  document.getElementById('graph-right-top').setAttribute("style","height: 70px");
+  document.getElementById('graph-right-bottom').setAttribute("style","height:" + (graphsContainerHeight - 186) + "px");
 
   ///////////////////////////////////////////////////////////////////
   //UPDATE LEFT GRAPH VARIABLES /////////////////////////////////////
@@ -203,6 +203,10 @@ function resizeData(){
           .attr('x', function(d,i){
             var offset = ( (d === 0) || d > 21 || (d > 9 && d < 13) ) ? 44/2 : 22 / 2;
             return graphRightBottomXScale(d) + offset + 40;
+          })
+          .text(function(d,i){
+            if ( graphLeftWidth < 300 ) return '';
+            return formatTime(0, d).slice(-1);
           })
       }
     });

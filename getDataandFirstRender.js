@@ -85,7 +85,7 @@ function getDataandFirstRender(userInputs){
       .attr("y", 4)
       .attr("dy", "0.75em")
       .attr("transform","rotate(-90)")
-      .attr("fill", "#777")
+      .attr("fill", "#555")
       .style("font-size", "10px")
       .style("opacity",0)
       .transition().duration(500)
@@ -101,14 +101,14 @@ function getDataandFirstRender(userInputs){
           .append("text").attr("class", "sunposition--text " + description)
           .text(function(){
             var displayHour = +sunTimes[type][0] > 12 ? +sunTimes[type][0] - 12 : +sunTimes[type][0];
-            var displayDesc = description === "goldenHour" ? "golden hour" : description
-            return displayDesc.toUpperCase() + "  " + displayHour + ":" + sunTimes[type][1];
+            var displayDesc = description === "goldenHour" ? "golden hour" : description;
+            return displayDesc.toLowerCase() + "  " + displayHour + ":" + sunTimes[type][1];
           })
           .attr("transform", "rotate(-90)")
           .attr("dy", ".3em")
           .style("stroke-width", 0)
-          .style("fill", "white")
-          .style("font-size", "10px")
+          .style("fill", "#555")
+          .style("font-size", horizontalFont)
           .style("text-anchor", "end")
           .attr("y", graphRightBottomXScale(hour))
           .attr("x", graphRightBottomYScale(1))
@@ -123,7 +123,7 @@ function getDataandFirstRender(userInputs){
           .attr("y1", graphRightBottomYScale(1))
           .attr("x2", graphRightBottomXScale(hour))
           .attr("y2", graphRightBottomYScale(1))
-          .style("stroke", "white")
+          .style("stroke", "#555")
           .style("stroke-width", 1)
           .style("stroke-dasharray", "1,1")
           .transition().duration(1500)
@@ -208,7 +208,7 @@ function getDataandFirstRender(userInputs){
           })
           .style("opacity",0)
           .transition().duration(800).delay(function(d,i){ return i * 100; })
-          .style("opacity",1)   
+          .style("opacity",1)  
 
         // SURGE TRENDS
         graphRightBottomSVG.append("g").attr("class", "surgetrends--lines " + collection)
@@ -338,6 +338,7 @@ function getDataandFirstRender(userInputs){
             return "besttimes--hour " + set + " hour" + d;
           })
           .text(function(d,i){
+            if ( graphLeftWidth < 300 ) return '';
             return formatTime(0, d).slice(-1);
           })
           .attr('y', function(d,i){
@@ -357,10 +358,15 @@ function getDataandFirstRender(userInputs){
           .style("text-anchor", "start")
 
         graphRightTopSVG.append("text")
+          .attr("timeframe", set)
           .text(function(){
-            if (set === 'SS') return 'weekend';
-            return 'weekday';
-          }).style("fill", "white")
+            if (set === 'SS') return 'WEEKEND';
+            return 'WEEKDAY';
+          })
+          .style("fill", function(){
+            if ( set === 'SS' ) return "RGBA(33, 188, 215, 1)";
+            return "RGBA(173, 221, 237, 1)";
+          })
           .attr("x", 0).attr('y', function(d,i){
             if ( set === 'SS' ) return 50;
             return 25;

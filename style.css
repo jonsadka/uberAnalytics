@@ -18,16 +18,16 @@ body{
   background: #fff url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid@1x.jpg) repeat left top;
   color: #000;
   padding-left: 25px;
-  padding-bottom: 15px;
+  padding-bottom: 12px;
 }
 
 h1 {
-  padding-top: 15px;
-  padding-bottom: 5px;
+  padding-top: 6px;
+  padding-bottom: 0px;
   font-size: 34px;
 }
 
-h3 {
+h4 {
   color: white;
 }
 
@@ -40,13 +40,17 @@ a:-webkit-any-link {
   color: RGBA(33, 188, 215, 1);
   position: absolute;
   right: 50px;
-  top: 25px;
+  top: 12px;
   text-align: right;
   text-decoration: none;
 }
 
 .travelalert {
   color: RGBA(246, 93, 151, 1);
+}
+
+.optionsdescriptions{
+
 }
 
 .axis path,

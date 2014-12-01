@@ -2,13 +2,19 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Uber Analytics</title>
+    <title>Uber Analytics by Jon Sadka</title>
     <link href="style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div id="header">
       <h1>UBER ANALYTICS</h1>
-      <span class="name"><a href="https://twitter.com/JonSadka">@JONSADKA</a></span>
+      <span class="name"><a href="https://twitter.com/JonSadka">@JonSadka</a></span>
+      <div id="optionsdescriptions">
+        <span style="font-size: 11px; padding-right: 86px;"> Time Range </span>
+        <span style="font-size: 11px; padding-right: 138px;"> Start Location</span>
+        <span style="font-size: 11px; padding-right: 144px;"> End Location</span>
+        <span style="font-size: 11px;"> Vehicle Type </span>
+      </div>
       <div id="options">
         <span class="custom-dropdown custom-dropdown--white">
           <select id="timeframe" class="custom-dropdown__select custom-dropdown__select--white">
@@ -19,7 +25,6 @@
             <option value="this_21_days">Past 3 Weeks</option>
             <option value="this_28_days">Past 4 Weeks</option>
             <option value="this_60_days">Past 2 Months</option>
-            <!-- <option value="this_90_days">Past 3 Months</option> -->
           </select>
         </span>
         <span class="custom-dropdown custom-dropdown--white">
@@ -63,26 +68,26 @@
       <!-- CREATE ROW -->
       <div class="grid grid-pad" id="graphs">
         <div class="col-5-8">
-          <h3>CHEAPEST HOURS</h3>
+          <h4>Best Hours to Uber</h4>
           <div>
             <hr/>
           </div>
-          <p style="color: #777; font-size: 10px;">Recommendation calculated using average of cheapest hour.</p>
+          <p style="color: #555; font-size: 10px;">Recommended hour(s) are based on lowest fare.</p>
           <div class="module" id="graph-right-top"></div>
 
-          <h3 style="text-align: left">AVERAGE SURGE</h3>
-          <div style="padding-right:50%;">
+          <h4 style="text-align: left">Historical Surge Multiplier</h4>
+          <div>
             <hr/>
           </div>
-          <p style="color: #777; font-size: 10px; text-align: left">Calculated at 10 minute intervals in the specified time range.</p>
+          <p style="color: #555; font-size: 10px; text-align: left">Computed using data points sampled at 10 minute intervals.</p>
           <div class="module" id="graph-right-bottom"></div>
         </div>
         <div class="col-3-8">
-          <h3>AVERAGE PRICE</h3>
+          <h4>Average Ride Cost</h4>
           <div style="width:350px;">
             <hr/>
           </div>
-          <p style="color: #777; font-size: 10px;">Calculated using 10 minute intervals at the specified time range.</p>
+          <p style="color: #555; font-size: 10px;">Computed using data points sampled at 10 minute intervals.</p>
           <div class="module" id="graph-left"></div>
         </div>
       </div>

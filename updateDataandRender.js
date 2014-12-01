@@ -326,6 +326,7 @@ function updateDataandRender(userInputs){
             return "besttimes--hour " + set + " hour" + d;
           })
           .text(function(d,i){
+            if ( graphLeftWidth < 300 ) return '';
             return formatTime(0, d).slice(-1);
           })
           .transition().duration(1000)
@@ -339,6 +340,7 @@ function updateDataandRender(userInputs){
             return "besttimes--hour " + set + " hour" + d;
           })
           .text(function(d,i){
+            if ( graphLeftWidth < 300 ) return '';
             return formatTime(0, d).slice(-1);
           })
           .style("font-size", "10px")
