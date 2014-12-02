@@ -333,7 +333,17 @@ window.onresize = resizeRender;
 
 ///////////////////////////////////////////////////////////////////
 //HELPER FUNCTIONS/////////////////////////////////////////////////
+Date.prototype.addHours= function(h){
+    this.setHours(this.getHours()+h);
+    return this;
+}
+
 function formatData(highEstimate, surgeEstimate){
+  // ADD VARIABLE TO ADJUST FOR TIMEZONE IF IN NY
+  var start = document.getElementById("startLoc").options[document.getElementById("startLoc").selectedIndex].value;
+  var end = document.getElementById("endLoc").options[document.getElementById("endLoc").selectedIndex].value;
+  var NY = (sameCities(start, end)[0] === 40.7127) ? true : false;
+
   var maxSurge = 0;
   var maxAvgSurge = 0;
   var maxAvgFare = 0;
@@ -343,6 +353,7 @@ function formatData(highEstimate, surgeEstimate){
   var bestTimesSS = [];
   var originalSortedData = {};
 
+  // ALLOCATE SPACE IN RESULT VARIABLE
   var result = { 'MTWTF':{}, 'SS':{} };
   Object.keys(result).forEach(function(daySegment){
     result[daySegment]['surge'] = [];
@@ -353,9 +364,10 @@ function formatData(highEstimate, surgeEstimate){
     }
   });
 
+  // DUMP HIGH ESTIMATES INTO WEEKEND AND WEEKDAY BUCKETS
   highEstimate.forEach(function(estimate){
     if (estimate.value !== null){
-      var timestamp = new Date(estimate.timeframe.start);
+      var timestamp = (NY) ? new Date(estimate.timeframe.start).addHours(3) : new Date(estimate.timeframe.start);
       var day = timestamp.getDay();
       var hour = timestamp.getHours();
       if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
@@ -366,9 +378,10 @@ function formatData(highEstimate, surgeEstimate){
     }
   });
 
+  // DUMP SURGE ESTIMATES INTO WEEKEND AND WEEKDAY BUCKETS
   surgeEstimate.forEach(function(estimate){
     if (estimate.value !== null){
-      var timestamp = new Date(estimate.timeframe.start);
+      var timestamp = (NY) ? new Date(estimate.timeframe.start).addHours(3) : new Date(estimate.timeframe.start);
       var day = timestamp.getDay();
       var hour = timestamp.getHours();
       if ( day === 1 ||  day === 2 || day === 3 || day === 4 || day === 5 ){
@@ -467,8 +480,8 @@ function getSpecialDay(input){
     };
   } else if ( input === 'thanksgiving'){
     return {
-      "start" : "2014-11-24T00:00:00.000Z",
-      "end" : "2014-12-02T00:00:00.000Z"
+      "start" : "2014-11-25T00:00:00.000Z",
+      "end" : "2014-12-03T00:00:00.000Z"
     };
   }
   return input;
