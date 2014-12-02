@@ -476,11 +476,8 @@ function getSpecialDay(input){
 
 function getSunriseSunset(date, start, end){
   var latLon = sameCities(start, end);
-
   if ( typeof date === 'string'){
     var averageDate = new Date();
-    var timezoneOffset = averageDate.getTimezoneOffset() * 60000;
-
     if (date === "this_7_days") averageDate.setDate( averageDate.getDate() - Math.round(7 / 2) );
     if (date === "this_14_days") averageDate.setDate( averageDate.getDate() - Math.round(14 / 2) );
     if (date === "this_21_days") averageDate.setDate( averageDate.getDate() - Math.round(21 / 2) );
@@ -488,9 +485,9 @@ function getSunriseSunset(date, start, end){
     if (date === "this_60_days") averageDate.setDate( averageDate.getDate() - Math.round(60 / 2) );
   } else {
     var averageDate = new Date(date.start);
-
-    var timezoneOffset = averageDate.getTimezoneOffset() * 60000;
   }
+
+  var timezoneOffset = (latLon[0] === 40.7127) ? (averageDate.getTimezoneOffset() + 180) * 60000 : averageDate.getTimezoneOffset() * 60000;
   var calculatedTimes = SunCalc.getTimes(averageDate, latLon[0], latLon[1]);
 
   // Convert calculatedTimestamp to hours
