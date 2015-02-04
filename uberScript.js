@@ -483,6 +483,11 @@ function getSpecialDay(input){
       "start" : "2014-11-25T00:00:00.000Z",
       "end" : "2014-12-03T00:00:00.000Z"
     };
+  } else if ( input === 'newyears'){
+    return {
+      "start" : "2014-12-29T00:00:00.000Z",
+      "end" : "2015-01-04T00:00:00.000Z"
+    };
   }
   return input;
 }
@@ -496,6 +501,7 @@ function getSunriseSunset(date, start, end){
     if (date === "this_21_days") averageDate.setDate( averageDate.getDate() - Math.round(21 / 2) );
     if (date === "this_28_days") averageDate.setDate( averageDate.getDate() - Math.round(28 / 2) );
     if (date === "this_60_days") averageDate.setDate( averageDate.getDate() - Math.round(60 / 2) );
+    if (date === "this_183_days") averageDate.setDate( averageDate.getDate() - Math.round(183 / 2) );
   } else {
     var averageDate = new Date(date.start);
   }
