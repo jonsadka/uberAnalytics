@@ -285,7 +285,7 @@ graphRightBottomLegendContainer.selectAll("legendText").data(graphRightBottomLeg
 
 ///////////////////////////////////////////////////////////////////
 //INITIAL RENDER///////////////////////////////////////////////////
-Keen.ready(function(){ 
+Keen.ready(function(){
   getDataandFirstRender(userInputs);
 });
 
@@ -478,10 +478,30 @@ function getSpecialDay(input){
       "start" : "2014-10-27T00:00:00.000Z",
       "end" : "2014-11-03T00:00:00.000Z"
     };
-  } else if ( input === 'thanksgiving'){
+  } else if ( input === 'q4'){
     return {
-      "start" : "2014-11-25T00:00:00.000Z",
-      "end" : "2014-12-03T00:00:00.000Z"
+      "start" : "2014-10-01T00:00:00.000Z",
+      "end" : "2014-12-31T00:00:00.000Z"
+    };
+  } else if ( input === 'january'){
+    return {
+      "start" : "2015-01-01T00:00:00.000Z",
+      "end" : "2015-01-30T00:00:00.000Z"
+    };
+  } else if ( input === 'december'){
+    return {
+      "start" : "2014-12-01T00:00:00.000Z",
+      "end" : "2014-12-31T00:00:00.000Z"
+    };
+  } else if ( input === 'november'){
+    return {
+      "start" : "2014-11-01T00:00:00.000Z",
+      "end" : "2014-11-30T00:00:00.000Z"
+    };
+  } else if ( input === 'october'){
+    return {
+      "start" : "2014-10-01T00:00:00.000Z",
+      "end" : "2014-10-31T00:00:00.000Z"
     };
   } else if ( input === 'newyears'){
     return {
